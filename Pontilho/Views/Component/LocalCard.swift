@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct LocalCard: View {
-    @State var qtdEstrelasCheia: Int = 4
-    @State var qtdEstrelasMeia: Int = 1
-    
+    var cafes: Local
+//    @State var qtdEstrelasCheia: Int = cafes.qtdEstrelasCheias
+//    @State var qtdEstrelasMeia: Int = cafes.qtdEstrelasMeias
+
     var body: some View {
         VStack(spacing: 0){
             
-            Image(.coffeeShop)
+            Image(cafes.image)
                 .resizable()
                 .scaledToFit()
                 .frame(width: UIScreen.main.bounds.width * 0.72)
@@ -34,29 +35,37 @@ struct LocalCard: View {
                         bottomTrailingRadius: 10
                     ))
                 HStack{
-                    Text("Árvore do Pão")
+                    Text(cafes.name)
                         .foregroundColor(.pretinho)
                         .font(.subheadline)
                         .padding(.leading, 10)
                     Spacer()
                     
-                    //TODO: Código para escolher a quantidade de estrelas e espelhar imagens
-                    HStack{
-                        ForEach(0..<qtdEstrelasMeia, id: \.self) { i in
-                            Image(.estrelaMeia)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 20)
+                    //TODO: Código para escolher a quantidade de estrelas e espelhar imagens estrelas
+                    if cafes.jaVisitou == true {
+                        HStack{
+                            ForEach(0..<cafes.qtdEstrelasMeias, id: \.self) { i in
+                                Image(.estrelaMeia)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 20)
                                 
-                        }
-                        ForEach(0..<qtdEstrelasCheia, id: \.self) { i in
-                            Image(.estrelaCheia)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 20)
+                            }
+                            ForEach(0..<cafes.qtdEstrelasCheias, id: \.self) { i in
+                                Image(.estrelaCheia)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 20)
                                 
-                        }
-                    }.padding(.trailing, 7)
+                            }
+                        }.padding(.trailing, 7)
+                    } else {
+                        Image(.estrelaVazia)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
+                            .padding(.trailing, 7)
+                    }
                 }
             }
         }
@@ -70,5 +79,5 @@ struct LocalCard: View {
 }
 
 #Preview {
-    LocalCard()
+    LocalCard(cafes: Local(name: "Árvore do Pão", image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true))
 }

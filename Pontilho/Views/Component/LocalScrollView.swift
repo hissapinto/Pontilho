@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LocalScrollView: View {
-    var imagens: [UIImage] = [.coffeeShop, .coffeeShop2, .coffeeShop3]
+    var cafes: [Local]
 
     var body: some View {
         NavigationStack{
@@ -19,12 +19,20 @@ struct LocalScrollView: View {
                         .padding(.leading, 10)
                     Spacer()
                 }
-                //ScrollView
+                ScrollView(.horizontal) {
+                    HStack{
+                        ForEach(cafes, id: \.id) { i in
+                            if i.jaVisitou == true {
+                                LocalCard(cafes: i)
+                            }
+                        }
+                    }.padding(.leading, 10)
+                }
             }
         }
     }
 }
 
 #Preview {
-    LocalScrollView()
+    LocalScrollView(cafes: cafes)
 }

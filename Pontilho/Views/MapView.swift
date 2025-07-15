@@ -14,7 +14,7 @@ struct Location: Identifiable {
     var coordinate: CLLocationCoordinate2D
 }
 
-struct ContentView: View {
+struct MapView: View {
     @State private var searchText = ""
     let locations = [
         Location(name: "Buckingham Palace", coordinate: CLLocationCoordinate2D(latitude: 51.501, longitude: -0.141)),
@@ -56,5 +56,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(listas: listas)
+    MapView(listas: listas)
 }
