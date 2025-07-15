@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 struct Lista{
+    let id: UUID = UUID()
     var name: String
     var image: String
     var color: UIColor

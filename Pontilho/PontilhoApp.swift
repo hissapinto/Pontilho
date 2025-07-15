@@ -11,7 +11,7 @@ import SwiftUI
 struct PontilhoApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(listas: listas)
         }
     }
 }
