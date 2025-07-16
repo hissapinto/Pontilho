@@ -18,7 +18,7 @@ struct LocalCard: View {
             Image(cafes.image)
                 .resizable()
                 .scaledToFill()
-                .frame(width: UIScreen.main.bounds.width * 0.72, height: 200)
+                .frame(width: UIScreen.main.bounds.width * 0.72, height: 170)
                 .clipped()
                 .clipShape(.rect(
                     topLeadingRadius: 10,

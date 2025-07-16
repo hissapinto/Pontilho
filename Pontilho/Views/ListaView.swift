@@ -10,6 +10,8 @@ import Foundation
 
 struct ListaView: View {
     let listas: Lista
+    let paddingVertical: CGFloat = 15
+    let paddingHorizontal: CGFloat = 15
     
     var body: some View {
         ZStack{
@@ -22,7 +24,13 @@ struct ListaView: View {
                 Rectangle()
                     .frame(width: UIScreen.main.bounds.width * 0.925,  height: 1)
                     .foregroundColor(Color.branquinho)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, paddingVertical)
+                    .padding(.top, -5)
+                Text(listas.description)
+                    .font(.callout)
+                    .padding(.leading, paddingHorizontal)
+                    .padding(.trailing, paddingHorizontal)
+                    .padding(.bottom, paddingVertical)
                 
                 LocalScrollView(listaLocais: cafes)
             }
@@ -31,5 +39,5 @@ struct ListaView: View {
 }
 
 #Preview {
-    ListaView(listas:Lista(name: "Café", image: "Cafe", color: .azulzinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes))
+    ListaView(listas:Lista(name: "Cafezinhos", image: "Cafe", color: .azulzinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes))
 }

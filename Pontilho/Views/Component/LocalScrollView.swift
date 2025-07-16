@@ -10,7 +10,7 @@ import SwiftUI
 struct LocalScrollView: View {
     var listaLocais: [Local]
     var paddingHorizontal: CGFloat = 15
-    var paddingVertical: CGFloat = 20
+    var paddingVertical: CGFloat = 15
     
     var body: some View {
         VStack{

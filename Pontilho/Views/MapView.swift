@@ -17,15 +17,14 @@ struct Location: Identifiable {
 struct MapView: View {
     @State private var searchText = ""
     @State var showDetails: Bool = false
+    var listas: [Lista]
     
     let position = MapCameraPosition.region(
         MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1),
+            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.085),
             span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
         )
     )
-    
-    var listas: [Lista]
     
     var body: some View {
         NavigationStack{
@@ -41,15 +40,20 @@ struct MapView: View {
                                     .foregroundStyle(.white)
                                     .clipShape(.capsule)
                             }
-                            .annotationTitles(.hidden)                }
+                            .annotationTitles(.hidden)
+                        }
                     }
                 }
                 VStack{
+                    if showDetails {
+                        ListaTitle(lista: listas.first!)
+                    }
                     Spacer()
                     ListasScrollView(showDetails: $showDetails, listas: listas)
+                        .padding(.leading, 15)
                 }
             }
-        }.searchable(text: $searchText)
+        }.searchable(text: $searchText, isPresented: $showDetails )
     }
 }
 

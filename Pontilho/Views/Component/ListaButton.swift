@@ -27,13 +27,13 @@ struct ListaButton: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: UIScreen.main.bounds.width * 0.12, height: UIScreen.main.bounds.height * 0.055)
-                    .padding(10)
+                    .padding(7)
                     .background{
                         Color(lista.color)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 7)
                             .stroke(Color.pretinho, lineWidth: 1)
                     )
             }
