@@ -13,12 +13,14 @@ struct Lista{
     var name: String
     var image: String
     var color: UIColor
+    var description: String
+    var locais: [Local]
 }
 
 var listas: [Lista] = [
-    Lista(name: "Café", image: "Cafe", color: .azulzinho),
-    Lista(name: "Favoritos", image: "EstrelaCheia", color: .verdinho),
-    Lista(name: "Docinhos", image: "Docinho", color: .amarelinho),
-    Lista(name: "Cultural", image: "Livros", color: .laranjinha),
-    Lista(name: "Restaurantes", image: "Prato", color: .lilazinho)
+    Lista(name: "Favoritos", image: "EstrelaCheia", color: .verdinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes),
+    Lista(name: "Café", image: "Cafe", color: .azulzinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes),
+    Lista(name: "Docinhos", image: "Docinho", color: .amarelinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes),
+    Lista(name: "Cultural", image: "Livros", color: .laranjinha, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes),
+    Lista(name: "Restaurantes", image: "Prato", color: .lilazinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes)
 ]

@@ -16,40 +16,38 @@ struct Location: Identifiable {
 
 struct MapView: View {
     @State private var searchText = ""
-    let locations = [
-        Location(name: "Buckingham Palace", coordinate: CLLocationCoordinate2D(latitude: 51.501, longitude: -0.141)),
-        Location(name: "Tower of London", coordinate: CLLocationCoordinate2D(latitude: 51.508, longitude: -0.076))
-    ]
+    @State var showDetails: Bool = false
+    
+    let position = MapCameraPosition.region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1),
+            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+        )
+    )
+    
     var listas: [Lista]
     
     var body: some View {
         NavigationStack{
             ZStack{
-                Map {
-                    ForEach(locations) { location in
-                        Annotation(location.name, coordinate: location.coordinate) {
-                            Text(location.name)
-                                .font(.headline)
-                                .padding()
-                                .background(.blue)
-                                .foregroundStyle(.white)
-                                .clipShape(.capsule)
-                        }
-                        .annotationTitles(.hidden)                }
+                Map(initialPosition: position) {
+                    if showDetails{
+                        ForEach(locations) { location in
+                            Annotation(location.name, coordinate: location.coordinate) {
+                                Text(location.name)
+                                    .font(.headline)
+                                    .padding()
+                                    .background(.blue)
+                                    .foregroundStyle(.white)
+                                    .clipShape(.capsule)
+                            }
+                            .annotationTitles(.hidden)                }
+                    }
                 }
                 VStack{
                     Spacer()
-                    ListasScrollView(listas: listas)
+                    ListasScrollView(showDetails: $showDetails, listas: listas)
                 }
-                //            MapReader { proxy in
-                //                Map()
-                //                    .mapStyle(.hybrid)
-                //                    .onTapGesture { position in
-                //                        if let coordinate = proxy.convert(position, from: .local){
-                //                            print(coordinate)
-                //                    }
-                //                }
-                //            }
             }
         }.searchable(text: $searchText)
     }

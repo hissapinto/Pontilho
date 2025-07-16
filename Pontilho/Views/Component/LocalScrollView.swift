@@ -8,31 +8,51 @@
 import SwiftUI
 
 struct LocalScrollView: View {
-    var cafes: [Local]
-
+    var listaLocais: [Local]
+    var paddingHorizontal: CGFloat = 15
+    var paddingVertical: CGFloat = 20
+    
     var body: some View {
-        NavigationStack{
-            VStack{
-                HStack{
-                    Text("A visitar")
-                        .bold()
-                        .padding(.leading, 10)
-                    Spacer()
-                }
-                ScrollView(.horizontal) {
-                    HStack{
-                        ForEach(cafes, id: \.id) { i in
-                            if i.jaVisitou == true {
-                                LocalCard(cafes: i)
-                            }
-                        }
-                    }.padding(.leading, 10)
-                }
+        VStack{
+            HStack(){
+                Text("A visitar")
+                    .bold()
+                    .padding(.leading, paddingHorizontal)
+                Spacer()
             }
+            ScrollView(.horizontal) {
+                HStack(spacing: paddingHorizontal){
+                    ForEach(listaLocais, id: \.id) { i in
+                        if i.jaVisitou == true {
+                            LocalCard(cafes: i)
+                        }
+                    }
+                }.padding(.leading, paddingHorizontal)
+            }
+            .padding(.bottom, paddingVertical)
+            .scrollIndicators(.hidden)
+            
+            HStack{
+                Text("Visitados")
+                    .bold()
+                    .padding(.leading, paddingHorizontal)
+                Spacer()
+            }
+            ScrollView(.horizontal) {
+                HStack(spacing: paddingHorizontal){
+                    ForEach(listaLocais, id: \.id) { i in
+                        if i.jaVisitou == false {
+                            LocalCard(cafes: i)
+                        }
+                    }
+                }.padding(.leading, paddingHorizontal)
+            }
+            .padding(.bottom, paddingVertical)
+            .scrollIndicators(.hidden)
         }
     }
 }
 
 #Preview {
-    LocalScrollView(cafes: cafes)
+    LocalScrollView(listaLocais: cafes)
 }

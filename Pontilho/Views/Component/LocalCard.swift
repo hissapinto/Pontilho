@@ -17,12 +17,13 @@ struct LocalCard: View {
             
             Image(cafes.image)
                 .resizable()
-                .scaledToFit()
-                .frame(width: UIScreen.main.bounds.width * 0.72)
+                .scaledToFill()
+                .frame(width: UIScreen.main.bounds.width * 0.72, height: 200)
+                .clipped()
                 .clipShape(.rect(
                     topLeadingRadius: 10,
-                    topTrailingRadius: 10
-                ))
+                    topTrailingRadius: 10)
+                )
             Rectangle()
                 .frame(height:1)
                 .foregroundColor(Color.pretinho)
@@ -32,8 +33,8 @@ struct LocalCard: View {
                     .foregroundColor(Color.branquinho)
                     .clipShape(.rect(
                         bottomLeadingRadius: 10,
-                        bottomTrailingRadius: 10
-                    ))
+                        bottomTrailingRadius: 10)
+                    )
                 HStack{
                     Text(cafes.name)
                         .foregroundColor(.pretinho)

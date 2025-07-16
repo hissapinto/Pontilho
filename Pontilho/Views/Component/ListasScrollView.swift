@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct ListasScrollView: View {
+    @Binding var showDetails: Bool
     var listas: [Lista]
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack{
                 ForEach(listas, id: \.id) { i in
-                    ListaCard(lista: i)
+                    ListaButton(lista: i, showDetails: $showDetails)
                 }
             }.padding(.leading, 10)
         }
@@ -22,5 +23,5 @@ struct ListasScrollView: View {
 }
 
 #Preview {
-    ListasScrollView(listas: listas)
+    ListasScrollView(showDetails: .constant(false), listas: listas)
 }
