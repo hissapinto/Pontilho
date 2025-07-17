@@ -19,6 +19,7 @@ struct MapView: View {
     @State var showDetails: Bool = false
     @State var lista: Lista
     @State var locais: [Local]
+    @State var selectedLocation: Local?
     
     let startPosition = MapCameraPosition.region(
         MKCoordinateRegion(
@@ -36,9 +37,11 @@ struct MapView: View {
                             ForEach(lista.locais) { item in
                                 Annotation(item.name, coordinate: item.coordinate){
                                     LocalPoint(cor: lista.color)
+                                        .onLongPressGesture {
+                                            selectedLocation = item
+                                        }
                                 }
                             }
-                            
                         }
                     }
                     
@@ -49,21 +52,28 @@ struct MapView: View {
                             
                         }
                     }
+                    .sheet(item: $selectedLocation) { place in
+                        EditView(local: place) { newLocal in
+                            if let index = locais.firstIndex(of: place) {
+                                locais[index] = newLocal
+                            }
+                        }
+                    }
                 }
                 VStack{
                     if showDetails {
-                        ListaTitle(lista: listas.first!)
+                        ListaTitle(lista: lista)
                     }
                     Spacer()
                     ListasScrollView(showDetails: $showDetails, listas: listas)
                         .padding(.leading, 15)
                 }
             }
-        }.searchable(text: $searchText, isPresented: $showDetails )
+        }.searchable(text: $searchText)
     }
 }
 
 
 #Preview {
-    MapView(lista: Lista(name: "Favoritos", image: "EstrelaCheia", color: .verdinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes), locais: cafes)
+    MapView(lista: .exemploLista, locais: cafes)
 }

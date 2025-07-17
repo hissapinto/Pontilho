@@ -22,6 +22,7 @@ struct LocalPoint: View {
                     )
                 Circle()
                     .frame(width: 12, height: 12)
+                
             }
     }
 }

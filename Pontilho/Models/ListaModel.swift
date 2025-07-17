@@ -8,13 +8,15 @@
 import Foundation
 import SwiftUI
 
-struct Lista: Identifiable {
+struct Lista: Equatable, Identifiable {
     let id: UUID = UUID()
     var name: String
     var image: String
     var color: UIColor
     var description: String
     var locais: [Local]
+    
+    static var exemploLista = Lista(name: "Cafezinhos", image: "Cafe", color: .azulzinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes)
 }
 
 var listas: [Lista] = [

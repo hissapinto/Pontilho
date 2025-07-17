@@ -12,7 +12,7 @@ import MapKit
 
 
 struct Local: Equatable, Identifiable{
-    let id: UUID
+    var id: UUID
     var name: String
     var latitude: Double
     var longitude: Double
@@ -27,6 +27,8 @@ struct Local: Equatable, Identifiable{
     static func ==(loc1: Local, loc2: Local) -> Bool {
         loc1.id == loc2.id
     }
+    
+    static var exemploLocal = Local(id: UUID(), name: "Árvore do Pão", latitude: -23.5527, longitude: -46.6513, image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true)
 }
 
 #if DEBUG
@@ -37,16 +39,3 @@ struct Local: Equatable, Identifiable{
         Local(id: UUID(), name: "Waku Waku",latitude: -23.5416, longitude: -46.6552, image: "CoffeeShop4")
     ]
 #endif
-
-//let locations = [
-//    Location(name: "Buckingham Palace", coordinate: CLLocationCoordinate2D(latitude: 51.501, longitude: -0.141)),
-//    Location(name: "Tower of London", coordinate: CLLocationCoordinate2D(latitude: 51.508, longitude: -0.076))
-//]
-//
-//let position = MapCameraPosition.region(
-//    MKCoordinateRegion(
-//        center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
-//        span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1)
-//    )
-//)
-

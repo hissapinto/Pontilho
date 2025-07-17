@@ -39,5 +39,5 @@ struct ListaView: View {
 }
 
 #Preview {
-    ListaView(listas:Lista(name: "Cafezinhos", image: "Cafe", color: .azulzinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes))
+    ListaView(listas: .exemploLista)
 }
