@@ -17,30 +17,36 @@ struct Location: Identifiable {
 struct MapView: View {
     @State private var searchText = ""
     @State var showDetails: Bool = false
-    var listas: [Lista]
+    @State var lista: Lista
+    @State var locais: [Local]
     
-    let position = MapCameraPosition.region(
+    let startPosition = MapCameraPosition.region(
         MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.085),
-            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+            center: CLLocationCoordinate2D(latitude: -23.55, longitude: -46.653),
+            span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
         )
     )
     
     var body: some View {
         NavigationStack{
             ZStack{
-                Map(initialPosition: position) {
-                    if showDetails{
-                        ForEach(locations) { location in
-                            Annotation(location.name, coordinate: location.coordinate) {
-                                Text(location.name)
-                                    .font(.headline)
-                                    .padding()
-                                    .background(.blue)
-                                    .foregroundStyle(.white)
-                                    .clipShape(.capsule)
+                MapReader { proxy in
+                    Map(initialPosition: startPosition) {
+                        if showDetails {
+                            ForEach(lista.locais) { item in
+                                Annotation(item.name, coordinate: item.coordinate){
+                                    LocalPoint(cor: lista.color)
+                                }
                             }
-                            .annotationTitles(.hidden)
+                            
+                        }
+                    }
+                    
+                    .onTapGesture { position in
+                        if let coordinate = proxy.convert(position, from: .local) {
+                            let newLocation = Local(id: UUID(), name: "Novo Local", latitude: coordinate.latitude, longitude: coordinate.longitude)
+                            lista.locais.append(newLocation)
+                            
                         }
                     }
                 }
@@ -57,6 +63,7 @@ struct MapView: View {
     }
 }
 
+
 #Preview {
-    MapView(listas: listas)
+    MapView(lista: Lista(name: "Favoritos", image: "EstrelaCheia", color: .verdinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes), locais: cafes)
 }

@@ -24,7 +24,7 @@ struct LocalScrollView: View {
                 HStack(spacing: paddingHorizontal){
                     ForEach(listaLocais, id: \.id) { i in
                         if i.jaVisitou == true {
-                            LocalCard(cafes: i)
+                            LocalCard(local: i)
                         }
                     }
                 }.padding(.leading, paddingHorizontal)
@@ -42,7 +42,7 @@ struct LocalScrollView: View {
                 HStack(spacing: paddingHorizontal){
                     ForEach(listaLocais, id: \.id) { i in
                         if i.jaVisitou == false {
-                            LocalCard(cafes: i)
+                            LocalCard(local: i)
                         }
                     }
                 }.padding(.leading, paddingHorizontal)

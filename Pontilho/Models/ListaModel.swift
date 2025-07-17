@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Lista{
+struct Lista: Identifiable {
     let id: UUID = UUID()
     var name: String
     var image: String
@@ -27,3 +27,5 @@ var listas: [Lista] = [
 
 
 // fazer um enum ou algo que relacione a posição na lista com o botão a ser clicado que seja escalável (o usuário pode fazer N listas)
+// faço uma lista de listas ou uma lista só com uma variável para identificar qual "lista" o local está e conseguir filtrar na hora de aparecer no mapa?
+

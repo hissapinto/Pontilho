@@ -11,7 +11,7 @@ import SwiftUI
 struct PontilhoApp: App {
     var body: some Scene {
         WindowGroup {
-            MapView(listas: listas)
+            MapView(lista: Lista(name: "Favoritos", image: "EstrelaCheia", color: .verdinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes), locais: cafes)
         }
     }
 }

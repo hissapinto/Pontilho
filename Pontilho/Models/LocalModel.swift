@@ -11,30 +11,42 @@ import SwiftUI
 import MapKit
 
 
-struct Local{
-    let id: UUID = UUID()
+struct Local: Equatable, Identifiable{
+    let id: UUID
     var name: String
-    var image: String
-    var qtdEstrelasCheias: Int
-    var qtdEstrelasMeias: Int
+    var latitude: Double
+    var longitude: Double
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: self.latitude, longitude: self.longitude)
+    }
+    var image: String = ""
+    var qtdEstrelasCheias: Int = 0
+    var qtdEstrelasMeias: Int = 0
     var jaVisitou: Bool = false
+    
+    static func ==(loc1: Local, loc2: Local) -> Bool {
+        loc1.id == loc2.id
+    }
 }
 
-var cafes: [Local] = [
-    Local(name: "Árvore do Pão", image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true),
-    Local(name: "Café legal", image: "CoffeeShop2", qtdEstrelasCheias: 3, qtdEstrelasMeias: 1, jaVisitou: true),
-    Local(name: "Delícias da vovó", image: "CoffeeShop3", qtdEstrelasCheias: 0, qtdEstrelasMeias: 0),
-    Local(name: "Apenas um café", image: "CoffeeShop4", qtdEstrelasCheias: 0, qtdEstrelasMeias: 0)
-]
+#if DEBUG
+    let cafes: [Local] = [
+        Local(id: UUID(), name: "Árvore do Pão", latitude: -23.5527, longitude: -46.6513, image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true),
+        Local(id: UUID(), name: "Lógico café", latitude: -23.5445, longitude: -46.6514, image: "CoffeeShop2", qtdEstrelasCheias: 3, qtdEstrelasMeias: 1, jaVisitou: true),
+        Local(id: UUID(), name: "Naïf Café",latitude: -23.5405, longitude: -46.6508, image: "CoffeeShop3"),
+        Local(id: UUID(), name: "Waku Waku",latitude: -23.5416, longitude: -46.6552, image: "CoffeeShop4")
+    ]
+#endif
 
-let locations = [
-    Location(name: "Buckingham Palace", coordinate: CLLocationCoordinate2D(latitude: 51.501, longitude: -0.141)),
-    Location(name: "Tower of London", coordinate: CLLocationCoordinate2D(latitude: 51.508, longitude: -0.076))
-]
+//let locations = [
+//    Location(name: "Buckingham Palace", coordinate: CLLocationCoordinate2D(latitude: 51.501, longitude: -0.141)),
+//    Location(name: "Tower of London", coordinate: CLLocationCoordinate2D(latitude: 51.508, longitude: -0.076))
+//]
+//
+//let position = MapCameraPosition.region(
+//    MKCoordinateRegion(
+//        center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
+//        span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1)
+//    )
+//)
 
-let position = MapCameraPosition.region(
-    MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 51.507222, longitude: -0.1275),
-        span: MKCoordinateSpan(latitudeDelta: 1, longitudeDelta: 1)
-    )
-)

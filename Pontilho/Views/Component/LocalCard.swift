@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct LocalCard: View {
-    var cafes: Local
+    var local: Local
 //    @State var qtdEstrelasCheia: Int = cafes.qtdEstrelasCheias
 //    @State var qtdEstrelasMeia: Int = cafes.qtdEstrelasMeias
 
     var body: some View {
         VStack(spacing: 0){
             
-            Image(cafes.image)
+            Image(local.image)
                 .resizable()
                 .scaledToFill()
                 .frame(width: UIScreen.main.bounds.width * 0.72, height: 170)
@@ -36,23 +36,23 @@ struct LocalCard: View {
                         bottomTrailingRadius: 10)
                     )
                 HStack{
-                    Text(cafes.name)
+                    Text(local.name)
                         .foregroundColor(.pretinho)
                         .font(.subheadline)
                         .padding(.leading, 10)
                     Spacer()
                     
                     //TODO: Código para escolher a quantidade de estrelas e espelhar imagens estrelas
-                    if cafes.jaVisitou == true {
+                    if local.jaVisitou == true {
                         HStack{
-                            ForEach(0..<cafes.qtdEstrelasMeias, id: \.self) { i in
+                            ForEach(0..<local.qtdEstrelasMeias, id: \.self) { i in
                                 Image(.estrelaMeia)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 20)
                                 
                             }
-                            ForEach(0..<cafes.qtdEstrelasCheias, id: \.self) { i in
+                            ForEach(0..<local.qtdEstrelasCheias, id: \.self) { i in
                                 Image(.estrelaCheia)
                                     .resizable()
                                     .scaledToFit()
@@ -80,5 +80,5 @@ struct LocalCard: View {
 }
 
 #Preview {
-    LocalCard(cafes: Local(name: "Árvore do Pão", image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true))
+    LocalCard(local: Local(id: UUID(), name: "Árvore do Pão", latitude: 0, longitude: 0, image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true))
 }
