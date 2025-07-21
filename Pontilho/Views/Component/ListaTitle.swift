@@ -11,23 +11,27 @@ struct ListaTitle: View {
     var lista: Lista
     
     var body: some View {
-        VStack{
-            ZStack{
-                RoundedRectangle(cornerRadius: 7)
-                    .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
-                    .foregroundColor(Color(lista.color))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 7)
-                            .stroke(Color.pretinho, lineWidth: 1)
-                    )
-                    .padding(.top, 10)
-                Text(lista.name)
-                    .padding(.top, 7)
-                    .font(.system(.title, design: .serif, weight: .heavy))
-                    .italic()
+        NavigationLink{
+            ListaView(listas: lista)
+        } label: {
+            VStack{
+                ZStack{
+                    RoundedRectangle(cornerRadius: 7)
+                        .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
+                        .foregroundColor(Color(lista.color))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 7)
+                                .stroke(Color.pretinho, lineWidth: 1)
+                        )
+                        .padding(.top, 10)
+                    Text(lista.name)
+                        .padding(.top, 7)
+                        .font(.system(.title, design: .serif, weight: .heavy))
+                        .italic()
+                }
+                //Spacer()
             }
-            //Spacer()
-        }
+        }.foregroundColor(.pretinho)
     }
 }
 
