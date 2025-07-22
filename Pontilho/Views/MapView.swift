@@ -20,7 +20,7 @@ struct MapView: View {
     @State var lista: Lista
     @State var locais: [Local]
     @State var selectedLocation: Local?
-
+    
     let locationManager = CLLocationManager()
     
     var startPosition = MapCameraPosition.region(
@@ -30,23 +30,64 @@ struct MapView: View {
         )
     )
     
+    //QUERIA QUE A PESQUISA APARECESSE NA MINHA REGIÃO
+    //TESTE BUSCA CAFE
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var seachResults: [MKMapItem] = []
+    
+    private func findCity() async -> MKMapItem? { //trabsforma func em pega r pos usuário
+        let request = MKLocalSearch.Request()
+//        request.region = MKCoordinateRegion(center: MKUserLocation().coordinate, span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
+        
+        request.naturalLanguageQuery = "São Paulo"
+        
+        request.addressFilter = MKAddressFilter(
+            including: .locality)
+        let search = MKLocalSearch(request: request)
+        let response = try? await search.start()
+        return response?.mapItems.first
+    }
+    
+    private func search(for query: String, in city: MKMapItem) async -> [MKMapItem] {
+            let request = MKLocalSearch.Request()
+            request.naturalLanguageQuery = "coffee"
+            let downtown = MKCoordinateRegion(
+                center: city.placemark.coordinate,
+                span: .init(latitudeDelta: 0.1,
+                            longitudeDelta: 0.1)
+            )
+            request.region = downtown
+            request.regionPriority = .required
+            let search = MKLocalSearch(request: request)
+            let response = try? await search.start()
+            return response?.mapItems ?? []
+        }
+    
     var body: some View {
         NavigationStack{
             ZStack{
                 MapReader { proxy in
-                    Map(initialPosition: startPosition) {
+                    //                    Map(initialPosition: startPosition) {
+                    Map(position: $position) {
+                        //                        if showDetails {
+                        //                            ForEach(lista.locais) { item in
+                        //                                Annotation(item.name, coordinate: item.coordinate){
+                        //                                    LocalPoint(cor: lista.color)
+                        //                                        .onTapGesture {
+                        //                                            selectedLocation = item
+                        //                                        }
+                        //                                }
+                        //                            }
+                        //                        }
+                        //                        UserAnnotation()
                         if showDetails {
-                            ForEach(lista.locais) { item in
-                                Annotation(item.name, coordinate: item.coordinate){
-                                    LocalPoint(cor: lista.color)
-                                        .onTapGesture {
-                                            selectedLocation = item
-                                        }
-                                }
+                            ForEach(seachResults, id: \.self) { cafe in
+                                Marker(item: cafe)
                             }
+                            //                        .mapItemDetailSelectionAccessory()
                         }
-                        UserAnnotation()
                     }
+                    
                     //Códigos que influenciam o mapa:
                     .tint(.gray)
                     .onAppear { //permitir loc usuário
@@ -56,7 +97,7 @@ struct MapView: View {
                         if let coordinate = proxy.convert(position, from: .local) {
                             let newLocation = Local(id: UUID(), name: "Novo Local", latitude: coordinate.latitude, longitude: coordinate.longitude)
                             lista.locais.append(newLocation)
-
+                            
                         }
                     }
                     .mapControls { //Botões do mapa
@@ -64,6 +105,12 @@ struct MapView: View {
                         MapCompass()
                         MapPitchToggle()
                         MapScaleView()
+                    }
+                    .task {
+                        guard let SaoPaulo = await findCity() else {
+                            return
+                        }
+                        seachResults = await search(for: searchText, in: SaoPaulo)
                     }
                     .sheet(item: $selectedLocation) { item in
                         EditView(local: item) { newLocal in
