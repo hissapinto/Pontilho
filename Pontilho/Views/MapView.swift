@@ -20,6 +20,7 @@ struct MapView: View {
     @State var lista: Lista
     @State var locais: [Local]
     @State var selectedLocation: Local?
+    @State var userCity: String = "São Paulo"
     
     let locationManager = CLLocationManager()
     
@@ -35,11 +36,11 @@ struct MapView: View {
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var seachResults: [MKMapItem] = []
     
-    private func findCity() async -> MKMapItem? { //trabsforma func em pega r pos usuário
+    private func findCity() async -> MKMapItem? { //trabsforma func em pega a posiçao do usuário
         let request = MKLocalSearch.Request()
 //        request.region = MKCoordinateRegion(center: MKUserLocation().coordinate, span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
         
-        request.naturalLanguageQuery = "São Paulo"
+        request.naturalLanguageQuery = userCity
         
         request.addressFilter = MKAddressFilter(
             including: .locality)
@@ -50,15 +51,19 @@ struct MapView: View {
     
     private func search(for query: String, in city: MKMapItem) async -> [MKMapItem] {
             let request = MKLocalSearch.Request()
-            request.naturalLanguageQuery = "coffee"
+            request.naturalLanguageQuery = query
+        
             let downtown = MKCoordinateRegion(
                 center: city.placemark.coordinate,
                 span: .init(latitudeDelta: 0.1,
                             longitudeDelta: 0.1)
             )
+        
             request.region = downtown
             request.regionPriority = .required
+        
             let search = MKLocalSearch(request: request)
+            
             let response = try? await search.start()
             return response?.mapItems ?? []
         }
@@ -80,12 +85,12 @@ struct MapView: View {
                         //                            }
                         //                        }
                         //                        UserAnnotation()
-                        if showDetails {
+//                        if showDetails {
                             ForEach(seachResults, id: \.self) { cafe in
                                 Marker(item: cafe)
                             }
                             //                        .mapItemDetailSelectionAccessory()
-                        }
+//                        }
                     }
                     
                     //Códigos que influenciam o mapa:
@@ -106,12 +111,6 @@ struct MapView: View {
                         MapPitchToggle()
                         MapScaleView()
                     }
-                    .task {
-                        guard let SaoPaulo = await findCity() else {
-                            return
-                        }
-                        seachResults = await search(for: searchText, in: SaoPaulo)
-                    }
                     .sheet(item: $selectedLocation) { item in
                         EditView(local: item) { newLocal in
                             if let index = locais.firstIndex(of: item) {
@@ -127,6 +126,15 @@ struct MapView: View {
                     Spacer()
                     ListasScrollView(showDetails: $showDetails, listas: listas)
                         .padding(.leading, 15)
+                }
+            }
+            .onChange(of: searchText) {
+                Task {
+                    guard let SaoPaulo = await findCity() else {
+                        return
+                    }
+                    
+                    seachResults = await search(for: searchText, in: SaoPaulo)
                 }
             }
         }.searchable(text: $searchText)
