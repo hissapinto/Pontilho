@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 
 struct LocalPoint: View {
-    var cor: UIColor
+    var cor: String
     
     var body: some View {
         ZStack{
@@ -28,5 +28,5 @@ struct LocalPoint: View {
 }
 
 #Preview {
-    LocalPoint(cor: .azulzinho)
+    LocalPoint(cor: "azulzinho")
 }

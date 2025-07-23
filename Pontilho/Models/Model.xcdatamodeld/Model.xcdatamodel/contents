@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Lista" representedClassName="Lista" syncable="YES" codeGenerationType="class">
+        <attribute name="color" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="locais" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Local" inverseName="lista" inverseEntity="Local"/>
+    </entity>
+    <entity name="Local" representedClassName="Local" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="lista" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Lista" inverseName="locais" inverseEntity="Lista"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="comma"/>
+                <constraint value="separated"/>
+                <constraint value="properties"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+</model>

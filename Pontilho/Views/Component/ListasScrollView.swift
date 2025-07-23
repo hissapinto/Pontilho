@@ -1,27 +1,27 @@
+////
+////  ListasScrollView.swift
+////  Pontilho
+////
+////  Created by Isabela Hissa Pinto on 15/07/25.
+////
 //
-//  ListasScrollView.swift
-//  Pontilho
+//import SwiftUI
 //
-//  Created by Isabela Hissa Pinto on 15/07/25.
+//struct ListasScrollView: View {
+//    @Binding var showDetails: Bool
+//    var listas: [Lista]
+//    
+//    var body: some View {
+//        ScrollView(.horizontal) {
+//            HStack{
+//                ForEach(listas, id: \.id) { i in
+//                    ListaButton(lista: i, showDetails: $showDetails)
+//                }
+//            }.padding(.leading, 10)
+//        }
+//    }
+//}
 //
-
-import SwiftUI
-
-struct ListasScrollView: View {
-    @Binding var showDetails: Bool
-    var listas: [Lista]
-    
-    var body: some View {
-        ScrollView(.horizontal) {
-            HStack{
-                ForEach(listas, id: \.id) { i in
-                    ListaButton(lista: i, showDetails: $showDetails)
-                }
-            }.padding(.leading, 10)
-        }
-    }
-}
-
-#Preview {
-    ListasScrollView(showDetails: .constant(false), listas: listas)
-}
+//#Preview {
+//    ListasScrollView(showDetails: .constant(false), listas: listas)
+//}

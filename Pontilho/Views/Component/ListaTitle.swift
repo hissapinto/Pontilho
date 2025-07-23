@@ -18,13 +18,13 @@ struct ListaTitle: View {
                 ZStack{
                     RoundedRectangle(cornerRadius: 7)
                         .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
-                        .foregroundColor(Color(lista.color))
+                        .foregroundColor(Color(lista.color!))
                         .overlay(
                             RoundedRectangle(cornerRadius: 7)
                                 .stroke(Color.pretinho, lineWidth: 1)
                         )
                         .padding(.top, 10)
-                    Text(lista.name)
+                    Text(lista.name!)
                         .padding(.top, 7)
                         .font(.system(.title, design: .serif, weight: .heavy))
                         .italic()

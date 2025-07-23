@@ -54,5 +54,5 @@ struct LocalScrollView: View {
 }
 
 #Preview {
-    LocalScrollView(listaLocais: cafes)
+    LocalScrollView(listaLocais: lista)
 }

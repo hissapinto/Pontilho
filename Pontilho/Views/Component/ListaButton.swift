@@ -11,11 +11,6 @@ import MapKit
 struct ListaButton: View {
     var lista: Lista
     
-    //teste
-    let locations = [
-        Location(name: "Buckingham Palace", coordinate: CLLocationCoordinate2D(latitude: 51.501, longitude: -0.141)),
-        Location(name: "Tower of London", coordinate: CLLocationCoordinate2D(latitude: 51.508, longitude: -0.076))
-    ]
     @Binding var showDetails: Bool
     
     var body: some View{
@@ -23,13 +18,13 @@ struct ListaButton: View {
             showDetails.toggle()
              } label: {
             ZStack{
-                Image(lista.image)
+                Image(lista.image!)
                     .resizable()
                     .scaledToFit()
                     .frame(width: UIScreen.main.bounds.width * 0.12, height: UIScreen.main.bounds.height * 0.055)
                     .padding(7)
                     .background{
-                        Color(lista.color)
+                        Color(lista.color!)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .overlay(
