@@ -12,22 +12,25 @@ import MapKit
 struct MapView: View {
     @State private var searchText = ""
     @ObservedObject var cdViewModel = CDViewModel()
-    
     @State var showDetails: Bool = false
-    @State var selectedLocation: Local?
+    @State var selectedLocation: MKPlacemark?
     
     let locationManager = CLLocationManager() //pra pegar a loc do usuário
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     
-//    var startPosition = MapCameraPosition.region(
-//        MKCoordinateRegion(
-//            center: CLLocationCoordinate2D(
-//                latitude: -23.55,
-//                longitude: -46.653
-//            ),
-//            span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
-//        )
-//    )
+    init() {
+        
+    }
+    
+    //    var startPosition = MapCameraPosition.region(
+    //        MKCoordinateRegion(
+    //            center: CLLocationCoordinate2D(
+    //                latitude: -23.55,
+    //                longitude: -46.653
+    //            ),
+    //            span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
+    //        )
+    //    )
     
     //QUERIA QUE A PESQUISA APARECESSE NA MINHA REGIÃO
     //TESTE BUSCA CAFE
@@ -70,62 +73,74 @@ struct MapView: View {
         return response?.mapItems ?? []
     }
     
+    @State var locais: [LocalModel] = []
+    
     var body: some View {
         NavigationStack{
             ZStack{
                 MapReader { proxy in
-                    Map(position: $position) {
+                    Map(position: $position, selection: $selectedLocation) {
                         if showDetails {
-                            ForEach(cdViewModel.locais) { item in
+                            ForEach(locais) { item in
                                 Annotation(item.name, coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
-//                                    LocalPoint(cor: .azulzinho)
-                                    }
+                                    LocalPoint(localType: .coffee)
+                                    //                                        .onTapGesture {
+                                    //                                            selectedLocation = item
+                                    //                                        }
                                 }
                             }
-                            //                            ForEach(listaViewModel.first?.listas.locais) { item in
-                            //                                Annotation(item.name, coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
-                            //                                    LocalPoint(cor: UIColor(item.color))
-                            //                                        .onTapGesture {
-                            //                                            selectedLocation = item
-                            //                                        }
-                            //                                }
-                            //                            }
+                        }
                         
-                        
-//                        UserAnnotation()
+                        //                        UserAnnotation()
+                        //Mostra os resultados pesquisa
                         ForEach(searchResults, id: \.self) { item in
                             Marker(item: item)
                         }
+                        .sheet(item: )
                     }
                     
                     //Códigos que influenciam o mapa:
                     .tint(.gray)
-                    .onAppear { //permitir loc usuário
+                    .onAppear { //pedir loc usuário
                         locationManager.requestWhenInUseAuthorization()
                     }
                     .onTapGesture { position in //Salvar novo local
                         if let coordinate = proxy.convert(position, from: .local) {
-                            let newLocation = CDViewModel.createLocal(name: "novo local", latitude: coordinate.longitude, longitude: coordinate.latitude, type: LocalEnum.coffee.rawValue)
-                            print(CDViewModel.locais)
+                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.longitude, longitude: coordinate.latitude, type: LocalEnum.coffee.rawValue)
+//                            locais.append(LocalModel(id: UUID(), name: "", latitude: coordinate.latitude, longitude: coordinate.longitude))
+                            //                            locais.append(newLocation)
+                            print(newLocation)
                         }
                     }
-//                    .mapControls { //Botões do mapa
-//                        MapUserLocationButton()
-//                        MapCompass()
-//                        MapPitchToggle()
-//                        MapScaleView()
+                    .mapControls { //Botões do mapa
+                        MapUserLocationButton()
+                        MapCompass()
+                        MapPitchToggle()
+                        MapScaleView()
+                    }
+//                    .sheet(item: $selectedLocation) //{ item in
+//                        EditView(local: item) { newLocal in
+//                            if let index = CDViewModel.getLista().locais.firstIndex(of: item) {
+//                                locais[index] = newLocal
+//                            }
+//                        }
 //                    }
-                    //                    .sheet(item: $selectedLocation) { item in
-                    //                        EditView(local: item) { newLocal in
-                    //                            if let index = listaViewModel.getLista().locais.firstIndex(of: item) {
-                    //                                locais[index] = newLocal
-                    //                            }
-                    //                        }
+                }
+                VStack{
+                    if showDetails {
+                        ListaTitle(localType: .coffee)
+                    }
+                    Spacer()
+                    ListasScrollView(showDetails: $showDetails)
+                        .padding(.leading, 15)
                 }
             }
         }
         .onAppear() {
-            CDViewModel.getLocal()
+            cdViewModel.getLocal()
+            for i in cdViewModel.locais {
+                locais.append(LocalModel(id: i.id ?? UUID(), name: i.name ?? "", latitude: i.latitude, longitude: i.longitude))
+            }
         }
         .onChange(of: searchText) {
             Task {
@@ -135,17 +150,11 @@ struct MapView: View {
                 
                 searchResults = await search(for: searchText, in: SaoPaulo)
             }
-//            VStack{
-//                if showDetails {
-//                    ListaTitle(lista: selectedLista)
-//                }
-//                Spacer()
-//                                    ListasScrollView(showDetails: $showDetails, listas: listaViewModel.getLista())
-//                                        .padding(.leading, 15)
-//            }
+            
         }
         .searchable(text: $searchText)
     }
+    
 }
 
 #Preview {

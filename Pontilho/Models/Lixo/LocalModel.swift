@@ -6,26 +6,20 @@
 ////
 //
 //
-//import Foundation
-//import SwiftUI
-//import MapKit
+import Foundation
+import SwiftUI
+import MapKit
 //
 //
-//struct Local: Equatable, Identifiable{
-//    var id: UUID
-//    var name: String
-//    var latitude: Double
-//    var longitude: Double
-//    var coordinate: CLLocationCoordinate2D {
-//        CLLocationCoordinate2D(latitude: self.latitude, longitude: self.longitude)
-//    }
-//    var image: String = ""
-//    var qtdEstrelasCheias: Int = 0
-//    var qtdEstrelasMeias: Int = 0
-//    var jaVisitou: Bool = false
-//    
-//    static var exemploLocal = Local(id: UUID(), name: "Árvore do Pão", latitude: -23.5527, longitude: -46.6513, image: "CoffeeShop", qtdEstrelasCheias: 4, qtdEstrelasMeias: 1, jaVisitou: true)
-//}
+struct LocalModel: Identifiable{
+    var id: UUID
+    var name: String
+    var latitude: Double
+    var longitude: Double
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: self.latitude, longitude: self.longitude)
+    }    
+}
 //
 //#if DEBUG
 //    let cafes: [Local] = [

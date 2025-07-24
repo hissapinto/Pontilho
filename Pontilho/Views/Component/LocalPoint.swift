@@ -9,13 +9,13 @@ import SwiftUI
 import MapKit
 
 struct LocalPoint: View {
-//    var cor: String
-    
+    var localType: LocalEnum
+
     var body: some View {
         ZStack{
             Circle()
                 .frame(width: 20, height: 20)
-                .foregroundColor(.azulzinho)//Color(cor))
+                .foregroundColor(localType.color)//Color(cor))
                 .overlay(
                     Circle()
                         .stroke(Color.pretinho, lineWidth: 1)
@@ -28,5 +28,5 @@ struct LocalPoint: View {
 }
 
 #Preview {
-    LocalPoint()//cor: "azulzinho")
+    LocalPoint(localType: .coffee)
 }

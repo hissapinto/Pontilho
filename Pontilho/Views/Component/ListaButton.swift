@@ -12,7 +12,7 @@ struct ListaButton: View {
     @Binding var showDetails: Bool
     @ObservedObject var cdViewModel = CDViewModel()
     
-    var localType: LocalEnum
+    let localType: LocalEnum
     
     var body: some View{
         Button {

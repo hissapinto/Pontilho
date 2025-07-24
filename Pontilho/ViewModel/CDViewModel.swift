@@ -16,9 +16,10 @@ class CDViewModel: ObservableObject {
         locais = CoreDataController.shared.fetchLocais()
     }
     
-    func createLocal(name: String, latitude: Double, longitude: Double, type: String) {
+    func createLocal(name: String, latitude: Double, longitude: Double, type: String) -> Local {
         let result = CoreDataController.shared.createLocais(id: UUID(), name: name, latitude: latitude, longitude: longitude, type: type)
         self.locais.append(result)
+        return result
     }
     
     func deleteLocal(_ local: Local) {
