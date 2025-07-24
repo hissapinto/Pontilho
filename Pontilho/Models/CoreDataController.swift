@@ -9,9 +9,9 @@ import Foundation
 import CoreData
 import MapKit
 
-class LocalCoreDataController: ObservableObject {
+class CoreDataController: ObservableObject {
     
-    public static let shared = LocalCoreDataController()
+    public static let shared = CoreDataController()
     
     private let persistentContainer: NSPersistentContainer
     public var viewContext: NSManagedObjectContext {
@@ -37,14 +37,14 @@ class LocalCoreDataController: ObservableObject {
         }
     }
     
-    func createLocais(id: UUID, name: String, latitude: Double, longitude: Double, lista: Lista) -> Local {
+    func createLocais(id: UUID, name: String, latitude: Double, longitude: Double, type: String) -> Local {
         let local = Local(context: viewContext)
         
         local.id = UUID()
         local.name = name
         local.latitude = latitude
         local.longitude = longitude
-        lista.addToLocais(local)
+        local.type = type
         
         saveContext()
         return local

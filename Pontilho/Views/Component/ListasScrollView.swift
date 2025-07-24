@@ -1,27 +1,29 @@
-////
-////  ListasScrollView.swift
-////  Pontilho
-////
-////  Created by Isabela Hissa Pinto on 15/07/25.
-////
 //
-//import SwiftUI
+//  ListasScrollView.swift
+//  Pontilho
 //
-//struct ListasScrollView: View {
-//    @Binding var showDetails: Bool
-//    var listas: [Lista]
-//    
-//    var body: some View {
-//        ScrollView(.horizontal) {
-//            HStack{
-//                ForEach(listas, id: \.id) { i in
-//                    ListaButton(lista: i, showDetails: $showDetails)
-//                }
-//            }.padding(.leading, 10)
-//        }
-//    }
-//}
+//  Created by Isabela Hissa Pinto on 15/07/25.
 //
-//#Preview {
-//    ListasScrollView(showDetails: .constant(false), listas: listas)
-//}
+
+import SwiftUI
+
+struct ListasScrollView: View {
+    @Binding var showDetails: Bool
+    
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack{
+                ListaButton(showDetails: $showDetails, localType: LocalEnum.park)
+                ListaButton(showDetails: $showDetails, localType: LocalEnum.coffee)
+                ListaButton(showDetails: $showDetails, localType: LocalEnum.culture)
+                ListaButton(showDetails: $showDetails, localType: LocalEnum.restaurant)
+                ListaButton(showDetails: $showDetails, localType: LocalEnum.sweet)
+            }
+        }.padding(.leading, 10)
+    }
+}
+
+
+#Preview {
+    ListasScrollView(showDetails: .constant(false))
+}

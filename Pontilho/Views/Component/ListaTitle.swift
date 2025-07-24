@@ -8,23 +8,24 @@
 import SwiftUI
 
 struct ListaTitle: View {
-    var lista: Lista
+    var localType: LocalEnum
+
     
     var body: some View {
         NavigationLink{
-            ListaView(listas: lista)
+//            ListaView(listas: lista)
         } label: {
             VStack{
                 ZStack{
                     RoundedRectangle(cornerRadius: 7)
                         .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
-                        .foregroundColor(Color(lista.color!))
+                        .foregroundColor(localType.color)
                         .overlay(
                             RoundedRectangle(cornerRadius: 7)
                                 .stroke(Color.pretinho, lineWidth: 1)
                         )
                         .padding(.top, 10)
-                    Text(lista.name!)
+                    Text(localType.title)
                         .padding(.top, 7)
                         .font(.system(.title, design: .serif, weight: .heavy))
                         .italic()
@@ -36,5 +37,5 @@ struct ListaTitle: View {
 }
 
 #Preview {
-    ListaTitle(lista: Lista(name: "Café", image: "Cafe", color: .azulzinho, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed commodo,  tellus vitae blandit sollicitudin, purus dui pellentesque felis, sed  consequat est nunc vitae massa.", locais: cafes))
+    ListaTitle(localType: .coffee)
 }
