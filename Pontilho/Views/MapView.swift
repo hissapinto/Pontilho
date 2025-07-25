@@ -1,51 +1,34 @@
 //
-//  ContentView.swift
+//  MapView.swift
 //  Pontilho
 //
-//  Created by Isabela Hissa Pinto on 14/07/25.
+//  Created by Isabela Hissa Pinto on 25/07/25.
 //
 
+import Foundation
 import SwiftUI
 import MapKit
-
 
 struct MapView: View {
     @State private var searchText = ""
     @ObservedObject var cdViewModel = CDViewModel()
-    @State var showDetails: Bool = false
-    @State var selectedLocation: MKPlacemark?
+    @State private var showDetails: Bool = false
+    @State private var selectedLocation: MKPlacemark? //para locais salvos nas listas
+    @State private var searchResults: [MKMapItem] = []
+    @State private var cityToSearch: String = "Digite seu bairro"
+    @State private var showingSheet = false
     
     let locationManager = CLLocationManager() //pra pegar a loc do usuário
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     
-    init() {
-        
-    }
-    
-    //    var startPosition = MapCameraPosition.region(
-    //        MKCoordinateRegion(
-    //            center: CLLocationCoordinate2D(
-    //                latitude: -23.55,
-    //                longitude: -46.653
-    //            ),
-    //            span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)
-    //        )
-    //    )
-    
-    //QUERIA QUE A PESQUISA APARECESSE NA MINHA REGIÃO
-    //TESTE BUSCA CAFE
-    @State private var searchResults: [MKMapItem] = []
-    
-    private func findCity() async -> MKMapItem? { //trabsforma func em pega a posiçao do usuáriocdv
+    private func findCity(city: String) async -> MKMapItem? { //trabsforma func em pega a posiçao do usuáriocdv
         let request = MKLocalSearch.Request()
         
-        //Teste com loc usuário
-        //        if let coordUsuario = locationManager.location?.coordinate {
-        //            let teste = MKCoordinateRegion(center: coordUsuario, span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03))
-        //            request.region = teste
-        //        }
-        
-        request.naturalLanguageQuery = "São Paulo"
+        if city == "Digite seu bairro" {
+            request.naturalLanguageQuery = "São Paulo"
+        } else {
+            request.naturalLanguageQuery = city
+        }
         
         request.addressFilter = MKAddressFilter(
             including: .locality)
@@ -73,58 +56,62 @@ struct MapView: View {
         return response?.mapItems ?? []
     }
     
-    @State var locais: [LocalModel] = []
-    
     var body: some View {
         NavigationStack{
             ZStack{
                 MapReader { proxy in
                     Map(position: $position, selection: $selectedLocation) {
                         if showDetails {
-                            ForEach(locais) { item in
-                                Annotation(item.name, coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
+                            ForEach(cdViewModel.locais) { item in
+                                Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
                                     LocalPoint(localType: .coffee)
-                                    //                                        .onTapGesture {
-                                    //                                            selectedLocation = item
-                                    //                                        }
-                                }
-                            }
-                        }
-                        
-                        //                        UserAnnotation()
-                        //Mostra os resultados pesquisa
+                                        .onTapGesture {
+                                            selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
+                                            
+                                        }
+                                } //Annotation
+                            } //ForEach
+                        } //if showDetail
                         ForEach(searchResults, id: \.self) { item in
                             Marker(item: item)
+//                                .sheet(isPresented: $showDetails) {
+//                                    EditView()
+//                                }
                         }
-                        .sheet(item: )
-                    }
-                    
-                    //Códigos que influenciam o mapa:
-                    .tint(.gray)
-                    .onAppear { //pedir loc usuário
-                        locationManager.requestWhenInUseAuthorization()
-                    }
-                    .onTapGesture { position in //Salvar novo local
-                        if let coordinate = proxy.convert(position, from: .local) {
-                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.longitude, longitude: coordinate.latitude, type: LocalEnum.coffee.rawValue)
-//                            locais.append(LocalModel(id: UUID(), name: "", latitude: coordinate.latitude, longitude: coordinate.longitude))
-                            //                            locais.append(newLocation)
-                            print(newLocation)
-                        }
-                    }
-                    .mapControls { //Botões do mapa
-                        MapUserLocationButton()
-                        MapCompass()
-                        MapPitchToggle()
-                        MapScaleView()
-                    }
-//                    .sheet(item: $selectedLocation) //{ item in
-//                        EditView(local: item) { newLocal in
-//                            if let index = CDViewModel.getLista().locais.firstIndex(of: item) {
-//                                locais[index] = newLocal
-//                            }
+                    } //Map
+//                    .onTapGesture { position in //Salvar novo local
+//                        if let coordinate = proxy.convert(position, from: .local) {
+//                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.latitude, longitude: coordinate.longitude, type: LocalEnum.coffee.rawValue)
+//                            print(newLocation)
 //                        }
 //                    }
+                    
+                }//MapReader
+                .tint(.gray)
+                .searchable(text: $searchText, prompt: "O que você quer descobrir?")
+                .onAppear { //pedir loc usuário
+                    locationManager.requestWhenInUseAuthorization()
+                
+                }
+                .mapControls { //Botões do mapa
+                    MapUserLocationButton()
+                    MapCompass()
+                    MapPitchToggle()
+                    MapScaleView()
+                }
+                .onAppear() {
+                    cdViewModel.getLocal()
+                }
+                .onChange(of: searchText) {
+                    Task {
+                        guard let SaoPaulo = await findCity(city: cityToSearch) else {
+                            return
+                        }
+                        
+                        searchResults = await search(for: searchText, in: SaoPaulo)
+                        position = .automatic
+                    }
+                    
                 }
                 VStack{
                     if showDetails {
@@ -135,26 +122,10 @@ struct MapView: View {
                         .padding(.leading, 15)
                 }
             }
-        }
-        .onAppear() {
-            cdViewModel.getLocal()
-            for i in cdViewModel.locais {
-                locais.append(LocalModel(id: i.id ?? UUID(), name: i.name ?? "", latitude: i.latitude, longitude: i.longitude))
-            }
-        }
-        .onChange(of: searchText) {
-            Task {
-                guard let SaoPaulo = await findCity() else {
-                    return
-                }
-                
-                searchResults = await search(for: searchText, in: SaoPaulo)
-            }
-            
-        }
-        .searchable(text: $searchText)
+            .navigationTitle($cityToSearch)
+            .navigationBarTitleDisplayMode(.inline)
+        }//NavigationStack
     }
-    
 }
 
 #Preview {
