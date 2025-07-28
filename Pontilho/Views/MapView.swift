@@ -16,6 +16,7 @@ struct MapView: View {
     @State private var showSheet: Bool = false
     @State private var settingDetent = PresentationDetent.medium
     @State private var selectedLocation: MKPlacemark? //para locais salvos nas listas
+    @State private var placeItem: MKMapItem?
     @State private var selectedLocationLatitude: Double = 0
     @State private var selectedLocationLontigude: Double = 0
     @State private var searchResults: [MKMapItem] = []
@@ -52,7 +53,7 @@ struct MapView: View {
         )
         
         request.region = downtown
-        request.regionPriority = .required
+        request.regionPriority = .required //limitar busca na minha região
         
         let search = MKLocalSearch(request: request)
         
@@ -102,7 +103,7 @@ struct MapView: View {
                     
                 }
                 .sheet(isPresented: $showSheet) {
-                    EditView(selectedLocationLatitude: $selectedLocationLatitude, selectedLocationLontigude: $selectedLocationLontigude)
+                    EditView()//selectedLocationLatitude: $selectedLocationLatitude, selectedLocationLontigude: $selectedLocationLontigude)
                         .presentationDetents([.medium, .large],
                                              selection: $settingDetent)
                 }
