@@ -9,9 +9,7 @@ import SwiftUI
 import MapKit
 
 struct ListaButton: View {
-    @Binding var showDetails: Bool
-    @ObservedObject var cdViewModel = CDViewModel()
-    
+    @Binding var showDetails: Bool    
     let localType: LocalEnum
     
     var body: some View{

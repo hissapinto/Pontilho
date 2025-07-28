@@ -17,11 +17,9 @@ struct MapView: View {
     @State private var settingDetent = PresentationDetent.medium
     @State private var selectedLocation: MKPlacemark? = nil //para locais salvos nas listas
     @State private var placeItem: MKMapItem? = nil
-    @State private var selectedLocationLatitude: Double = 0
-    @State private var selectedLocationLontigude: Double = 0
+
     @State private var searchResults: [MKMapItem] = []
     @State private var cityToSearch: String = "Digite seu bairro"
-    @State private var showingSheet = false
     
     let locationManager = CLLocationManager() //pra pegar a loc do usuário
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
@@ -84,6 +82,7 @@ struct MapView: View {
                             Annotation(item: item) {
                                 SearchPoint()
                                     .onTapGesture {
+                                        placeItem = item
                                         showSheet.toggle()
                                     }
                             }
@@ -105,8 +104,8 @@ struct MapView: View {
                     
                 }
                 .sheet(isPresented: $showSheet) {
-                    EditView()//selectedLocationLatitude: $selectedLocationLatitude, selectedLocationLontigude: $selectedLocationLontigude)
-                        .presentationDetents([.medium, .large],
+                    EditView(placeItem: $placeItem)
+                        .presentationDetents([.medium],
                                              selection: $settingDetent)
                 }
                 .mapControls { //Botões do mapa
