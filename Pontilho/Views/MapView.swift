@@ -13,7 +13,11 @@ struct MapView: View {
     @State private var searchText = ""
     @ObservedObject var cdViewModel = CDViewModel()
     @State private var showDetails: Bool = false
+    @State private var showSheet: Bool = false
+    @State private var settingDetent = PresentationDetent.medium
     @State private var selectedLocation: MKPlacemark? //para locais salvos nas listas
+    @State private var selectedLocationLatitude: Double = 0
+    @State private var selectedLocationLontigude: Double = 0
     @State private var searchResults: [MKMapItem] = []
     @State private var cityToSearch: String = "Digite seu bairro"
     @State private var showingSheet = false
@@ -67,6 +71,9 @@ struct MapView: View {
                                     LocalPoint(localType: .coffee)
                                         .onTapGesture {
                                             selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
+//                                            selectedLocationLatitude = item.latitude
+//                                            selectedLocationLontigude = item.longitude
+                                            showSheet.toggle()
                                             
                                         }
                                 } //Annotation
@@ -74,24 +81,30 @@ struct MapView: View {
                         } //if showDetail
                         ForEach(searchResults, id: \.self) { item in
                             Marker(item: item)
-//                                .sheet(isPresented: $showDetails) {
-//                                    EditView()
+//                                .onTapGesture {
+//                                    selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
+//                                    
 //                                }
                         }
                     } //Map
-//                    .onTapGesture { position in //Salvar novo local
-//                        if let coordinate = proxy.convert(position, from: .local) {
-//                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.latitude, longitude: coordinate.longitude, type: LocalEnum.coffee.rawValue)
-//                            print(newLocation)
-//                        }
-//                    }
+                    //                    .onTapGesture { position in //Salvar novo local
+                    //                        if let coordinate = proxy.convert(position, from: .local) {
+                    //                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.latitude, longitude: coordinate.longitude, type: LocalEnum.coffee.rawValue)
+                    //                            print(newLocation)
+                    //                        }
+                    //                    }
                     
                 }//MapReader
                 .tint(.gray)
                 .searchable(text: $searchText, prompt: "O que você quer descobrir?")
                 .onAppear { //pedir loc usuário
                     locationManager.requestWhenInUseAuthorization()
-                
+                    
+                }
+                .sheet(isPresented: $showSheet) {
+                    EditView(selectedLocationLatitude: $selectedLocationLatitude, selectedLocationLontigude: $selectedLocationLontigude)
+                        .presentationDetents([.medium, .large],
+                                             selection: $settingDetent)
                 }
                 .mapControls { //Botões do mapa
                     MapUserLocationButton()

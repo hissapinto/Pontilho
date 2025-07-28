@@ -6,16 +6,20 @@
 //
 
 import SwiftUI
+import MapKit
+import Foundation
 
 struct EditView: View {
     @Environment(\.dismiss) var dismiss
-//    @State var local: Local
-//    @State var name: String
-//    var onSave: (Local) -> Void
+//    @Binding var selectedLocationLatitude: Double
+//    @Binding var selectedLocationLontigude: Double
+//    private var selectedLocation: MKPlacemark?
+
     
     var body: some View {
         NavigationStack {
-            Text("oi")
+//            selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: selectedLocationLatitude, longitude: selectedLocationLontigude))
+            Text("OI")
 //            Form {
 //                Section {
 //                    TextField("Nome do local: ")//, text: $name)
@@ -43,5 +47,5 @@ struct EditView: View {
 }
 
 #Preview {
-    EditView()//local: .exemploLocal) { _ in }
+    MapView()
 }
