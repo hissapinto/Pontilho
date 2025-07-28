@@ -15,8 +15,8 @@ struct MapView: View {
     @State private var showDetails: Bool = false
     @State private var showSheet: Bool = false
     @State private var settingDetent = PresentationDetent.medium
-    @State private var selectedLocation: MKPlacemark? //para locais salvos nas listas
-    @State private var placeItem: MKMapItem?
+    @State private var selectedLocation: MKPlacemark? = nil //para locais salvos nas listas
+    @State private var placeItem: MKMapItem? = nil
     @State private var selectedLocationLatitude: Double = 0
     @State private var selectedLocationLontigude: Double = 0
     @State private var searchResults: [MKMapItem] = []
@@ -70,24 +70,26 @@ struct MapView: View {
                             ForEach(cdViewModel.locais) { item in
                                 Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
                                     LocalPoint(localType: .coffee)
-                                        .onTapGesture {
-                                            selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
-//                                            selectedLocationLatitude = item.latitude
-//                                            selectedLocationLontigude = item.longitude
-                                            showSheet.toggle()
-                                            
-                                        }
+                                    //                                        .onTapGesture {
+                                    //                                            selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
+                                    //                                            selectedLocationLatitude = item.latitude
+                                    //                                            selectedLocationLontigude = item.longitude
+                                    //                                            showSheet.toggle()
+                                    //                                        }
                                 } //Annotation
                             } //ForEach
                         } //if showDetail
+                        //                        List {
                         ForEach(searchResults, id: \.self) { item in
-                            Marker(item: item)
-//                                .onTapGesture {
-//                                    selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
-//                                    
-//                                }
+                            Annotation(item: item) {
+                                SearchPoint()
+                                    .onTapGesture {
+                                        showSheet.toggle()
+                                    }
+                            }
                         }
                     } //Map
+                    //func salvar novo local
                     //                    .onTapGesture { position in //Salvar novo local
                     //                        if let coordinate = proxy.convert(position, from: .local) {
                     //                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.latitude, longitude: coordinate.longitude, type: LocalEnum.coffee.rawValue)
@@ -141,6 +143,7 @@ struct MapView: View {
         }//NavigationStack
     }
 }
+
 
 #Preview {
     MapView()
