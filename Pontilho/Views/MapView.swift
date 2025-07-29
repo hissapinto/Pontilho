@@ -93,7 +93,7 @@ struct MapView: View {
                 }
                 .sheet(isPresented: $showSheet) {
                     EditView(placeItem: $placeItem)
-                        .presentationDetents([.height(280)],
+                        .presentationDetents([.height(220)],
                                              selection: $settingDetent)
                 }
                 .mapControls { //Botões do mapa
@@ -121,7 +121,7 @@ struct MapView: View {
                     if showDetails {
                         ListaTitle(localType: typeFilter)
                     }
-                    Spacer()
+                    Spacer() //if se sheet tiver on desliga a listascrolview
                     ListasScrollView(showDetails: $showDetails, typeFilter: $typeFilter)
                         .padding(.leading, 15)
                 }

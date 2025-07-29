@@ -38,6 +38,12 @@ struct EditView: View {
         NavigationStack {
             VStack{
                 HStack{
+                    Text(placeNameUnWrapped())
+                        .font(.system(.title, design: .serif, weight: .heavy))
+                        .padding(.leading, 20)
+                    Spacer()
+                }
+                HStack{
                     Text(placeAdressUnwrapped())
                         .font(.footnote)
                         .padding(.leading, 20)
@@ -58,9 +64,9 @@ struct EditView: View {
                     SheetButton(type: "sweet", placeItem: $placeItem, localType: .sweet)
 
                 }
-            }
-                .navigationTitle(placeNameUnWrapped())
-                .navigationBarTitleDisplayMode(.automatic)
+            }.padding(.top, 30)
+//                .navigationTitle(placeNameUnWrapped())
+//                .navigationBarTitleDisplayMode(.automatic)
         }
     }
     

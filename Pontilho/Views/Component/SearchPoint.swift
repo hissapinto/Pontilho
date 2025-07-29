@@ -12,12 +12,13 @@ struct SearchPoint: View {
 
     var body: some View {
         ZStack{
-            Circle()
-                .frame(width: 25, height: 25)
-                .foregroundColor(.branquinho)
-            Image(systemName: "questionmark.circle")
+//            Circle()
+//                .frame(width: 30, height: 30)
+//                .foregroundColor(.branquinho)
+            Image(systemName: "mappin")
                 .resizable()
-                .frame(width: 25, height: 25)
+                .scaledToFit()
+                .frame(width: 25,height: 25)
                 .foregroundColor(.pretinho)
                 .fontWeight(.semibold)
         }
