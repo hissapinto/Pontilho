@@ -56,6 +56,7 @@ struct SheetButton: View {
     var body: some View{
         Button {
             let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped(), type: type)
+            print("ENTROU AQUI")
         } label: {
             ZStack{
                 Image(localType.image)

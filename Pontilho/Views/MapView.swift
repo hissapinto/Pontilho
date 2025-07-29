@@ -88,6 +88,7 @@ struct MapView: View {
                             }
                         }
                     } //Map
+                    
                     //func salvar novo local
                     //                    .onTapGesture { position in //Salvar novo local
                     //                        if let coordinate = proxy.convert(position, from: .local) {
@@ -105,7 +106,7 @@ struct MapView: View {
                 }
                 .sheet(isPresented: $showSheet) {
                     EditView(placeItem: $placeItem)
-                        .presentationDetents([.medium],
+                        .presentationDetents([.height(280)],
                                              selection: $settingDetent)
                 }
                 .mapControls { //Botões do mapa

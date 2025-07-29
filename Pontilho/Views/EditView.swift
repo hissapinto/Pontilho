@@ -44,7 +44,12 @@ struct EditView: View {
                     Spacer()
                 }
                 Spacer()
-                Text("Salvar em uma lista: ")
+                HStack{
+                    Text("Salvar em uma lista: ")
+                        .font(.headline)
+                        .padding(.leading, 20)
+                    Spacer()
+                }
                 HStack{
                     SheetButton(type: "coffee", placeItem: $placeItem, localType: .coffee)
                     SheetButton(type: "park", placeItem: $placeItem, localType: .park)
