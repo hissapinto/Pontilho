@@ -67,4 +67,32 @@ class CoreDataController: ObservableObject {
         saveContext()
     }
     
+    public func fetchScheduledNotifications() -> [ScheduledNotification] {
+        let fetchRequest: NSFetchRequest<ScheduledNotification> = ScheduledNotification.fetchRequest()
+        
+        do {
+            let result = try viewContext.fetch(fetchRequest)
+            return result
+        }
+        catch {
+            print("[WARNING]: Failed to fetch scheduled notifications (\(error.localizedDescription))")
+            return []
+        }
+    }
+    
+    public func createScheduledNotification(id: UUID, latitude: Double, longitude: Double) -> ScheduledNotification {
+        let scheduledNotification: ScheduledNotification = ScheduledNotification(context: viewContext)
+        scheduledNotification.id = id
+        scheduledNotification.latitude = latitude
+        scheduledNotification.longitude = longitude
+        saveContext()
+        
+        return scheduledNotification
+    }
+    
+    public func deleteNotification(scheduledNotification: ScheduledNotification) {
+        viewContext.delete(scheduledNotification)
+        saveContext()
+    }
+    
 }

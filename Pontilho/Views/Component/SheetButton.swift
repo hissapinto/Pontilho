@@ -13,6 +13,7 @@ struct SheetButton: View {
     var type: String
     @ObservedObject var cdViewModel = CDViewModel()
     @Binding var placeItem: MKMapItem?
+    @Binding var didSendNotification: Bool
 
     let localType: LocalEnum
     
@@ -52,10 +53,12 @@ struct SheetButton: View {
             print("[WARNING]: Failed to save container view context (\(error.localizedDescription))")
         }
     }
-    
+        
     var body: some View{
         Button {
             let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped(), type: type)
+            let notification: NotificationModel = NotificationModel(title: "Aproveite seu deslocamento!", subtitle: "", body: "Você está perto de: \(newLocation.name)", latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped())
+            didSendNotification = true
         } label: {
             ZStack{
                 Image(localType.image)
@@ -87,5 +90,5 @@ struct SheetButton: View {
     // Create an MKMapItem from the placemark
     let mapItem = MKMapItem(placemark: placemark)
     
-    SheetButton(type: "coffee", placeItem: .constant(mapItem) , localType: .coffee)
+    SheetButton(type: "coffee", placeItem: .constant(mapItem) , didSendNotification: .constant(false), localType: .coffee)
 }

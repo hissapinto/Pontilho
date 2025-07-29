@@ -8,9 +8,11 @@
 import Foundation
 import CoreData
 import MapKit
+import SwiftUI
 
 class CDViewModel: ObservableObject {
     @Published var locais: [Local] = []
+    @Published public var scheduledNotifications: [ScheduledNotification] = []
     
     func getLocal() {
         locais = CoreDataController.shared.fetchLocais()
@@ -29,5 +31,18 @@ class CDViewModel: ObservableObject {
     func saveLocal(_ local: Local) {
         CoreDataController.shared.saveContext()
         getLocal()
+    }
+    
+    public func getNotifications() {
+        scheduledNotifications = CoreDataController.shared.fetchScheduledNotifications()
+    }
+    
+    public func createScheduledNotification(id: UUID, latitude: Double, longitude: Double) {
+        let newScheduledNotification: ScheduledNotification = CoreDataController.shared.createScheduledNotification(id: id, latitude: latitude, longitude: longitude)
+        self.scheduledNotifications.append(newScheduledNotification)
+    }
+    
+    public func deleteScheduledNotification(scheduledNotification: ScheduledNotification) {
+        CoreDataController.shared.deleteNotification(scheduledNotification: scheduledNotification)
     }
 }

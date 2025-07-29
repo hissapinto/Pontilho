@@ -11,27 +11,22 @@ struct ListaTitle: View {
     var localType: String
     
     var body: some View {
-        NavigationLink{
-//            ListaView(listas: lista)
-        } label: {
-            VStack{
-                ZStack{
-                    RoundedRectangle(cornerRadius: 7)
-                        .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
-                        .foregroundColor(LocalEnum(rawValue: localType)?.color)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7)
-                                .stroke(Color.pretinho, lineWidth: 1)
-                        )
-                        .padding(.top, 10)
-                    Text(LocalEnum(rawValue: localType)?.title ?? "")
-                        .padding(.top, 7)
-                        .font(.system(.title, design: .serif, weight: .heavy))
-                        .italic()
-                }
-                //Spacer()
+        VStack{
+            ZStack{
+                RoundedRectangle(cornerRadius: 7)
+                    .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
+                    .foregroundColor(LocalEnum(rawValue: localType)?.color)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7)
+                            .stroke(Color.pretinho, lineWidth: 1)
+                    )
+                    .padding(.top, 10)
+                Text(LocalEnum(rawValue: localType)?.title ?? "")
+                    .padding(.top, 7)
+                    .font(.system(.title, design: .serif, weight: .heavy))
+                    .italic()
             }
-        }.foregroundColor(.pretinho)
+        }
     }
 }
 

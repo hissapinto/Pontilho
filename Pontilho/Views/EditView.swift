@@ -11,7 +11,8 @@ import Foundation
 
 struct EditView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var placeItem: MKMapItem?    
+    @Binding var placeItem: MKMapItem?
+    @Binding var didSendNotification: Bool
     
     func placeNameUnWrapped() -> String {
         if placeItem == nil {
@@ -57,11 +58,11 @@ struct EditView: View {
                     Spacer()
                 }
                 HStack{
-                    SheetButton(type: "park", placeItem: $placeItem, localType: .park)
-                    SheetButton(type: "coffee", placeItem: $placeItem, localType: .coffee)
-                    SheetButton(type: "culture", placeItem: $placeItem, localType: .culture)
-                    SheetButton(type: "restaurant", placeItem: $placeItem, localType: .restaurant)
-                    SheetButton(type: "sweet", placeItem: $placeItem, localType: .sweet)
+                    SheetButton(type: "park", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .park)
+                    SheetButton(type: "coffee", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .coffee)
+                    SheetButton(type: "culture", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .culture)
+                    SheetButton(type: "restaurant", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .restaurant)
+                    SheetButton(type: "sweet", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .sweet)
 
                 }
             }.padding(.top, 30)

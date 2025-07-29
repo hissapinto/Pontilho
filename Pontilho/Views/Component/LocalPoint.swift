@@ -9,7 +9,6 @@ import SwiftUI
 import MapKit
 
 struct LocalPoint: View {
-    
     var localType: String
 
     var body: some View {

@@ -24,6 +24,7 @@ struct MapView: View {
     
     let locationManager = CLLocationManager() //pra pegar a loc do usuário
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var didSendNotification: Bool = false //pra enviar notificacao
     
     private func findCity(city: String) async -> MKMapItem? { //trabsforma func em pega a posiçao do usuáriocdv
         let request = MKLocalSearch.Request()
@@ -85,14 +86,14 @@ struct MapView: View {
                         }
                     } //Map
                 }//MapReader
-                .tint(.gray)
+                .tint(.pretinho)
                 .searchable(text: $searchText, prompt: "O que você quer descobrir?")
                 .onAppear { //pedir loc usuário
                     locationManager.requestWhenInUseAuthorization()
                     
                 }
                 .sheet(isPresented: $showSheet) {
-                    EditView(placeItem: $placeItem)
+                    EditView(placeItem: $placeItem, didSendNotification: $didSendNotification)
                         .presentationDetents([.height(220)],
                                              selection: $settingDetent)
                 }
@@ -104,6 +105,7 @@ struct MapView: View {
                 }
                 .onAppear() {
                     cdViewModel.getLocal()
+                    NotificationManagerModel.requirePermissions()
                 }
                 .onChange(of: searchText) {
                     Task {
