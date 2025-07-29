@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct ListaTitle: View {
-    var localType: LocalEnum
-
+    var localType: String
     
     var body: some View {
         NavigationLink{
@@ -19,13 +18,13 @@ struct ListaTitle: View {
                 ZStack{
                     RoundedRectangle(cornerRadius: 7)
                         .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
-                        .foregroundColor(localType.color)
+                        .foregroundColor(LocalEnum(rawValue: localType)?.color)
                         .overlay(
                             RoundedRectangle(cornerRadius: 7)
                                 .stroke(Color.pretinho, lineWidth: 1)
                         )
                         .padding(.top, 10)
-                    Text(localType.title)
+                    Text(LocalEnum(rawValue: localType)?.title ?? "")
                         .padding(.top, 7)
                         .font(.system(.title, design: .serif, weight: .heavy))
                         .italic()
@@ -37,5 +36,5 @@ struct ListaTitle: View {
 }
 
 #Preview {
-    ListaTitle(localType: .coffee)
+    ListaTitle(localType: "coffee")
 }

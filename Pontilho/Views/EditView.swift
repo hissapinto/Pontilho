@@ -51,8 +51,8 @@ struct EditView: View {
                     Spacer()
                 }
                 HStack{
-                    SheetButton(type: "coffee", placeItem: $placeItem, localType: .coffee)
                     SheetButton(type: "park", placeItem: $placeItem, localType: .park)
+                    SheetButton(type: "coffee", placeItem: $placeItem, localType: .coffee)
                     SheetButton(type: "culture", placeItem: $placeItem, localType: .culture)
                     SheetButton(type: "restaurant", placeItem: $placeItem, localType: .restaurant)
                     SheetButton(type: "sweet", placeItem: $placeItem, localType: .sweet)

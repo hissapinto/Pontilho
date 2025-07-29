@@ -9,12 +9,14 @@ import SwiftUI
 import MapKit
 
 struct ListaButton: View {
-    @Binding var showDetails: Bool    
+    @Binding var showDetails: Bool
+    @Binding var typeFilter: String
     let localType: LocalEnum
     
     var body: some View{
         Button {
             showDetails.toggle()
+            typeFilter = localType.rawValue
     } label: {
         ZStack{
             Image(localType.image)
@@ -38,5 +40,5 @@ struct ListaButton: View {
 
 #Preview {
     
-    ListaButton(showDetails: .constant(true), localType: .coffee)
+    ListaButton(showDetails: .constant(true), typeFilter: .constant("coffee"), localType: .coffee)
 }

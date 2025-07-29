@@ -13,6 +13,7 @@ struct MapView: View {
     @State private var searchText = ""
     @ObservedObject var cdViewModel = CDViewModel()
     @State private var showDetails: Bool = false
+    @State private var typeFilter: String = ""
     @State private var showSheet: Bool = false
     @State private var settingDetent = PresentationDetent.medium
     @State private var selectedLocation: MKPlacemark? = nil //para locais salvos nas listas
@@ -66,18 +67,13 @@ struct MapView: View {
                     Map(position: $position, selection: $selectedLocation) {
                         if showDetails {
                             ForEach(cdViewModel.locais) { item in
-                                Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
-                                    LocalPoint(localType: .coffee)
-                                    //                                        .onTapGesture {
-                                    //                                            selectedLocation = MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude))
-                                    //                                            selectedLocationLatitude = item.latitude
-                                    //                                            selectedLocationLontigude = item.longitude
-                                    //                                            showSheet.toggle()
-                                    //                                        }
-                                } //Annotation
-                            } //ForEach
+                                if typeFilter == item.type {
+                                    Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
+                                        LocalPoint(localType: typeFilter)
+                                    } //Annotation
+                                }//if
+                            }//ForEach
                         } //if showDetail
-                        //                        List {
                         ForEach(searchResults, id: \.self) { item in
                             Annotation(item: item) {
                                 SearchPoint()
@@ -88,15 +84,6 @@ struct MapView: View {
                             }
                         }
                     } //Map
-                    
-                    //func salvar novo local
-                    //                    .onTapGesture { position in //Salvar novo local
-                    //                        if let coordinate = proxy.convert(position, from: .local) {
-                    //                            let newLocation = cdViewModel.createLocal(name: "novo local", latitude: coordinate.latitude, longitude: coordinate.longitude, type: LocalEnum.coffee.rawValue)
-                    //                            print(newLocation)
-                    //                        }
-                    //                    }
-                    
                 }//MapReader
                 .tint(.gray)
                 .searchable(text: $searchText, prompt: "O que você quer descobrir?")
@@ -127,14 +114,15 @@ struct MapView: View {
                         searchResults = await search(for: searchText, in: SaoPaulo)
                         position = .automatic
                     }
-                    
+                    cdViewModel.getLocal()
+                    showDetails = false
                 }
                 VStack{
                     if showDetails {
-                        ListaTitle(localType: .coffee)
+                        ListaTitle(localType: typeFilter)
                     }
                     Spacer()
-                    ListasScrollView(showDetails: $showDetails)
+                    ListasScrollView(showDetails: $showDetails, typeFilter: $typeFilter)
                         .padding(.leading, 15)
                 }
             }
