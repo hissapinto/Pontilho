@@ -80,11 +80,10 @@ class CoreDataController: ObservableObject {
         }
     }
     
-    public func createScheduledNotification(id: UUID, latitude: Double, longitude: Double) -> ScheduledNotification {
+    public func createScheduledNotification(id: UUID, date: Date) -> ScheduledNotification {
         let scheduledNotification: ScheduledNotification = ScheduledNotification(context: viewContext)
         scheduledNotification.id = id
-        scheduledNotification.latitude = latitude
-        scheduledNotification.longitude = longitude
+        scheduledNotification.date = date
         saveContext()
         
         return scheduledNotification
@@ -94,5 +93,4 @@ class CoreDataController: ObservableObject {
         viewContext.delete(scheduledNotification)
         saveContext()
     }
-    
 }

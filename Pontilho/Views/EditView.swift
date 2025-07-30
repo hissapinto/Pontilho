@@ -12,7 +12,7 @@ import Foundation
 struct EditView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var placeItem: MKMapItem?
-    @Binding var didSendNotification: Bool
+    @Binding var didLocalWasCreated: Bool
     
     func placeNameUnWrapped() -> String {
         if placeItem == nil {
@@ -58,11 +58,11 @@ struct EditView: View {
                     Spacer()
                 }
                 HStack{
-                    SheetButton(type: "park", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .park)
-                    SheetButton(type: "coffee", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .coffee)
-                    SheetButton(type: "culture", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .culture)
-                    SheetButton(type: "restaurant", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .restaurant)
-                    SheetButton(type: "sweet", placeItem: $placeItem, didSendNotification: $didSendNotification, localType: .sweet)
+                    SheetButton(type: "park", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .park)
+                    SheetButton(type: "coffee", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .coffee)
+                    SheetButton(type: "culture", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .culture)
+                    SheetButton(type: "restaurant", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .restaurant)
+                    SheetButton(type: "sweet", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .sweet)
 
                 }
             }.padding(.top, 30)

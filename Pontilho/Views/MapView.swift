@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct MapView: View {
     @State private var searchText = ""
@@ -20,11 +21,11 @@ struct MapView: View {
     @State private var placeItem: MKMapItem? = nil
 
     @State private var searchResults: [MKMapItem] = []
-    @State private var cityToSearch: String = "Digite seu bairro"
+    @State private var cityToSearch: String = "Digite sua cidade e bairro"
     
     let locationManager = CLLocationManager() //pra pegar a loc do usuário
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
-    @State private var didSendNotification: Bool = false //pra enviar notificacao
+    @State private var didLocalWasCreated: Bool = false //pra enviar notificacao
     
     private func findCity(city: String) async -> MKMapItem? { //trabsforma func em pega a posiçao do usuáriocdv
         let request = MKLocalSearch.Request()
@@ -90,10 +91,9 @@ struct MapView: View {
                 .searchable(text: $searchText, prompt: "O que você quer descobrir?")
                 .onAppear { //pedir loc usuário
                     locationManager.requestWhenInUseAuthorization()
-                    
                 }
                 .sheet(isPresented: $showSheet) {
-                    EditView(placeItem: $placeItem, didSendNotification: $didSendNotification)
+                    EditView(placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated)
                         .presentationDetents([.height(220)],
                                              selection: $settingDetent)
                 }
@@ -128,6 +128,20 @@ struct MapView: View {
                         .padding(.leading, 15)
                 }
             }
+            .overlay(
+                ZStack {
+                    VStack{
+                        if didLocalWasCreated {
+                            LocalToast()
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                                .zIndex(1) // Ensure toast is on top
+                                .padding(.top, 10)
+                        }
+                        Spacer()
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Position at the top
+            )
             .navigationTitle($cityToSearch)
             .navigationBarTitleDisplayMode(.inline)
         }//NavigationStack

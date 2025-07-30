@@ -9,19 +9,14 @@ import SwiftUI
 import MapKit
 
 struct SearchPoint: View {
-
+    
     var body: some View {
-        ZStack{
-//            Circle()
-//                .frame(width: 30, height: 30)
-//                .foregroundColor(.branquinho)
-            Image(systemName: "mappin")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 25,height: 25)
-                .foregroundColor(.pretinho)
-                .fontWeight(.semibold)
-        }
+        Image(.pin)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 25,height: 20)
+            .foregroundColor(.pretinho)
+            .fontWeight(.semibold)
     }
 }
 

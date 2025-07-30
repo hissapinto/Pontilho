@@ -18,10 +18,10 @@ struct LocalPoint: View {
                 .foregroundColor(LocalEnum(rawValue: localType)?.color)
                 .overlay(
                     Circle()
-                        .stroke(Color.pretinho, lineWidth: 1)
+                        .stroke(Color.pretinho, lineWidth: 0.5)
                 )
             Circle()
-                .frame(width: 12, height: 12)
+                .frame(width: 10, height: 10)
             
         }
     }

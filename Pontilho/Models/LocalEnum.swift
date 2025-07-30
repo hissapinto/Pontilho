@@ -41,13 +41,13 @@ enum LocalEnum: String {
             return "Cafés"
             
         case .park:
-            return "Parques"
+            return "Ar livre"
             
         case .restaurant:
             return "Restaurantes"
             
         case .sweet:
-            return "Docinhos"
+            return "Noitada"
             
         case .culture:
             return "Cultural"

@@ -13,8 +13,8 @@ struct SheetButton: View {
     var type: String
     @ObservedObject var cdViewModel = CDViewModel()
     @Binding var placeItem: MKMapItem?
-    @Binding var didSendNotification: Bool
-
+    @Binding var didLocalWasCreated: Bool
+    
     let localType: LocalEnum
     
     
@@ -53,12 +53,21 @@ struct SheetButton: View {
             print("[WARNING]: Failed to save container view context (\(error.localizedDescription))")
         }
     }
-        
+    
     var body: some View{
         Button {
             let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped(), type: type)
-            let notification: NotificationModel = NotificationModel(title: "Aproveite seu deslocamento!", subtitle: "", body: "Você está perto de: \(newLocation.name)", latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped())
-            didSendNotification = true
+            let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(placeNameUnWrapped())")
+            NotificationManagerModel.scheduleNotification(notification: notification, days: 7)
+            withAnimation {
+                didLocalWasCreated = true
+            }
+            // Dismiss after 2 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation {
+                    didLocalWasCreated = false
+                }
+            }
         } label: {
             ZStack{
                 Image(localType.image)
@@ -70,10 +79,11 @@ struct SheetButton: View {
                         Color(localType.color)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 7)
-                            .stroke(Color.pretinho, lineWidth: 1)
-                    )
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 7)
+//                            .stroke(Color.pretinho, lineWidth: 2)
+//                    )
+                    .shadow(color: .gray, radius: 1.5)
             }
         }
     }
@@ -83,12 +93,12 @@ struct SheetButton: View {
 #Preview {
     // Define a coordinate
     let coordinate = CLLocationCoordinate2D(latitude: 34.0522, longitude: -118.2437) // Los Angeles
-
+    
     // Create an MKPlacemark
     let placemark = MKPlacemark(coordinate: coordinate)
-
+    
     // Create an MKMapItem from the placemark
     let mapItem = MKMapItem(placemark: placemark)
     
-    SheetButton(type: "coffee", placeItem: .constant(mapItem) , didSendNotification: .constant(false), localType: .coffee)
+    SheetButton(type: "coffee", placeItem: .constant(mapItem) , didLocalWasCreated: .constant(false), localType: .coffee)
 }

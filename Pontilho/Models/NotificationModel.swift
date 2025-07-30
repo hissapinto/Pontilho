@@ -13,14 +13,10 @@ struct NotificationModel {
     public var title: String
     public var subtitle: String
     public var body: String
-    public var latitude: Double
-    public var longitude: Double
     
-    init(title: String, subtitle: String, body: String, latitude: Double, longitude: Double) {
+    init(title: String, subtitle: String, body: String) {
         self.title = title
         self.subtitle = subtitle
         self.body = body
-        self.latitude = latitude
-        self.longitude = longitude
     }
 }

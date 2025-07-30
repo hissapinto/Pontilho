@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import MapKit
 
 /// A model that abstracts a manager to send and schedule notifications.
 struct NotificationManagerModel {
@@ -31,34 +30,38 @@ struct NotificationManagerModel {
             }
         }
     }
-    
-    public static func scheduleGeolocalizedNotification(notification: NotificationModel, latitude: Double, longitude: Double) {
+
+    /// Schedule a local notification to be sent at a specific time (hour:minute), with the option to repeat it every day at this time.
+    /// - Parameters:
+    ///     - notification: A notification model representing the local notification.
+    ///     - hour: The hour to send the notification.
+    ///     - minute: The minute to send the notification.
+    ///     - repeating: If true, repeat this notification every day at the same time (hour:minute), if not, send only once. The default is false.
+    public static func scheduleNotification(notification: NotificationModel, days: Int, repeating: Bool = false) {
         // Notification content creation
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.subtitle = notification.subtitle
         content.body = notification.body
         content.sound = UNNotificationSound.default
-        
-        //Define location
-        let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        
-        //Define circular region
-        let region = CLCircularRegion(center: center, radius: 100, identifier: "Quarteirão")
-        
-        //Engage only on Entry
-        region.notifyOnEntry = true
-        region.notifyOnExit = false
-        
-        //create trigger
-        let trigger = UNLocationNotificationTrigger(region: region, repeats: true)
-        
+
+        // Notification calendar trigger with date components
+        var dateComponents = DateComponents()
+        dateComponents.day = 7
+//        dateComponents.minute = minute
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: repeating)
+
         // Notification send request
         let request = UNNotificationRequest(identifier: notification.id.uuidString, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
         
+        // Create a scheduled notification entry using core data to retrieve it later
+        if repeating {
+            let date: Date = Calendar.current.date(from: dateComponents) ?? .now
+            coreDataViewModel.createScheduledNotification(id: notification.id, date: date)
+        }
     }
-    
+        
     /// Cancel a scheduled notification, canceling it from the notification center and removing it from core data.
     /// - Parameters:
     ///     - scheduledNotification: A ScheduledNotification to be canceled and removed.

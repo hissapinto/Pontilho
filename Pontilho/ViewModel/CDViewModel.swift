@@ -37,8 +37,8 @@ class CDViewModel: ObservableObject {
         scheduledNotifications = CoreDataController.shared.fetchScheduledNotifications()
     }
     
-    public func createScheduledNotification(id: UUID, latitude: Double, longitude: Double) {
-        let newScheduledNotification: ScheduledNotification = CoreDataController.shared.createScheduledNotification(id: id, latitude: latitude, longitude: longitude)
+    public func createScheduledNotification(id: UUID, date: Date) {
+        let newScheduledNotification: ScheduledNotification = CoreDataController.shared.createScheduledNotification(id: id, date: date)
         self.scheduledNotifications.append(newScheduledNotification)
     }
     
