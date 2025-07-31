@@ -17,8 +17,11 @@ struct MapView: View {
     @State private var typeFilter: String = ""
     @State private var showSheet: Bool = false
     @State private var settingDetent = PresentationDetent.medium
-    @State private var selectedLocation: MKPlacemark? = nil //para locais salvos nas listas
-    @State private var placeItem: MKMapItem? = nil
+    @State private var selectedLocation: MKMapItem? = nil //para locais salvos nas listas
+    @State private var ifselectedLocation: Bool = false
+    @State private var localToErase: Local? = nil
+    @State private var localToEraseName: String = "Nome não encontrado"
+    @State private var placeItem: MKMapItem? = nil //para locais da pesquisa
 
     @State private var searchResults: [MKMapItem] = []
     @State private var cityToSearch: String = "Digite sua cidade e bairro"
@@ -62,16 +65,41 @@ struct MapView: View {
         return response?.mapItems ?? []
     }
     
+    func locationNameUnwrapped(_ selectedLocation: MKMapItem?) -> String {
+        if selectedLocation == nil {
+            return "Lugar não encontrado."
+        } else if selectedLocation!.name == nil {
+            return "Nome do lugar não encontrado."
+        } else {
+            return selectedLocation!.name!
+        }
+    }
+    
+    func localToDeletUnwrapped(_ local: Local?) -> Local {
+        do {
+            let novoLocal = local!
+            return novoLocal
+        } catch {
+            print("[WARNING]: Failed to find Local (\(error.localizedDescription))")
+        }
+    }
+    
     var body: some View {
         NavigationStack{
             ZStack{
                 MapReader { proxy in
-                    Map(position: $position, selection: $selectedLocation) {
+                    Map(position: $position) {
                         if showDetails {
                             ForEach(cdViewModel.locais) { item in
                                 if typeFilter == item.type {
                                     Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
                                         LocalPoint(localType: typeFilter)
+                                            .onTapGesture{
+                                                selectedLocation = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)))
+                                                ifselectedLocation = true
+                                                localToErase = item
+                                                localToEraseName = item.name!
+                                            }
                                     } //Annotation
                                 }//if
                             }//ForEach
@@ -119,6 +147,22 @@ struct MapView: View {
                     cdViewModel.getLocal()
                     showDetails = false
                 }
+                .alert(localToEraseName, isPresented: $ifselectedLocation, actions: {
+                    Button("Abrir no Mapas") {
+                        selectedLocation?.openInMaps()
+                        ifselectedLocation = false
+                    }
+                    Button("Cancelar", role: .cancel) {
+                        ifselectedLocation = false
+                    }
+                    Button(role: .destructive) {
+                        cdViewModel.deleteLocal(localToDeletUnwrapped(localToErase))
+                        cdViewModel.getLocal()
+                        ifselectedLocation = false
+                    } label: {
+                        Text("Deletar da lista")
+                    }
+                })
                 VStack{
                     if showDetails {
                         ListaTitle(localType: typeFilter)
