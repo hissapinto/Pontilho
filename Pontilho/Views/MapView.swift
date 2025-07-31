@@ -19,8 +19,8 @@ struct MapView: View {
     @State private var settingDetent = PresentationDetent.medium
     @State private var selectedLocation: MKMapItem? = nil //para locais salvos nas listas
     @State private var ifselectedLocation: Bool = false
-    @State private var localToErase: Local? = nil
-    @State private var localToEraseName: String = "Nome não encontrado"
+    @State private var localToDelete: Local? = nil
+    @State private var localToDeleteName: String = "Nome não encontrado"
     @State private var placeItem: MKMapItem? = nil //para locais da pesquisa
 
     @State private var searchResults: [MKMapItem] = []
@@ -97,8 +97,8 @@ struct MapView: View {
                                             .onTapGesture{
                                                 selectedLocation = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)))
                                                 ifselectedLocation = true
-                                                localToErase = item
-                                                localToEraseName = item.name!
+                                                localToDelete = item
+                                                localToDeleteName = item.name!
                                             }
                                     } //Annotation
                                 }//if
@@ -147,7 +147,7 @@ struct MapView: View {
                     cdViewModel.getLocal()
                     showDetails = false
                 }
-                .alert(localToEraseName, isPresented: $ifselectedLocation, actions: {
+                .alert(localToDeleteName, isPresented: $ifselectedLocation, actions: {
                     Button("Abrir no Mapas") {
                         selectedLocation?.openInMaps()
                         ifselectedLocation = false
@@ -156,7 +156,7 @@ struct MapView: View {
                         ifselectedLocation = false
                     }
                     Button(role: .destructive) {
-                        cdViewModel.deleteLocal(localToDeletUnwrapped(localToErase))
+                        cdViewModel.deleteLocal(localToDeletUnwrapped(localToDelete))
                         cdViewModel.getLocal()
                         ifselectedLocation = false
                     } label: {
