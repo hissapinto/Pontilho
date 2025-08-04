@@ -42,7 +42,7 @@ struct SheetButton: View {
         do {
             return placeItem!.placemark.coordinate.latitude
         } catch {
-            print("[WARNING]: Failed to save container view context (\(error.localizedDescription))")
+            print("[WARNING]: Failed to find place's latitude (\(error.localizedDescription))")
         }
     }
     
@@ -50,19 +50,27 @@ struct SheetButton: View {
         do {
             return placeItem!.placemark.coordinate.longitude
         } catch {
-            print("[WARNING]: Failed to save container view context (\(error.localizedDescription))")
+            print("[WARNING]: Failed to find place's longitude (\(error.localizedDescription))")
+        }
+    }
+    
+    func placeIdentifierUnwrapped() -> String {
+        do {
+            return placeItem!.identifier!.rawValue
+        } catch {
+            print("[WARNING]: Failed to find place's identifier (\(error.localizedDescription))")
         }
     }
     
     var body: some View{
         Button {
-            let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped(), type: type)
+            let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped(), type: type, identifier: placeIdentifierUnwrapped())
             let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(placeNameUnWrapped())")
             NotificationManagerModel.scheduleNotification(notification: notification, days: 7)
             withAnimation {
                 didLocalWasCreated = true
             }
-            // Dismiss after 2 seconds
+            // Dismiss after 2 seconds (toast)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation {
                     didLocalWasCreated = false
@@ -79,10 +87,6 @@ struct SheetButton: View {
                         Color(localType.color)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 7)
-//                            .stroke(Color.pretinho, lineWidth: 2)
-//                    )
                     .shadow(color: .gray, radius: 1.5)
             }
         }
@@ -90,15 +94,15 @@ struct SheetButton: View {
     
 }
 
-#Preview {
-    // Define a coordinate
-    let coordinate = CLLocationCoordinate2D(latitude: 34.0522, longitude: -118.2437) // Los Angeles
-    
-    // Create an MKPlacemark
-    let placemark = MKPlacemark(coordinate: coordinate)
-    
-    // Create an MKMapItem from the placemark
-    let mapItem = MKMapItem(placemark: placemark)
-    
-    SheetButton(type: "coffee", placeItem: .constant(mapItem) , didLocalWasCreated: .constant(false), localType: .coffee)
-}
+//#Preview {
+//    // Define a coordinate
+//    let coordinate = CLLocationCoordinate2D(latitude: 34.0522, longitude: -118.2437) // Los Angeles
+//    
+//    // Create an MKPlacemark
+//    let placemark = MKPlacemark(coordinate: coordinate)
+//    
+//    // Create an MKMapItem from the placemark
+//    let mapItem = MKMapItem(placemark: placemark)
+//    
+//    SheetButton(type: "coffee", placeItem: .constant(mapItem) , didLocalWasCreated: .constant(false), localType: .coffee)
+//}

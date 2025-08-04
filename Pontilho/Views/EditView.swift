@@ -13,6 +13,7 @@ struct EditView: View {
     @Environment(\.dismiss) var dismiss
     @Binding var placeItem: MKMapItem?
     @Binding var didLocalWasCreated: Bool
+    let generalPadding: CGFloat = 20
     
     func placeNameUnWrapped() -> String {
         if placeItem == nil {
@@ -34,6 +35,15 @@ struct EditView: View {
         }
     }
     
+    func placeTypeUnwrapped() -> String {
+        if placeItem!.pointOfInterestCategory == nil {
+            return "Categoria não encontrada"
+        } else {
+            let fullText = placeItem!.pointOfInterestCategory!.rawValue
+            let text = fullText.split(separator: "MKPOICategory")
+            return String(text[0])
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -41,20 +51,30 @@ struct EditView: View {
                 HStack{
                     Text(placeNameUnWrapped())
                         .font(.system(.title, design: .serif, weight: .heavy))
-                        .padding(.leading, 20)
+                        .padding(.leading, generalPadding)
                     Spacer()
                 }
                 HStack{
+                    Text(placeTypeUnwrapped())
+                        .font(.footnote)
+                        .padding(.leading, generalPadding)
+                        .bold()
+                    Spacer()
+                }
+                Divider()
+                    .padding(.leading, generalPadding)
+                    .padding(.trailing, generalPadding)
+                HStack{
                     Text(placeAdressUnwrapped())
                         .font(.footnote)
-                        .padding(.leading, 20)
+                        .padding(.leading, generalPadding)
                     Spacer()
                 }
                 Spacer()
                 HStack{
                     Text("Salvar em uma lista: ")
                         .font(.headline)
-                        .padding(.leading, 20)
+                        .padding(.leading, generalPadding)
                     Spacer()
                 }
                 HStack{
@@ -66,8 +86,6 @@ struct EditView: View {
 
                 }
             }.padding(.top, 30)
-//                .navigationTitle(placeNameUnWrapped())
-//                .navigationBarTitleDisplayMode(.automatic)
         }
     }
     

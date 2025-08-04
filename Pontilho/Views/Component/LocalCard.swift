@@ -42,5 +42,5 @@ struct LocalCard: View {
 
 #Preview {
     @ObservedObject var cdViewModel = CDViewModel()
-    LocalCard(localType: .coffee, place: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee"))
+    LocalCard(localType: .coffee, place: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee", identifier: "tblbla"))
 }

@@ -33,7 +33,7 @@ struct MapView: View {
     private func findCity(city: String) async -> MKMapItem? { //trabsforma func em pega a posiçao do usuáriocdv
         let request = MKLocalSearch.Request()
         
-        if city == "Digite seu bairro" {
+        if city == "Digite sua cidade e bairro" {
             request.naturalLanguageQuery = "São Paulo"
         } else {
             request.naturalLanguageQuery = city
@@ -122,7 +122,7 @@ struct MapView: View {
                 }
                 .sheet(isPresented: $showSheet) {
                     EditView(placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated)
-                        .presentationDetents([.height(220)],
+                        .presentationDetents([.height(250)],
                                              selection: $settingDetent)
                 }
                 .mapControls { //Botões do mapa
@@ -176,6 +176,7 @@ struct MapView: View {
                 ZStack {
                     VStack{
                         if didLocalWasCreated {
+                            
                             LocalToast()
                                 .transition(.move(edge: .top).combined(with: .opacity))
                                 .zIndex(1) // Ensure toast is on top
@@ -184,7 +185,7 @@ struct MapView: View {
                         Spacer()
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top) // Position at the top
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             )
             .navigationTitle($cityToSearch)
             .navigationBarTitleDisplayMode(.inline)

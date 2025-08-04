@@ -24,6 +24,8 @@ class CoreDataController: ObservableObject {
             if let error = error {
                 fatalError("[ERROR]: Could not load CoreData stack (\(error.localizedDescription))")
             }
+            self.persistentContainer.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
+            //pra decidir como salvar um lugar duplicado
         })
     }
     
@@ -37,7 +39,7 @@ class CoreDataController: ObservableObject {
         }
     }
     
-    func createLocais(id: UUID, name: String, latitude: Double, longitude: Double, type: String) -> Local {
+    func createLocais(id: UUID, name: String, latitude: Double, longitude: Double, type: String, identifier: String) -> Local {
         let local = Local(context: viewContext)
         
         local.id = UUID()
@@ -45,6 +47,7 @@ class CoreDataController: ObservableObject {
         local.latitude = latitude
         local.longitude = longitude
         local.type = type
+        local.identifier = identifier
         
         saveContext()
         return local
