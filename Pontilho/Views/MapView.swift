@@ -22,39 +22,20 @@ struct MapView: View {
     @State private var localToDelete: Local? = nil
     @State private var localToDeleteName: String = "Nome não encontrado"
     @State private var placeItem: MKMapItem? = nil //para locais da pesquisa
-
-    @State private var searchResults: [MKMapItem] = []
-    @State private var cityToSearch: String = "Digite sua cidade e bairro"
+    @State private var userLocation: CLLocationCoordinate2D?
     
+    @State private var searchResults: [MKMapItem] = []
     let locationManager = CLLocationManager() //pra pegar a loc do usuário
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var didLocalWasCreated: Bool = false //pra enviar notificacao
     
-    private func findCity(city: String) async -> MKMapItem? { //trabsforma func em pega a posiçao do usuáriocdv
-        let request = MKLocalSearch.Request()
-        
-        if city == "Digite sua cidade e bairro" {
-            request.naturalLanguageQuery = "São Paulo"
-        } else {
-            request.naturalLanguageQuery = city
-        }
-        
-        request.addressFilter = MKAddressFilter(
-            including: .locality)
-        let search = MKLocalSearch(request: request)
-        let response = try? await search.start()
-        return response?.mapItems.first
-    }
-    
-    private func search(for query: String, in city: MKMapItem) async -> [MKMapItem] {
+    private func search(for query: String, in userLocation: CLLocationCoordinate2D?) async -> [MKMapItem] {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = query
         
-        let downtown = MKCoordinateRegion(
-            center: city.placemark.coordinate,
-            span: .init(latitudeDelta: 0.1,
-                        longitudeDelta: 0.1)
-        )
+        let locationToBeUsed = userLocation ?? CLLocationCoordinate2D(latitude: -23.5489, longitude: -46.6388) // ou SP
+        
+        let downtown = MKCoordinateRegion(center: locationToBeUsed, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
         
         request.region = downtown
         request.regionPriority = .required //limitar busca na minha região
@@ -76,12 +57,10 @@ struct MapView: View {
     }
     
     func localToDeletUnwrapped(_ local: Local?) -> Local {
-        do {
-            let novoLocal = local!
-            return novoLocal
-        } catch {
-            print("[WARNING]: Failed to find Local (\(error.localizedDescription))")
+        guard let local = local else {
+            fatalError()
         }
+        return local
     }
     
     var body: some View {
@@ -116,9 +95,12 @@ struct MapView: View {
                     } //Map
                 }//MapReader
                 .tint(.pretinho)
-                .searchable(text: $searchText, prompt: "O que você quer descobrir?")
+                .searchable(text: $searchText, prompt: "pesquisar")
                 .onAppear { //pedir loc usuário
                     locationManager.requestWhenInUseAuthorization()
+                    if let location = locationManager.location?.coordinate {
+                        userLocation = location
+                    }
                 }
                 .sheet(isPresented: $showSheet) {
                     EditView(placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated)
@@ -137,13 +119,10 @@ struct MapView: View {
                 }
                 .onChange(of: searchText) {
                     Task {
-                        guard let SaoPaulo = await findCity(city: cityToSearch) else {
-                            return
-                        }
-                        
-                        searchResults = await search(for: searchText, in: SaoPaulo)
+                        searchResults = await search(for: searchText, in: userLocation)
                         position = .automatic
                     }
+                    
                     cdViewModel.getLocal()
                     showDetails = false
                 }
@@ -171,12 +150,11 @@ struct MapView: View {
                     ListasScrollView(showDetails: $showDetails, typeFilter: $typeFilter)
                         .padding(.leading, 15)
                 }
-            }
+            } //Zstack
             .overlay(
                 ZStack {
                     VStack{
                         if didLocalWasCreated {
-                            
                             LocalToast()
                                 .transition(.move(edge: .top).combined(with: .opacity))
                                 .zIndex(1) // Ensure toast is on top
@@ -185,10 +163,20 @@ struct MapView: View {
                         Spacer()
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            )
-            .navigationTitle($cityToSearch)
-            .navigationBarTitleDisplayMode(.inline)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top))
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline) //Pra conseguir mudar font nav title
+            .toolbar { //Pra conseguir mudar font nav title
+                ToolbarItem(placement: .principal) {
+                    HStack {
+                        Text("Explore sua região")
+                            .font(.system(.largeTitle, design: .serif, weight: .heavy))
+                            .italic()
+                            .padding(.bottom, 5)
+                        Spacer()
+                    }
+                }
+            }
         }//NavigationStack
     }
 }

@@ -38,33 +38,33 @@ struct SheetButton: View {
         }
     }
     
-    func placeLatitudeUnwrapped() -> Double {
-        do {
-            return placeItem!.placemark.coordinate.latitude
-        } catch {
-            print("[WARNING]: Failed to find place's latitude (\(error.localizedDescription))")
+    func placeLatitudeUnwrapped(_ placeItem: MKMapItem?) -> Double {
+        guard let placeItem = placeItem else {
+            fatalError()
         }
+        return placeItem.placemark.coordinate.latitude
     }
     
-    func placeLongitudeUnwrapped() -> Double {
-        do {
-            return placeItem!.placemark.coordinate.longitude
-        } catch {
-            print("[WARNING]: Failed to find place's longitude (\(error.localizedDescription))")
+    func placeLongitudeUnwrapped(_ placeItem: MKMapItem?) -> Double {
+        guard let placeItem = placeItem else {
+            fatalError()
         }
+        return placeItem.placemark.coordinate.longitude
     }
     
-    func placeIdentifierUnwrapped() -> String {
-        do {
-            return placeItem!.identifier!.rawValue
-        } catch {
-            print("[WARNING]: Failed to find place's identifier (\(error.localizedDescription))")
+    func placeIdentifierUnwrapped(_ placeItem: MKMapItem?) -> String {
+        guard let placeItem = placeItem else {
+            fatalError()
         }
+        guard let identifier = placeItem.identifier else {
+            fatalError()
+        }
+        return identifier.rawValue
     }
     
     var body: some View{
         Button {
-            let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(), longitude: placeLongitudeUnwrapped(), type: type, identifier: placeIdentifierUnwrapped())
+            let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(placeItem), longitude: placeLongitudeUnwrapped(placeItem), type: type, identifier: placeIdentifierUnwrapped(placeItem))
             let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(placeNameUnWrapped())")
             NotificationManagerModel.scheduleNotification(notification: notification, days: 7)
             withAnimation {

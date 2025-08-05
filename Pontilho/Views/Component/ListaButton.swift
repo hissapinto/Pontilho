@@ -29,10 +29,6 @@ struct ListaButton: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .shadow(color: .gray, radius: 1.5)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 7)
-//                        .stroke(Color.pretinho, lineWidth: 2)
-//                )
         }
     }
 }
