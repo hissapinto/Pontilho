@@ -16,10 +16,6 @@ struct ListaTitle: View {
                 RoundedRectangle(cornerRadius: 7)
                     .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
                     .foregroundColor(LocalEnum(rawValue: localType)?.color)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 7)
-//                            .stroke(Color.pretinho, lineWidth: 1)
-//                    )
                     .shadow(color: .gray, radius: 1.5)
                     .padding(.top, 10)
                 Text(LocalEnum(rawValue: localType)?.title ?? "")
