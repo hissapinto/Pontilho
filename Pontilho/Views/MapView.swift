@@ -167,13 +167,11 @@ struct MapView: View {
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline) //Pra conseguir mudar font nav title
             .toolbar { //Pra conseguir mudar font nav title
-                ToolbarItem(placement: .principal) {
+                ToolbarItem(placement: .topBarLeading) {
                     HStack {
                         Text("Explore sua região")
                             .font(.system(.largeTitle, design: .serif, weight: .heavy))
                             .italic()
-                            .padding(.bottom, 5)
-                        Spacer()
                     }
                 }
             }
