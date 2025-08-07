@@ -115,7 +115,7 @@ struct MapView: View {
                 }
                 .onAppear() {
                     cdViewModel.getLocal()
-                    NotificationManagerModel.requirePermissions()
+//                    NotificationManagerModel.requirePermissions()
                 }
                 .onChange(of: searchText) {
                     Task {
