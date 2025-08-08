@@ -18,6 +18,7 @@ struct GifView: View {
                 Text("Pontilho")
                     .font(.system(.largeTitle, design: .serif, weight: .heavy))
                     .padding(.top, 20)
+                    .preferredColorScheme(.light)
             }.ignoresSafeArea()
         }
     }

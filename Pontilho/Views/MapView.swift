@@ -32,16 +32,13 @@ struct MapView: View {
     private func search(for query: String, in userLocation: CLLocationCoordinate2D?) async -> [MKMapItem] {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = query
-        
         let locationToBeUsed = userLocation ?? CLLocationCoordinate2D(latitude: -23.5489, longitude: -46.6388) // ou SP
-        
         let downtown = MKCoordinateRegion(center: locationToBeUsed, span: .init(latitudeDelta: 0.1, longitudeDelta: 0.1))
         
         request.region = downtown
         request.regionPriority = .required //limitar busca na minha região
         
         let search = MKLocalSearch(request: request)
-        
         let response = try? await search.start()
         return response?.mapItems ?? []
     }
