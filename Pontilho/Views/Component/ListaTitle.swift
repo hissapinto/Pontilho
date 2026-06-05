@@ -35,6 +35,7 @@ struct ListaTitle: View {
                     .padding(.trailing, padTrai)
                     .font(.system(.title, design: .serif, weight: .heavy))
                     .italic()
+                    .foregroundStyle(.pretinho)
             }
         }
     }

@@ -14,7 +14,11 @@ struct ListasScrollView: View {
         ScrollView(.horizontal) {
             HStack{
                 ForEach(LocalEnum.allCases, id: \.self) { type in
-                    ListaButton(vm: vm, localType: type)
+                    Button {
+                        vm.selectList(type: type)
+                    } label: {
+                        ListaButton(localType: type)
+                    }
                 }
             }
         }
