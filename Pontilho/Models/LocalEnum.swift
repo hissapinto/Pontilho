@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum LocalEnum: String {
+enum LocalEnum: String, CaseIterable {
     case coffee
     case park
     case restaurant

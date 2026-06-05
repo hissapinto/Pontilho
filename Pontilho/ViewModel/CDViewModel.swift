@@ -10,9 +10,10 @@ import CoreData
 import MapKit
 import SwiftUI
 
-class CDViewModel: ObservableObject {
-    @Published var locais: [Local] = []
-    @Published public var scheduledNotifications: [ScheduledNotification] = []
+@Observable
+class CDViewModel {
+    var locais: [Local] = []
+    public var scheduledNotifications: [ScheduledNotification] = []
     
     func getLocal() {
         locais = CoreDataController.shared.fetchLocais()

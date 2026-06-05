@@ -9,17 +9,30 @@ import SwiftUI
 
 struct ListaTitle: View {
     var localType: String
+    var padTop: CGFloat = 15
+    var padTrai: CGFloat = 60
     
     var body: some View {
         VStack{
             ZStack{
-                RoundedRectangle(cornerRadius: 7)
-                    .frame(width:UIScreen.main.bounds.width * 0.925, height: 40)
-                    .foregroundColor(LocalEnum(rawValue: localType)?.color)
-                    .shadow(color: .gray, radius: 1.5)
-                    .padding(.top, 10)
+                if #available(iOS 26.0, *) {
+                    RoundedRectangle(cornerRadius: 20)
+                        .frame(width:UIScreen.main.bounds.width * 0.80, height: 40)
+                        .foregroundColor(LocalEnum(rawValue: localType)?.color)
+                        .glassEffect()
+                        .padding(.top, padTop+3)
+                        .padding(.trailing, padTrai)
+                } else {
+                    RoundedRectangle(cornerRadius: 20)
+                        .frame(width:UIScreen.main.bounds.width * 0.80, height: 40)
+                        .foregroundColor(LocalEnum(rawValue: localType)?.color)
+                        .shadow(color: .gray, radius: 1.5)
+                        .padding(.top, padTop+3)
+                        .padding(.trailing, padTrai)
+                }
                 Text(LocalEnum(rawValue: localType)?.title ?? "")
-                    .padding(.top, 7)
+                    .padding(.top, padTop)
+                    .padding(.trailing, padTrai)
                     .font(.system(.title, design: .serif, weight: .heavy))
                     .italic()
             }

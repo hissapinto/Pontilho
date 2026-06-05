@@ -10,33 +10,38 @@ import SwiftUI
 import MapKit
 
 struct ListaButton: View {
-    @Binding var showDetails: Bool
-    @Binding var typeFilter: String
+    @Bindable var vm: MapViewModel
     let localType: LocalEnum
     
     var body: some View{
         Button {
-            showDetails.toggle()
-            typeFilter = localType.rawValue
-    } label: {
-        ZStack{
-            Image(localType.image)
-                .resizable()
-                .scaledToFit()
-                .frame(width: UIScreen.main.bounds.width * 0.12, height: UIScreen.main.bounds.height * 0.055)
-                .padding(7)
-                .background{
-                    Color(localType.color)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-                .shadow(color: .gray, radius: 1.5)
+            vm.selectList(type: localType)
+        } label: {
+            if #available(iOS 26.0, *) {
+                Image(localType.image)
+                    .resizable()
+                        .scaledToFit()
+                        .frame(width: 42, height: 42)
+                        .padding(12)
+                        .glassEffect(.regular.tint(Color(localType.color)), in: Circle())
+            } else {
+                Image(localType.image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: UIScreen.main.bounds.width * 0.12, height: UIScreen.main.bounds.height * 0.055)
+                    .padding(7)
+                    .background{
+                        Color(localType.color)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .shadow(color: .gray, radius: 1.5)
+            }
         }
     }
-}
-
+    
 }
 
 #Preview {
     
-    ListaButton(showDetails: .constant(true), typeFilter: .constant("coffee"), localType: .coffee)
+    ListaButton(vm: MapViewModel(), localType: .coffee)
 }

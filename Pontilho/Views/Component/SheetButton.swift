@@ -11,12 +11,11 @@ import MapKit
 
 struct SheetButton: View {
     var type: String
-    @ObservedObject var cdViewModel = CDViewModel()
+    @State var cdViewModel = CDViewModel()
     @Binding var placeItem: MKMapItem?
     @Binding var didLocalWasCreated: Bool
     
     let localType: LocalEnum
-    
     
     func placeNameUnWrapped() -> String {
         if placeItem == nil {
@@ -77,7 +76,14 @@ struct SheetButton: View {
                 }
             }
         } label: {
-            ZStack{
+            if #available(iOS 26.0, *) {
+                Image(localType.image)
+                    .resizable()
+                        .scaledToFit()
+                        .frame(width: 42, height: 42)
+                        .padding(12)
+                        .glassEffect(.regular.tint(Color(localType.color)), in: Circle())
+            } else {
                 Image(localType.image)
                     .resizable()
                     .scaledToFit()

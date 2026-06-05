@@ -13,13 +13,24 @@ struct LocalPoint: View {
 
     var body: some View {
         ZStack{
-            Circle()
-                .frame(width: 20, height: 20)
-                .foregroundColor(LocalEnum(rawValue: localType)?.color)
-                .overlay(
-                    Circle()
-                        .stroke(Color.pretinho, lineWidth: 0.5)
-                )
+            if #available(iOS 26.0, *) {
+                Circle()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(LocalEnum(rawValue: localType)?.color)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.pretinho, lineWidth: 0.5)
+                    )
+                    .glassEffect()
+            } else {
+                Circle()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(LocalEnum(rawValue: localType)?.color)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.pretinho, lineWidth: 0.5)
+                    )
+            }
             Circle()
                 .frame(width: 10, height: 10)
             

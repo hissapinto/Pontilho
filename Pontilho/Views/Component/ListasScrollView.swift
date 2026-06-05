@@ -8,23 +8,24 @@
 import SwiftUI
 
 struct ListasScrollView: View {
-    @Binding var showDetails: Bool
-    @Binding var typeFilter: String
+    @Bindable var vm: MapViewModel
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack{
-                ListaButton(showDetails: $showDetails, typeFilter: $typeFilter, localType: LocalEnum.park)
-                ListaButton(showDetails: $showDetails, typeFilter: $typeFilter, localType: LocalEnum.coffee)
-                ListaButton(showDetails: $showDetails, typeFilter: $typeFilter, localType: LocalEnum.culture)
-                ListaButton(showDetails: $showDetails, typeFilter: $typeFilter, localType: LocalEnum.restaurant)
-                ListaButton(showDetails: $showDetails, typeFilter: $typeFilter, localType: LocalEnum.sweet)
+                ForEach(LocalEnum.allCases, id: \.self) { type in
+                    ListaButton(vm: vm, localType: type)
+                }
             }
-        }.padding(.leading, 10)
+        }
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+        .padding(.leading, 10)
+        .padding(.bottom, 10)
     }
 }
 
 
 #Preview {
-    ListasScrollView(showDetails: .constant(false), typeFilter: .constant("coffee"))
+    ListasScrollView(vm: MapViewModel())
 }
