@@ -105,10 +105,13 @@ class MapViewModel {
         }
         
         else {
+            showPins = false
+            typeFilter = type.rawValue
             showPins = true
             previourTypeFilter = typeFilter
             isSearchVisible = false
             hasPreviousTypeFilter = true
+            searchResults = []
         }
         
     }
