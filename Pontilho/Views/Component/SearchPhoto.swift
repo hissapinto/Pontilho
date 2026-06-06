@@ -8,33 +8,76 @@
 import SwiftUI
 
 struct SearchPhoto: View {
-    let images: [UIImage]
+    var vm: MapViewModel
     
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack {
-                ForEach(images.indices, id: \.self) { i in
-                    Image(uiImage: images[i])
-                        .resizable()
-                        .scaledToFill()
+        if vm.isLoadingPhoto {
+            ZStack {
+                VStack(spacing: 8) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundStyle(.pretinho)
+                        .symbolEffect(.rotate, options: .speed(1.5))
+                    Text("Carregando")
+                        .font(.caption)
+                }
+                RoundedRectangle(cornerRadius: 13)
+                    .stroke(.pretinho, lineWidth: 1)
+                    .foregroundStyle(.branquinho)
+                    .frame(height: 170)
+                    .containerRelativeFrame(.horizontal) { width, axis in
+                        width * 0.90
+                    }
+            }
+            .padding(.leading, 20)
+        } else {
+            if !vm.placesPhotos.isEmpty {
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(vm.placesPhotos.indices, id: \.self) { i in
+                            Image(uiImage: vm.placesPhotos[i])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: 170)
+                                .containerRelativeFrame(.horizontal) { width, axis in
+                                    width * 0.95
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 13))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 13)
+                                        .stroke(.pretinho, lineWidth: 1)
+                                }
+                        }
+                    }
+                }
+                .padding(.leading, 20)
+                .scrollIndicators(.hidden)
+                .scrollClipDisabled()
+            } else {
+                ZStack {
+                    VStack(spacing: 8) {
+                        Image(systemName: "photo.trianglebadge.exclamationmark")
+                            .font(.largeTitle)
+                            .foregroundStyle(.pretinho)
+                        Text("Sem imagem")
+                            .font(.caption)
+                    }
+                    RoundedRectangle(cornerRadius: 13)
+                        .stroke(.pretinho, lineWidth: 1)
+                        .foregroundStyle(.branquinho)
                         .frame(height: 170)
                         .containerRelativeFrame(.horizontal) { width, axis in
-                            width * 0.95
-                        }
-                        .clipShape(RoundedRectangle(cornerRadius: 13))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 13)
-                                .stroke(.pretinho, lineWidth: 1)
+                            width * 0.90
                         }
                 }
+                .padding(.leading, 20)
             }
+            
         }
-        .padding(.leading, 20)
-        .scrollIndicators(.hidden)
-        .scrollClipDisabled()
     }
 }
 
 #Preview {
-    SearchPhoto(images: [UIImage(named: "CoffeeShop")!, UIImage(named: "CoffeeShop2")!, UIImage(named: "CoffeeShop3")!])
+    SearchPhoto(vm: MapViewModel())
 }

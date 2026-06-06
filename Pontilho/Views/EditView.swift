@@ -65,10 +65,8 @@ struct EditView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                 
-                if !vm.placesPhotos.isEmpty {
-                    SearchPhoto(images: vm.placesPhotos)
-                        .padding(.top, 15)
-                }
+                SearchPhoto(vm: vm)
+                    .padding(.top, 15)
                 
                 Spacer()
                 
@@ -81,8 +79,8 @@ struct EditView: View {
                         ForEach(LocalEnum.allCases, id: \.self) { type in
                             SheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, localType: type)
                         }
-                    }.padding(.leading, generalPadding)
-                }
+                    }
+                }.padding(.leading, generalPadding)
                 
             }.padding(.top, 30)
         }
