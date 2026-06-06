@@ -9,7 +9,8 @@ import Foundation
 import CoreData
 import MapKit
 
-class CoreDataController: ObservableObject {
+@Observable
+class CoreDataController {
     
     public static let shared = CoreDataController()
     

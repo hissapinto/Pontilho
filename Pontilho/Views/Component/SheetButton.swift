@@ -56,14 +56,14 @@ struct SheetButton: View {
             fatalError()
         }
         guard let identifier = placeItem.identifier else {
-            fatalError()
+            return "Sem nome"
         }
         return identifier.rawValue
     }
     
     var body: some View{
         Button {
-            let newLocation = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(placeItem), longitude: placeLongitudeUnwrapped(placeItem), type: type, identifier: placeIdentifierUnwrapped(placeItem))
+            _ = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(placeItem), longitude: placeLongitudeUnwrapped(placeItem), type: type, identifier: placeIdentifierUnwrapped(placeItem))
             let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(placeNameUnWrapped())")
             NotificationManagerModel.scheduleNotification(notification: notification, days: 7)
             withAnimation {

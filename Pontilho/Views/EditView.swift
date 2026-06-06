@@ -11,80 +11,79 @@ import Foundation
 
 struct EditView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var placeItem: MKMapItem?
-    @Binding var didLocalWasCreated: Bool
+    @Bindable var vm: MapViewModel
     let generalPadding: CGFloat = 20
     
     func placeNameUnWrapped() -> String {
-        if placeItem == nil {
+        if vm.placeItem == nil {
             return "Nome não encontrado"
-        } else if placeItem!.name == nil {
+        } else if vm.placeItem!.name == nil {
             return "Nome não encontrado"
         } else {
-            return placeItem!.name!
+            return vm.placeItem!.name!
         }
     }
     
     func placeAdressUnwrapped() -> String {
-        if placeItem == nil {
+        if vm.placeItem == nil {
             return "Sem descrição"
-        } else if placeItem!.placemark.title == nil {
+        } else if vm.placeItem!.placemark.title == nil {
             return "Sem descrição"
         } else {
-            return placeItem!.placemark.title!
+            return vm.placeItem!.placemark.title!
         }
     }
     
     func placeTypeUnwrapped() -> String {
-        if placeItem!.pointOfInterestCategory == nil {
-            return "Categoria não encontrada"
-        } else {
-            let fullText = placeItem!.pointOfInterestCategory!.rawValue
-            let text = fullText.split(separator: "MKPOICategory")
-            return String(text[0])
-        }
+        guard let placeItem = vm.placeItem else { return "Categoria não encontrada" }
+        guard let category = placeItem.pointOfInterestCategory else { return "Categoria não encontrada" }
+        
+        let text = category.rawValue.split(separator: "MKPOICategory")
+        return String(text[0])
     }
     
     var body: some View {
         NavigationStack {
-            VStack{
-                HStack{
-                    Text(placeNameUnWrapped())
-                        .font(.system(.title, design: .serif, weight: .heavy))
-                        .padding(.leading, generalPadding)
-                    Spacer()
-                }
-                HStack{
-                    Text(placeTypeUnwrapped())
-                        .font(.footnote)
-                        .padding(.leading, generalPadding)
-                        .bold()
-                    Spacer()
-                }
+            VStack(alignment: .leading){
+                
+                Text(placeNameUnWrapped())
+                    .font(.system(.title, design: .serif, weight: .heavy))
+                    .padding(.leading, generalPadding)
+                
+                Text(placeTypeUnwrapped())
+                    .font(.footnote)
+                    .padding(.leading, generalPadding)
+                    .bold()
+                
                 Divider()
                     .padding(.leading, generalPadding)
                     .padding(.trailing, generalPadding)
-                HStack{
-                    Text(placeAdressUnwrapped())
-                        .font(.footnote)
-                        .padding(.leading, generalPadding)
-                    Spacer()
+                
+                Text(placeAdressUnwrapped())
+                    .font(.footnote)
+                    .padding(.leading, generalPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                if !vm.placesPhotos.isEmpty {
+                    SearchPhoto(images: vm.placesPhotos)
+                        .padding(.top, 15)
                 }
+                
                 Spacer()
-                HStack{
-                    Text("Salvar em uma lista: ")
-                        .font(.headline)
-                        .padding(.leading, generalPadding)
-                    Spacer()
+                
+                Text("Salvar em uma lista: ")
+                    .font(.headline)
+                    .padding(.leading, generalPadding)
+                
+                ScrollView(.horizontal) {
+                    HStack{
+                        ForEach(LocalEnum.allCases, id: \.self) { type in
+                            SheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, localType: type)
+                        }
+                    }.padding(.leading, generalPadding)
                 }
-                HStack{
-                    SheetButton(type: "park", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .park)
-                    SheetButton(type: "coffee", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .coffee)
-                    SheetButton(type: "culture", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .culture)
-                    SheetButton(type: "restaurant", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .restaurant)
-                    SheetButton(type: "sweet", placeItem: $placeItem, didLocalWasCreated: $didLocalWasCreated, localType: .sweet)
-
-                }
+                
             }.padding(.top, 30)
         }
     }
@@ -92,5 +91,19 @@ struct EditView: View {
 }
 
 #Preview {
-    MapView()
+    let placemark = MKPlacemark(
+        coordinate: CLLocationCoordinate2D(latitude: -23.5558, longitude: -46.6396),
+        addressDictionary: [
+            "Street": "Rua Bela Cintra",
+            "City": "São Paulo"
+        ]
+    )
+    let mapItem = MKMapItem(placemark: placemark)
+    mapItem.name = "Árvore do Pão"
+    mapItem.pointOfInterestCategory = .cafe
+    
+    let vm = MapViewModel()
+    vm.placeItem = mapItem
+    
+    return EditView(vm: vm)
 }

@@ -48,7 +48,7 @@ struct NotificationManagerModel {
         // Notification calendar trigger with date components
         var dateComponents = DateComponents()
         dateComponents.day = 7
-//        dateComponents.minute = minute
+        //dateComponents.minute = minute
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: repeating)
 
         // Notification send request

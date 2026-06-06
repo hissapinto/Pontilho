@@ -48,8 +48,8 @@ struct MapView: View {
                 
                 ///Mostrar algo
                 .sheet(isPresented: $vm.showSheet) {
-                    EditView(placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated)
-                        .presentationDetents([.height(250)],
+                    EditView(vm: vm)
+                        .presentationDetents([.height(430)],
                                              selection: $vm.settingDetent)
                 }
                 .directionOrDeleteAlert(vm: vm)

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E16B44F02FD45BB2003E9736 /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = E16B44EF2FD45BB2003E9736 /* GooglePlaces */; };
+		E16B44F22FD45BB2003E9736 /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E16B44F12FD45BB2003E9736 /* GooglePlacesSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		E1BA63F92E256DD700F0B78D /* Pontilho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pontilho.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E16B44F02FD45BB2003E9736 /* GooglePlaces in Frameworks */,
+				E16B44F22FD45BB2003E9736 /* GooglePlacesSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = Pontilho;
 			packageProductDependencies = (
+				E16B44EF2FD45BB2003E9736 /* GooglePlaces */,
+				E16B44F12FD45BB2003E9736 /* GooglePlacesSwift */,
 			);
 			productName = Pontilho;
 			productReference = E1BA63F92E256DD700F0B78D /* Pontilho.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = E1BA63F02E256DD700F0B78D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E16B44EE2FD45BB2003E9736 /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E1BA63FA2E256DD700F0B78D /* Products */;
 			projectDirPath = "";
@@ -349,6 +361,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E16B44EE2FD45BB2003E9736 /* XCRemoteSwiftPackageReference "ios-places-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-places-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E16B44EF2FD45BB2003E9736 /* GooglePlaces */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E16B44EE2FD45BB2003E9736 /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlaces;
+		};
+		E16B44F12FD45BB2003E9736 /* GooglePlacesSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E16B44EE2FD45BB2003E9736 /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlacesSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E1BA63F12E256DD700F0B78D /* Project object */;
 }

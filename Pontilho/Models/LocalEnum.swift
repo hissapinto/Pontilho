@@ -9,19 +9,23 @@ import Foundation
 import SwiftUI
 
 enum LocalEnum: String, CaseIterable {
-    case coffee
     case park
+    case coffee
+    case culture
     case restaurant
     case sweet
-    case culture
     
     var color: Color {
         switch self {
-        case .coffee:
-            return .azulzinho
             
         case .park:
             return .verdinho
+            
+        case .coffee:
+            return .azulzinho
+            
+        case .culture:
+            return .lilazinho
             
         case .restaurant:
             return .laranjinha
@@ -29,48 +33,47 @@ enum LocalEnum: String, CaseIterable {
         case .sweet:
             return .amarelinho
             
-        case .culture:
-            return .lilazinho
-            
         }
     }
     
     var title: String {
         switch self {
-        case .coffee:
-            return "Cafés"
             
         case .park:
             return "Ar livre"
             
+        case .coffee:
+            return "Cafés"
+            
+        case .culture:
+            return "Cultural"
+        
         case .restaurant:
             return "Restaurantes"
             
         case .sweet:
             return "Noitada"
             
-        case .culture:
-            return "Cultural"
-            
         }
     }
     
     var image: String {
+        
         switch self {
+        case .park:
+            return "Bolinhas"
+            
         case .coffee:
             return "Cafe"
             
-        case .park:
-            return "Bolinhas"
+        case .culture:
+            return "Livros"
             
         case .restaurant:
             return "Prato"
             
         case .sweet:
             return "Docinho"
-            
-        case .culture:
-            return "Livros"
             
         }
     }
