@@ -48,9 +48,11 @@ struct MapView: View {
                 
                 ///Mostrar algo
                 .sheet(isPresented: $vm.showSheet) {
-                    EditView(vm: vm)
-                        .presentationDetents([.height(430)],
-                                             selection: $vm.settingDetent)
+                    if let local = vm.placeItem {
+                        EditView(vm: vm, local: local)
+                            .presentationDetents([.height(430)],
+                                                 selection: $vm.settingDetent)
+                    }
                 }
                 .directionOrDeleteAlert(vm: vm)
                 ListasTitleEScrollView(vm: vm)

@@ -34,10 +34,6 @@ struct MapReaderComponent: View {
                         .onTapGesture {
                             vm.placeItem = item
                             vm.showSheet.toggle()
-                            vm.placesPhotos = [] //limpa
-                            Task {
-                                await vm.fetchPlacePhotos(for: item)
-                            }
                         }
                 }
             }

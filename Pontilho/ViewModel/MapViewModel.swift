@@ -13,11 +13,6 @@ import CoreLocation
 @Observable
 @MainActor
 class MapViewModel {
-    ///para a API de imagens do google
-    var placesAPI = PlacesAPI()
-    var placesPhotos: [UIImage] = []
-    var isLoadingPhoto: Bool = false
-    
     ///Para busca
     var searchText = ""
     var isSearchVisible = false
@@ -43,7 +38,7 @@ class MapViewModel {
     var localToDeleteName: String = "Nome não encontrado"
     
     ///User info
-    private var userLocation: CLLocationCoordinate2D?
+    var userLocation: CLLocationCoordinate2D?
     private let locationManager = CLLocationManager() //pra pegar a loc do usuário
     var position: MapCameraPosition = .userLocation(fallback: .automatic)
     
@@ -127,14 +122,6 @@ class MapViewModel {
         showPins = false
         typeFilter = ""
         isSearchVisible = true
-    }
-    
-    ///Se comunica com a API e pede as fotos
-    func fetchPlacePhotos(for local: MKMapItem) async {
-        guard let location = userLocation else { return }
-        isLoadingPhoto = true
-        placesPhotos = await placesAPI.fetchPhoto(for: local, near: location)
-        isLoadingPhoto = false
     }
     
 }

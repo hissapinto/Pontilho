@@ -41,6 +41,6 @@ struct LocalCard: View {
 }
 
 #Preview {
-    var cdViewModel = CDViewModel()
+    let cdViewModel = CDViewModel()
     LocalCard(localType: .coffee, place: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee", identifier: "tblbla"))
 }
