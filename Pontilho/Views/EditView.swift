@@ -79,7 +79,7 @@ struct EditView: View {
     mapItem.name = "Árvore do Pão"
     mapItem.pointOfInterestCategory = .cafe
     
-    let vm = MapViewModel()
+    let vm = MapViewModel(cdViewModel: CDViewModel())
     vm.placeItem = mapItem
     
     return EditView(vm: vm, local: mapItem)

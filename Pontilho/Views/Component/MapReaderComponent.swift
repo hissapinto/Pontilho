@@ -42,5 +42,5 @@ struct MapReaderComponent: View {
 }
 
 #Preview {
-    MapReaderComponent(vm: MapViewModel())
+    MapReaderComponent(vm: MapViewModel(cdViewModel: CDViewModel()))
 }

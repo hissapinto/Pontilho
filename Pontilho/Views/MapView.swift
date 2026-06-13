@@ -11,68 +11,82 @@ import MapKit
 import CoreLocation
 
 struct MapView: View {
-    @State private var vm = MapViewModel()
+    @Environment(CDViewModel.self) private var cdViewModel
+    @State private var vm: MapViewModel?
     
     var body: some View {
-        NavigationStack{
-            ZStack{
-                MapReader { proxy in
-                    MapReaderComponent(vm: vm)
-                }
-                ///UI
-                .mapControls {
-                    MapUserLocationButton()
-                    MapCompass()
-                }
-                .tint(.pretinho)
-                
-                ///Performar algo
-                .searchable(text: $vm.searchText, isPresented: $vm.isSearchVisible, placement: .automatic, prompt: "pesquisar")
-                .onChange(of: vm.isSearchVisible) {
-                    if vm.isSearchVisible {
-                        vm.deselectList()
+        NavigationStack {
+            if let vm {
+                content(vm: vm)
+            } else {
+                ProgressView()
+                    .onAppear {
+                        vm = MapViewModel(cdViewModel: cdViewModel)
                     }
-                }
-                .onAppear {
-                    vm.requestUserAutorization()
-                    vm.cdViewModel.getLocal()
-                }
-                .onChange(of: vm.searchText) {
-                    Task {
-                        await vm.peformSearch(for: vm.searchText)
-                    }
-                    
-                    vm.cdViewModel.getLocal()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func content(vm: MapViewModel) -> some View {
+        @Bindable var vm = vm
+        ZStack{
+            MapReader { proxy in
+                MapReaderComponent(vm: vm)
+            }
+            ///UI
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+            }
+            .tint(.pretinho)
+            
+            ///Performar algo
+            .searchable(text: $vm.searchText, isPresented: $vm.isSearchVisible, placement: .automatic, prompt: "pesquisar")
+            .onChange(of: vm.isSearchVisible) {
+                if vm.isSearchVisible {
                     vm.deselectList()
                 }
+            }
+            .onAppear {
+                vm.requestUserAutorization()
+                vm.cdViewModel.getLocal()
+            }
+            .onChange(of: vm.searchText) {
+                Task {
+                    await vm.peformSearch(for: vm.searchText)
+                }
                 
-                ///Mostrar algo
-                .sheet(isPresented: $vm.showSheet) {
-                    if let local = vm.placeItem {
-                        EditView(vm: vm, local: local)
-                            .presentationDetents([.height(430)],
-                                                 selection: $vm.settingDetent)
-                    }
-                }
-                .directionOrDeleteAlert(vm: vm)
-                ListasTitleEScrollView(vm: vm)
+                vm.cdViewModel.getLocal()
+                vm.deselectList()
             }
-
-            .overlay(LocalToastOverlay(vm: vm))
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    HStack {
-                        Text("Explore sua região")
-                            .font(.system(.largeTitle, design: .serif, weight: .heavy))
-                            .italic()
-                    }
+            
+            ///Mostrar algo
+            .sheet(isPresented: $vm.showSheet) {
+                if let local = vm.placeItem {
+                    EditView(vm: vm, local: local)
+                        .presentationDetents([.height(430)],
+                                             selection: $vm.settingDetent)
                 }
             }
-            .background(Color.white.opacity(1))
-            .toolbarRole(.editor)
+            .directionOrDeleteAlert(vm: vm)
+            ListasTitleEScrollView(vm: vm)
         }
+        
+        .overlay(LocalToastOverlay(vm: vm))
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack {
+                    Text("Explore sua região")
+                        .font(.system(.largeTitle, design: .serif, weight: .heavy))
+                        .italic()
+                }
+            }
+        }
+        .background(Color.white.opacity(1))
+        .toolbarRole(.editor)
     }
 }
 

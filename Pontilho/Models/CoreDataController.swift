@@ -40,7 +40,7 @@ class CoreDataController {
         }
     }
     
-    func createLocais(id: UUID, name: String, latitude: Double, longitude: Double, type: String, identifier: String) -> Local {
+    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String) -> Local {
         let local = Local(context: viewContext)
         
         local.id = UUID()

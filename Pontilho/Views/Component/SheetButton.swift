@@ -11,30 +11,24 @@ import MapKit
 
 struct SheetButton: View {
     var type: String
-    @State var cdViewModel = CDViewModel()
+    @Environment(CDViewModel.self) private var cdViewModel
     @Binding var placeItem: MKMapItem?
     @Binding var didLocalWasCreated: Bool
     
     let localType: LocalEnum
     
     func placeNameUnWrapped() -> String {
-        if placeItem == nil {
+        guard ((placeItem?.name) != nil) else {
             return "Nome não encontrado"
-        } else if placeItem!.name == nil {
-            return "Nome não encontrado"
-        } else {
-            return placeItem!.name!
         }
+        return placeItem!.name!
     }
     
     func placeAdressUnwrapped() -> String {
-        if placeItem == nil {
+        guard ((placeItem?.placemark.title) != nil) else {
             return "Sem descrição"
-        } else if placeItem!.placemark.title == nil {
-            return "Sem descrição"
-        } else {
-            return placeItem!.placemark.title!
         }
+        return placeItem!.placemark.title!
     }
     
     func placeLatitudeUnwrapped(_ placeItem: MKMapItem?) -> Double {
@@ -52,10 +46,7 @@ struct SheetButton: View {
     }
     
     func placeIdentifierUnwrapped(_ placeItem: MKMapItem?) -> String {
-        guard let placeItem = placeItem else {
-            fatalError()
-        }
-        guard let identifier = placeItem.identifier else {
+        guard let identifier = placeItem?.identifier else {
             return "Sem nome"
         }
         return identifier.rawValue
@@ -65,7 +56,7 @@ struct SheetButton: View {
         Button {
             _ = cdViewModel.createLocal(name: placeNameUnWrapped(), latitude: placeLatitudeUnwrapped(placeItem), longitude: placeLongitudeUnwrapped(placeItem), type: type, identifier: placeIdentifierUnwrapped(placeItem))
             let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(placeNameUnWrapped())")
-            NotificationManagerModel.scheduleNotification(notification: notification, days: 7)
+            NotificationManagerModel.scheduleNotification(notification: notification, cdViewModel: cdViewModel)
             withAnimation {
                 didLocalWasCreated = true
             }

@@ -33,7 +33,7 @@ class MapViewModel {
     var didLocalWasCreated: Bool = false //pra enviar notificacao de salvo
     
     ///CoreData
-    var cdViewModel = CDViewModel()
+    let cdViewModel: CDViewModel
     var localToDelete: Local? = nil
     var localToDeleteName: String = "Nome não encontrado"
     
@@ -41,6 +41,10 @@ class MapViewModel {
     var userLocation: CLLocationCoordinate2D?
     private let locationManager = CLLocationManager() //pra pegar a loc do usuário
     var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    
+    init(cdViewModel: CDViewModel) {
+        self.cdViewModel = cdViewModel
+    }
     
     ///Busca locais em relação a localização do usuário.
     private func search(for query: String, in userLocation: CLLocationCoordinate2D?) async -> [MKMapItem] {
@@ -72,14 +76,6 @@ class MapViewModel {
         } else {
             return selectedLocation!.name!
         }
-    }
-    
-    ///Unwrap de local a ser deletado
-    func localToDeletUnwrapped(_ local: Local?) -> Local {
-        guard let local = local else {
-            fatalError()
-        }
-        return local
     }
     
     ///Pedir localização usuário

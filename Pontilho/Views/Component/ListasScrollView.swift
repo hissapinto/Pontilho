@@ -31,5 +31,5 @@ struct ListasScrollView: View {
 
 
 #Preview {
-    ListasScrollView(vm: MapViewModel())
+    ListasScrollView(vm: MapViewModel(cdViewModel: CDViewModel()))
 }

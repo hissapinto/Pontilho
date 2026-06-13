@@ -11,7 +11,6 @@ struct LocalCard: View {
     var localType: LocalEnum
     let place: Local
 
-
     var body: some View {
         VStack(spacing: 0){
             ZStack{

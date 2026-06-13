@@ -21,8 +21,10 @@ extension View {
                 vm.ifselectedLocation = false
             }
             Button(role: .destructive) {
-                vm.cdViewModel.deleteLocal(vm.localToDeletUnwrapped(vm.localToDelete))
-                vm.cdViewModel.getLocal()
+                if let local = vm.localToDelete {
+                    vm.cdViewModel.deleteLocal(local)
+                    vm.cdViewModel.getLocal()
+                }
                 vm.ifselectedLocation = false
             } label: {
                 Text("Deletar da lista")

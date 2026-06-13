@@ -10,14 +10,19 @@ import GooglePlacesSwift
 
 @main
 struct PontilhoApp: App {
+    @State private var cdViewModel = CDViewModel()
     
     init() {
-        _ = PlacesClient.provideAPIKey("AIzaSyDq0EVItE5h2D8Trrguz0vaWrPniC1huSY")
+        guard let key = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_PLACES_API_KEY") as? String else {
+            fatalError("[ERROR]: GOOGLE_PLACES_API_KEY não encontrada no Info.plist")
+        }
+        _ = PlacesClient.provideAPIKey(key)
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(cdViewModel)
         }
     }
 }

@@ -23,5 +23,5 @@ struct ListasTitleEScrollView: View {
 }
 
 #Preview {
-    ListasTitleEScrollView(vm: MapViewModel())
+    ListasTitleEScrollView(vm: MapViewModel(cdViewModel: CDViewModel()))
 }

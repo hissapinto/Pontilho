@@ -27,5 +27,5 @@ struct LocalToastOverlay: View {
 }
 
 #Preview {
-    LocalToastOverlay(vm: MapViewModel())
+    LocalToastOverlay(vm: MapViewModel(cdViewModel: CDViewModel()))
 }

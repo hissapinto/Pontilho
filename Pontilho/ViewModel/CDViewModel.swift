@@ -20,7 +20,7 @@ class CDViewModel {
     }
     
     func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String) -> Local {
-        let result = CoreDataController.shared.createLocais(id: UUID(), name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier)
+        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier)
         self.locais.append(result)
         return result
     }
