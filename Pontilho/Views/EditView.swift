@@ -60,7 +60,7 @@ struct EditView: View {
             .padding(.top, 30)
             .task {
                 eVm.placesPhotos = [] //limpa
-                await eVm.fetchPlacePhotos(for: local, near: vm.userLocation ?? CLLocationCoordinate2D(latitude: -23.5489, longitude: -46.6388))
+                await eVm.fetchPlacePhotos(for: local)
             }
         }
     }

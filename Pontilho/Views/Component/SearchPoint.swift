@@ -11,12 +11,22 @@ import MapKit
 struct SearchPoint: View {
     
     var body: some View {
-        Image(.pin)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 25,height: 20)
-            .foregroundColor(.pretinho)
-            .fontWeight(.semibold)
+        if #available(iOS 26.0, *) {
+            Image(.pin)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 25,height: 20)
+                .foregroundColor(.pretinho)
+                .fontWeight(.semibold)
+                .glassEffect()
+        } else {
+            Image(.pin)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 25,height: 20)
+                .foregroundColor(.pretinho)
+                .fontWeight(.semibold)
+        }
     }
 }
 

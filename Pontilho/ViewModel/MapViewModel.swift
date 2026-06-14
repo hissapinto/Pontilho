@@ -38,6 +38,7 @@ class MapViewModel {
     var selectedLocation: MKMapItem? = nil //para locais salvos nas listas
     var ifselectedLocation: Bool = false
     var didLocalWasCreated: Bool = false //pra enviar notificacao de salvo
+    var mapSelection: MapSelection<MKMapItem>? // para Points of interest nativos
     
     ///CoreData
     let cdViewModel: CDViewModel

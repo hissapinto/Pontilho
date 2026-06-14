@@ -42,9 +42,9 @@ class EditViewModel {
     }
     
     ///Se comunica com a API e pede as fotos
-    func fetchPlacePhotos(for local: MKMapItem, near location: CLLocationCoordinate2D) async {
+    func fetchPlacePhotos(for local: MKMapItem) async {
         isLoadingPhoto = true
-        placesPhotos = await placesAPI.fetchPhoto(for: local, near: location)
+        placesPhotos = await placesAPI.fetchPhoto(for: local)
         isLoadingPhoto = false
     }
     

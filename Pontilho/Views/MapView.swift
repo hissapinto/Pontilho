@@ -72,7 +72,7 @@ struct MapView: View {
             }
             
             ///Mostrar algo
-            .sheet(isPresented: $vm.showSheet) {
+            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil }) {
                 if let local = vm.placeItem {
                     EditView(vm: vm, local: local)
                         .presentationDetents([.height(430)],

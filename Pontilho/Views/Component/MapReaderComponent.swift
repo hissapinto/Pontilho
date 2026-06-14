@@ -12,7 +12,7 @@ struct MapReaderComponent: View {
     @Bindable var vm: MapViewModel
     
     var body: some View {
-        Map(position: $vm.position) {
+        Map(position: $vm.position, selection: $vm.mapSelection) {
             if vm.showPins {
                 ForEach(vm.cdViewModel.locais) { item in
                     if vm.typeFilter == item.type {
@@ -49,6 +49,23 @@ struct MapReaderComponent: View {
             guard let distance = vm.distanceFromPreviousAndActualVisibleRegion() else { return }
             if distance > 1000 && vm.isSearchVisible && vm.searchText != "" {
                 vm.setSearchLocallyVisible()
+            }
+        }
+        .onChange(of: vm.mapSelection) {
+            if let item = vm.mapSelection?.value {
+                vm.placeItem = item
+                vm.showSheet = true
+            } else if let feature = vm.mapSelection?.feature {
+                Task {
+                    let request = MKMapItemRequest(feature: feature)
+                    do {
+                        let item = try await request.mapItem
+                        vm.placeItem = item
+                        vm.showSheet = true
+                    } catch {
+                        return
+                    }
+                }
             }
         }
     }
