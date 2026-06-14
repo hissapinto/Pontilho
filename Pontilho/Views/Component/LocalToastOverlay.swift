@@ -16,7 +16,7 @@ struct LocalToastOverlay: View {
                 if vm.didLocalWasCreated {
                     LocalToast()
                         .transition(.move(edge: .top).combined(with: .opacity))
-                        .zIndex(1) // Ensure toast is on top
+                        .zIndex(1)
                         .padding(.top, 10)
                 }
                 Spacer()

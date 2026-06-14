@@ -20,11 +20,18 @@ class MapViewModel {
     var settingDetent = PresentationDetent.medium
     var placeItem: MKMapItem? = nil //para locais da pesquisa
     private(set) var searchResults: [MKMapItem] = []
+    ///Verificadores de que tipo de busca
+    var visibleRegion: MKCoordinateRegion?
+    var previousVisibleRegion: MKCoordinateRegion?
+    private(set) var hasSearchedAtLeastOnce = false
+    private var lastSearchDate: Date?
+    private(set) var isSearchLocallyVisible = false
+    
     
     ///Para visualizar listas
     var showPins: Bool = false
     var typeFilter: String = "nil"
-    var previourTypeFilter: String = ""
+    var previousTypeFilter: String = ""
     var hasPreviousTypeFilter: Bool = false
     
     ///Manipulação de locais
@@ -61,21 +68,38 @@ class MapViewModel {
         return response?.mapItems ?? []
     }
     
-    ///Public busca locais
-    func peformSearch(for query: String) async {
+    ///Public busca locais usando a localização do usuário como centro
+    func peformSearchOnUserLocation(for query: String) async {
         searchResults = await search(for: query, in: userLocation)
+        lastSearchDate = Date()
+        hasSearchedAtLeastOnce = true
         position = .automatic //posiciona o mapa para mostrar todos os pins
+    }
+    
+    ///Public busca locais usando o centro da tela
+    func peformSearchOnVisibleRegion(for query: String) async {
+        guard let screenCenter = visibleRegion?.center else { return }
+        
+        searchResults = await search(for: query, in: screenCenter)
+        lastSearchDate = Date()
+        //position = .automatic
+    }
+    
+    func isLikelyProgrammaticMove() -> Bool {
+        guard let last = lastSearchDate else { return false }
+        return Date().timeIntervalSince(last) < 1.5 // 1,5s de "janela morta" após a busca
+    }
+    
+    func resetSearch() {
+        searchResults = []
     }
     
     ///Unwarp de nome do local
     func locationNameUnwrapped(_ selectedLocation: MKMapItem?) -> String {
-        if selectedLocation == nil {
-            return "Lugar não encontrado."
-        } else if selectedLocation!.name == nil {
+        guard let name = selectedLocation?.name else {
             return "Nome do lugar não encontrado."
-        } else {
-            return selectedLocation!.name!
         }
+        return name
     }
     
     ///Pedir localização usuário
@@ -91,11 +115,45 @@ class MapViewModel {
         return position
     }
     
+    ///para ligar a pesquisa por localidade
+    func setSearchLocallyVisible() {
+        isSearchLocallyVisible = true
+    }
+    
+    ///para desligar a pesquisa por localidade
+    func unsetSearchLocallyVisible() {
+        isSearchLocallyVisible = false
+    }
+    
+    ///Retorna a distancia do usuário para o centro da tela
+    func distanceFromUserToCenter() -> CLLocationDistance? {
+        guard let user = userLocation,
+              let center = visibleRegion?.center else {
+            return nil
+        }
+        
+        let userLoc = CLLocation(latitude: user.latitude, longitude: user.longitude)
+        let centerLoc = CLLocation(latitude: center.latitude, longitude: center.longitude)
+        return userLoc.distance(from: centerLoc)
+    }
+    
+    ///Retorna a distancia do do centro da tela anterior para o atual
+    func distanceFromPreviousAndActualVisibleRegion() -> CLLocationDistance? {
+        guard let prevReg = previousVisibleRegion?.center,
+              let actualReg = visibleRegion?.center else {
+            return nil
+        }
+        
+        let prevRegLoc = CLLocation(latitude: prevReg.latitude, longitude: prevReg.longitude)
+        let actualRegLoc = CLLocation(latitude: actualReg.latitude, longitude: actualReg.longitude)
+        return prevRegLoc.distance(from: actualRegLoc)
+    }
+    
     ///Quando estiver mostrando uma lista
     func selectList(type: LocalEnum) {
         typeFilter = type.rawValue
         
-        if previourTypeFilter == typeFilter && hasPreviousTypeFilter == true { //clicou no mesmo botao
+        if previousTypeFilter == typeFilter && hasPreviousTypeFilter == true { //clicou no mesmo botao
             showPins = false
             typeFilter = ""
             hasPreviousTypeFilter = false
@@ -105,7 +163,7 @@ class MapViewModel {
             showPins = false
             typeFilter = type.rawValue
             showPins = true
-            previourTypeFilter = typeFilter
+            previousTypeFilter = typeFilter
             isSearchVisible = false
             hasPreviousTypeFilter = true
             searchResults = []

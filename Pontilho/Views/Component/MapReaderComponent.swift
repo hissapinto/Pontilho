@@ -38,6 +38,19 @@ struct MapReaderComponent: View {
                 }
             }
         }
+        .onMapCameraChange { context in
+            
+            vm.previousVisibleRegion = vm.visibleRegion
+            vm.visibleRegion = context.region
+            
+            //movimento de camera, e nao de usuário
+            if vm.isLikelyProgrammaticMove() || !vm.hasSearchedAtLeastOnce { return }
+            
+            guard let distance = vm.distanceFromPreviousAndActualVisibleRegion() else { return }
+            if distance > 1000 && vm.isSearchVisible && vm.searchText != "" {
+                vm.setSearchLocallyVisible()
+            }
+        }
     }
 }
 

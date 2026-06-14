@@ -30,7 +30,7 @@ struct MapView: View {
     @ViewBuilder
     private func content(vm: MapViewModel) -> some View {
         @Bindable var vm = vm
-        ZStack{
+        ZStack {
             MapReader { proxy in
                 MapReaderComponent(vm: vm)
             }
@@ -43,21 +43,31 @@ struct MapView: View {
             
             ///Performar algo
             .searchable(text: $vm.searchText, isPresented: $vm.isSearchVisible, placement: .automatic, prompt: "pesquisar")
+            .onAppear {
+                vm.requestUserAutorization()
+                vm.cdViewModel.getLocal()
+            }
             .onChange(of: vm.isSearchVisible) {
                 if vm.isSearchVisible {
                     vm.deselectList()
                 }
             }
-            .onAppear {
-                vm.requestUserAutorization()
-                vm.cdViewModel.getLocal()
-            }
             .onChange(of: vm.searchText) {
-                Task {
-                    await vm.peformSearch(for: vm.searchText)
+                if vm.searchText.isEmpty {
+                    vm.unsetSearchLocallyVisible()
+                    vm.resetSearch()
+                    vm.deselectList()
                 }
-                
-                vm.cdViewModel.getLocal()
+            }
+            .onSubmit(of: .search) {
+                Task {
+                    let distance = vm.distanceFromUserToCenter() ?? 0
+                    if distance > 1000 {
+                        await vm.peformSearchOnVisibleRegion(for: vm.searchText)
+                    } else {
+                        await vm.peformSearchOnUserLocation(for: vm.searchText)
+                    }
+                }
                 vm.deselectList()
             }
             
@@ -71,8 +81,17 @@ struct MapView: View {
             }
             .directionOrDeleteAlert(vm: vm)
             ListasTitleEScrollView(vm: vm)
+            if vm.isSearchLocallyVisible {
+                RegionSearchButton(
+                    action: {
+                        Task { await vm.peformSearchOnVisibleRegion(for: vm.searchText) }
+                        vm.unsetSearchLocallyVisible()
+                    }
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
-        
+        .animation(.easeInOut(duration: 2.0), value: vm.isSearchLocallyVisible)
         .overlay(LocalToastOverlay(vm: vm))
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -91,5 +110,5 @@ struct MapView: View {
 }
 
 #Preview {
-    MapView()
+    MapView().environment(CDViewModel())
 }
