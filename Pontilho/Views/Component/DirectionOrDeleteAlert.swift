@@ -14,14 +14,14 @@ extension View {
         
         return self.alert(vm.localToDeleteName, isPresented: $bindVm.ifselectedLocation, actions: {
             Button("Abrir no Mapas") {
-                vm.selectedLocation?.openInMaps()
+                vm.openInMapsCustom()
                 vm.ifselectedLocation = false
             }
             Button("Cancelar", role: .cancel) {
                 vm.ifselectedLocation = false
             }
             Button(role: .destructive) {
-                if let local = vm.localToDelete {
+                if let local = vm.localToDeleteOrOpen {
                     vm.cdViewModel.deleteLocal(local)
                     vm.cdViewModel.getLocal()
                 }

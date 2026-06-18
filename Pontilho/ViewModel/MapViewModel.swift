@@ -42,7 +42,7 @@ class MapViewModel {
     
     ///CoreData
     let cdViewModel: CDViewModel
-    var localToDelete: Local? = nil
+    var localToDeleteOrOpen: Local? = nil
     var localToDeleteName: String = "Nome não encontrado"
     
     ///User info
@@ -177,6 +177,24 @@ class MapViewModel {
         showPins = false
         typeFilter = ""
         isSearchVisible = true
+    }
+    
+    ///Abrir no Mapas com o nome certo
+    func openInMapsCustom() {
+        if let identifierString = localToDeleteOrOpen?.identifier,
+           let identifier = MKMapItem.Identifier(rawValue: identifierString) {
+            Task {
+                let request = MKMapItemRequest(mapItemIdentifier: identifier)
+                if let local = try? await request.mapItem {
+                    local.openInMaps()
+                    return
+                }
+                selectedLocation?.openInMaps()
+            }
+        }
+        else {
+            selectedLocation?.openInMaps()
+        }
     }
     
 }

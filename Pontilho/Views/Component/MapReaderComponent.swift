@@ -21,7 +21,7 @@ struct MapReaderComponent: View {
                                 .onTapGesture{
                                     vm.selectedLocation = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)))
                                     vm.ifselectedLocation = true
-                                    vm.localToDelete = item
+                                    vm.localToDeleteOrOpen = item
                                     vm.localToDeleteName = item.name!
                                 }
                         }

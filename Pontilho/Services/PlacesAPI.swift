@@ -17,10 +17,10 @@ class PlacesAPI {
     func fetchPhoto(for place: MKMapItem) async -> [UIImage] {
         guard let name = place.name else { return [] }
         let coordinate = place.placemark.coordinate
-        let restriction = CircularCoordinateRegion(center: coordinate, radius: 200)
+        let restriction = CircularCoordinateRegion(center: coordinate, radius: 400)
         
         ///Define a busca: nome x e de resultado quero fotos
-        let request = SearchByTextRequest(textQuery: name, placeProperties: [.photos, .coordinate], locationRestriction: restriction)
+        let request = SearchByTextRequest(textQuery: name, placeProperties: [.photos, .coordinate, .displayName], locationRestriction: restriction)
         
         ///Busca e resultados
         switch await client.responseForSearchByText(with: request) {
@@ -28,6 +28,7 @@ class PlacesAPI {
         case .success(let response):
             let places = response.places ?? []
             let target = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            print("sucesso | places encontrados: \(places.count)")
             
             let placesComDist = places.map { p -> (place: Place, dist: CLLocationDistance) in
                 let coord = p.location
@@ -35,21 +36,28 @@ class PlacesAPI {
                 return (p, target.distance(from: loc))
             }.sorted { $0.dist < $1.dist }
             
+            for item in placesComDist.prefix(5) {
+                    print(" - \(item.place.displayName ?? "?") | \(Int(item.dist))m")
+            }
+            
             guard let melhor = placesComDist.first, melhor.dist < 100 else {
+                print("nenhum candidato próximo o suficiente")
                 return []
             }
             
             let place = melhor.place
             guard let photoMetadata = place.photos, !photoMetadata.isEmpty else {
+                print("place '\(place.displayName ?? "?")' sem fotos")
                 return []
             }
 
+            print("escolhido: \(place.displayName ?? "?") | \(Int(melhor.dist))m | fotos: \(photoMetadata.count)")
             var images: [UIImage] = []
             
             ///Parallel for
             await withTaskGroup(of: UIImage?.self) { group in
     
-                for mData in photoMetadata.prefix(5) {
+                for mData in photoMetadata.prefix(7) {
                     group.addTask {
                         ///Define a busca da foto
                         let photoRequest = FetchPhotoRequest(photo: mData, maxSize: CGSize(width: 600, height: 500))
