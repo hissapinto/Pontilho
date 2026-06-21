@@ -74,12 +74,19 @@ struct MapView: View {
             ///Mostrar algo
             .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil }) {
                 if let local = vm.placeItem {
-                    EditView(vm: vm, local: local)
-                        .presentationDetents([.height(430)],
+                    SearchView(vm: vm, local: local)
+                        .presentationDetents([.medium, .large],
                                              selection: $vm.settingDetent)
                 }
             }
-            .directionOrDeleteAlert(vm: vm)
+            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false }) {
+                if let local = vm.selectedLocation {
+                    LocalView(vm: vm, local: local)
+                        .presentationDetents([.medium, .large],
+                                             selection: $vm.settingDetent)
+                }
+            }
+//            .directionOrDeleteAlert(vm: vm)
             ListasTitleEScrollView(vm: vm)
             if vm.isSearchLocallyVisible {
                 RegionSearchButton(

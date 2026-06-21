@@ -21,7 +21,7 @@ extension View {
                 vm.ifselectedLocation = false
             }
             Button(role: .destructive) {
-                if let local = vm.localToDeleteOrOpen {
+                if let local = vm.selectedLocation {
                     vm.cdViewModel.deleteLocal(local)
                     vm.cdViewModel.getLocal()
                 }

@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 import Foundation
 
-struct EditView: View {
+struct SearchView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var vm: MapViewModel
     var eVm = EditViewModel()
@@ -51,11 +51,10 @@ struct EditView: View {
                 ScrollView(.horizontal) {
                     HStack{
                         ForEach(LocalEnum.allCases, id: \.self) { type in
-                            SheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, localType: type)
+                            SearchSheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, vm: eVm, localType: type)
                         }
                     }
                 }.padding(.leading, generalPadding)
-                
             }
             .padding(.top, 30)
             .task {
@@ -64,23 +63,20 @@ struct EditView: View {
             }
         }
     }
-    
 }
 
 #Preview {
-    let placemark = MKPlacemark(
-        coordinate: CLLocationCoordinate2D(latitude: -23.5558, longitude: -46.6396),
-        addressDictionary: [
-            "Street": "Rua Bela Cintra",
-            "City": "São Paulo"
-        ]
-    )
-    let mapItem = MKMapItem(placemark: placemark)
+    let mapItem = MKMapItem(placemark: MKPlacemark(
+        coordinate: CLLocationCoordinate2D(latitude: -23.5558, longitude: -46.6396)
+    ))
     mapItem.name = "Árvore do Pão"
     mapItem.pointOfInterestCategory = .cafe
-    
-    let vm = MapViewModel(cdViewModel: CDViewModel())
+
+    let cdViewModel = CDViewModel()
+    let vm = MapViewModel(cdViewModel: cdViewModel)
     vm.placeItem = mapItem
-    
-    return EditView(vm: vm, local: mapItem)
+
+    return SearchView(vm: vm, local: mapItem)
+        .environment(cdViewModel)
+        .environment(vm)
 }

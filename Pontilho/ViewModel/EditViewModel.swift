@@ -27,10 +27,18 @@ class EditViewModel {
     }
     
     func placeAdressUnwrapped(for local: MKMapItem?) -> String {
-        guard let local = local, let description = local.placemark.title else {
-            return "Sem descrição"
+        if #available(iOS 26.0, *) {
+            guard let local = local, let description = local.address?.fullAddress else {
+                return "Sem descrição"
+            }
+            return description
+            
+        } else {
+            guard let local = local, let description = local.placemark.title else {
+                return "Sem descrição"
+            }
+            return description
         }
-        return description
     }
     
     func placeTypeUnwrapped(for local: MKMapItem?) -> String {

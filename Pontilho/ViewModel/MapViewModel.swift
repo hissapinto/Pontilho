@@ -35,14 +35,13 @@ class MapViewModel {
     var hasPreviousTypeFilter: Bool = false
     
     ///Manipulação de locais
-    var selectedLocation: MKMapItem? = nil //para locais salvos nas listas
+    var selectedLocation: Local? = nil
     var ifselectedLocation: Bool = false
     var didLocalWasCreated: Bool = false //pra enviar notificacao de salvo
     var mapSelection: MapSelection<MKMapItem>? // para Points of interest nativos
     
     ///CoreData
     let cdViewModel: CDViewModel
-    var localToDeleteOrOpen: Local? = nil
     var localToDeleteName: String = "Nome não encontrado"
     
     ///User info
@@ -181,20 +180,28 @@ class MapViewModel {
     
     ///Abrir no Mapas com o nome certo
     func openInMapsCustom() {
-        if let identifierString = localToDeleteOrOpen?.identifier,
-           let identifier = MKMapItem.Identifier(rawValue: identifierString) {
+        guard let local = selectedLocation else { return }
+        
+        if let identifier = MKMapItem.Identifier(rawValue: local.identifier ?? "") {
             Task {
                 let request = MKMapItemRequest(mapItemIdentifier: identifier)
-                if let local = try? await request.mapItem {
-                    local.openInMaps()
+                if let item = try? await request.mapItem {
+                    item.openInMaps()
                     return
                 }
-                selectedLocation?.openInMaps()
+                openViaCoord(local: local)
             }
         }
-        else {
-            selectedLocation?.openInMaps()
-        }
+        openViaCoord(local: local)
+    }
+    
+    ///Abrir no Mapas via coordenada, caso a funçao de cima falhe
+    private func openViaCoord(local: Local) {
+        let coord = CLLocationCoordinate2D(latitude: local.latitude, longitude: local.longitude)
+        let item = MKMapItem(placemark: MKPlacemark(coordinate: coord))
+        item.name = local.name
+        
+        item.openInMaps()
     }
     
 }

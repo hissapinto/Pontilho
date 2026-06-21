@@ -40,7 +40,7 @@ class CoreDataController {
         }
     }
     
-    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String) -> Local {
+    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFile: String?) -> Local {
         let local = Local(context: viewContext)
         
         local.id = UUID()
@@ -49,6 +49,8 @@ class CoreDataController {
         local.longitude = longitude
         local.type = type
         local.identifier = identifier
+        local.address = address
+        local.photoFile = photoFile
         
         saveContext()
         return local
