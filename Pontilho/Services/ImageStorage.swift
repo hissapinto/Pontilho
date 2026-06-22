@@ -20,7 +20,7 @@ enum ImageStorage {
 
     ///salva a imagem comprimida e retorna o nome do arquivo gerado
     static func save(_ image: UIImage) -> String? {
-        guard let data = image.jpegData(compressionQuality: 0.7) else { return nil }
+        guard let data = image.jpegData(compressionQuality: 0.9) else { return nil }
         let filename = "\(UUID().uuidString).jpg"
         let url = directory.appendingPathComponent(filename)
         do {

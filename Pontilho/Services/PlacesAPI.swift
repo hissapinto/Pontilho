@@ -60,7 +60,7 @@ class PlacesAPI {
                 for mData in photoMetadata.prefix(7) {
                     group.addTask {
                         ///Define a busca da foto
-                        let photoRequest = FetchPhotoRequest(photo: mData, maxSize: CGSize(width: 600, height: 500))
+                        let photoRequest = FetchPhotoRequest(photo: mData, maxSize: CGSize(width: 800, height: 600))
                         ///Ativamente busca
                         switch await self.client.fetchPhoto(with: photoRequest) {
                         case .success(let image): return image

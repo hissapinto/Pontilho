@@ -37,9 +37,9 @@ struct SearchSheetButton: View {
                 add = local.placemark.title ?? "Sem endereço"
             }
             
-            var photoName: String? = nil //URL da foto
-            if let firstPhoto = vm.placesPhotos.first {
-                photoName = ImageStorage.save(firstPhoto)
+            var photoFiles: [String]? = nil //[URL da fotos]
+            if !vm.placesPhotos.isEmpty {
+                photoFiles = vm.placesPhotos.prefix(3).compactMap{ ImageStorage.save($0) }
             }
 
             _ = cdViewModel.createLocal(
@@ -48,7 +48,7 @@ struct SearchSheetButton: View {
                 longitude: lon,
                 type: type,
                 identifier: identifier.rawValue,
-                address: add, photoFile: photoName
+                address: add, photoFiles: photoFiles
             )
             
             let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(local.name ?? "Nome não encontrado")")

@@ -40,7 +40,7 @@ class CoreDataController {
         }
     }
     
-    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFile: String?) -> Local {
+    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFiles: [String]?) -> Local {
         let local = Local(context: viewContext)
         
         local.id = UUID()
@@ -50,7 +50,14 @@ class CoreDataController {
         local.type = type
         local.identifier = identifier
         local.address = address
-        local.photoFile = photoFile
+        
+        if let names = photoFiles {
+            for name in names {
+                let photo = Photo(context: viewContext)
+                photo.fileName = name
+                photo.local = local
+            }
+        }
         
         saveContext()
         return local
@@ -69,6 +76,15 @@ class CoreDataController {
     }
     
     func deleteLocal(_ local: Local) {
+        
+        if let photos = local.photos as? Set<Photo> {
+            for photo in photos {
+                if let filename = photo.fileName {
+                    ImageStorage.delete(filename)
+                }
+            }
+        }
+        
         viewContext.delete(local)
         saveContext()
     }

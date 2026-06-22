@@ -19,18 +19,13 @@ class CDViewModel {
         locais = CoreDataController.shared.fetchLocais()
     }
     
-    func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFile: String?) -> Local {
-        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier, address: address, photoFile: photoFile)
+    func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFiles: [String]?) -> Local {
+        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier, address: address, photoFiles: photoFiles)
         self.locais.append(result)
         return result
     }
     
     func deleteLocal(_ local: Local) {
-        //Apaga a foto do heap
-        if let photoName = local.photoFile {
-            ImageStorage.delete(photoName)
-        }
-        
         CoreDataController.shared.deleteLocal(local)
     }
     

@@ -10,20 +10,35 @@ import SwiftUI
 struct LocalPhoto: View {
     let local: Local
     
+    private var filenames: [String] {
+        //Converter de NSet? (sem tipo) para [Photo]
+        let photos = (local.photos as? Set<Photo>) ?? []
+        //Tranforma do [Photo] para String, descartando os nil
+        return photos.compactMap{ $0.fileName }
+    }
+    
     var body: some View {
-        if local.photoFile != nil {
-            Image(uiImage: ImageStorage.load(local.photoFile!)!)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 170)
-                .containerRelativeFrame(.horizontal) { width, axis in
-                    width * 0.95
+        if !filenames.isEmpty {
+            ScrollView(.horizontal) {
+                HStack {
+                    ForEach(filenames, id: \.self) { file in
+                        if let image = ImageStorage.load(file) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(height: 170)
+                                .containerRelativeFrame(.horizontal) { width, axis in
+                                    width * 0.90
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 13))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 13)
+                                        .stroke(.pretinho, lineWidth: 1)
+                                }
+                        }
+                    }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 13))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 13)
-                        .stroke(.pretinho, lineWidth: 1)
-                }
+            }
         } else {
             ZStack(alignment: .center) {
                 VStack(spacing: 8) {
@@ -48,5 +63,5 @@ struct LocalPhoto: View {
 #Preview {
     let cdViewModel = CDViewModel()
     
-    LocalPhoto(local: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee", identifier: "tblbla", address: "Rua do gato preto", photoFile: nil))
+    LocalPhoto(local: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee", identifier: "tblbla", address: "Rua do gato preto", photoFiles: nil))
 }

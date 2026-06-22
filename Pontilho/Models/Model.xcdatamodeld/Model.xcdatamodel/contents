@@ -9,11 +9,16 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="photoFile" optional="YES" attributeType="String"/>
         <attribute name="type" attributeType="String"/>
+        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Photo" inverseName="local" inverseEntity="Photo"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="identifier"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
+    </entity>
+    <entity name="Photo" representedClassName="Photo" syncable="YES" codeGenerationType="class">
+        <attribute name="fileName" optional="YES" attributeType="String"/>
+        <relationship name="local" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Local" inverseName="photos" inverseEntity="Local"/>
     </entity>
     <entity name="ScheduledNotification" representedClassName="ScheduledNotification" syncable="YES" codeGenerationType="class">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

@@ -40,6 +40,7 @@ struct LocalView: View {
                 
                 LocalPhoto(local: local)
                     .padding(.leading, generalPadding)
+                    .padding(.top, 15)
 
                 Spacer()
                 
