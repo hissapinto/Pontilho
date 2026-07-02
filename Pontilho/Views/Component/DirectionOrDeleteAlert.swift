@@ -12,19 +12,20 @@ extension View {
     func directionOrDeleteAlert(vm: MapViewModel) -> some View {
         @Bindable var bindVm = vm
         
-        return self.alert(vm.localToDeleteName, isPresented: $bindVm.ifselectedLocation, actions: {
-            Button("Abrir no Mapas") {
-                vm.openInMapsCustom()
-                vm.ifselectedLocation = false
-            }
+        return self.alert(vm.localToDeleteName, isPresented: $bindVm.ifIsAboutToDelete, actions: {
+//            Button("Abrir no Mapas") {
+//                vm.openInMapsCustom()
+//                vm.ifselectedLocation = false
+//            }
             Button("Cancelar", role: .cancel) {
-                vm.ifselectedLocation = false
+                vm.ifIsAboutToDelete = false
             }
             Button(role: .destructive) {
                 if let local = vm.selectedLocation {
                     vm.cdViewModel.deleteLocal(local)
                     vm.cdViewModel.getLocal()
                 }
+                vm.ifIsAboutToDelete = false
                 vm.ifselectedLocation = false
             } label: {
                 Text("Deletar da lista")

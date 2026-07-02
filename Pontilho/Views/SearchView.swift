@@ -12,7 +12,7 @@ import Foundation
 struct SearchView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var vm: MapViewModel
-    var eVm = EditViewModel()
+    @State var eVm = EditViewModel()
     var local: MKMapItem
     let generalPadding: CGFloat = 20
     
@@ -24,10 +24,19 @@ struct SearchView: View {
                     .font(.system(.title, design: .serif, weight: .heavy))
                     .padding(.leading, generalPadding)
                 
-                Text(eVm.placeTypeUnwrapped(for: local))
-                    .font(.footnote)
-                    .padding(.leading, generalPadding)
-                    .bold()
+                HStack {
+                    Text(eVm.placeTypeUnwrapped(for: local))
+                        .font(.footnote)
+                        .padding(.leading, generalPadding)
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Text(eVm.placeRatingUnwrapped())
+                        .font(.footnote)
+                        .padding(.trailing, generalPadding)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 
                 Divider()
                     .padding(.leading, generalPadding)
@@ -57,9 +66,10 @@ struct SearchView: View {
                 }.padding(.leading, generalPadding)
             }
             .padding(.top, 30)
-            .task {
+            ///performar a cada troca de local
+            .task(id: local.identifier?.rawValue) {
                 eVm.placesPhotos = [] //limpa
-                await eVm.fetchPlacePhotos(for: local)
+                await eVm.fetchPlacePhotosAndInfo(for: local)
             }
         }
     }

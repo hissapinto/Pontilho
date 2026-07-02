@@ -14,13 +14,14 @@ class PlacesAPI {
     let client = PlacesClient.shared
     
     ///Busca fotos de um MapItem
-    func fetchPhoto(for place: MKMapItem) async -> [UIImage] {
-        guard let name = place.name else { return [] }
+    func fetchPhotoAndInfo(for place: MKMapItem) async -> ([UIImage], PlaceInfo)? {
+        guard let name = place.name else { return nil }
         let coordinate = place.placemark.coordinate
         let restriction = CircularCoordinateRegion(center: coordinate, radius: 400)
         
         ///Define a busca: nome x e de resultado quero fotos
-        let request = SearchByTextRequest(textQuery: name, placeProperties: [.photos, .coordinate, .displayName], locationRestriction: restriction)
+        let request = SearchByTextRequest(textQuery: name, placeProperties: [.photos, .coordinate, .displayName, .regularOpeningHours, .rating], locationRestriction: restriction)
+        //TODO: - Pegar opening hours e rating
         
         ///Busca e resultados
         switch await client.responseForSearchByText(with: request) {
@@ -28,7 +29,7 @@ class PlacesAPI {
         case .success(let response):
             let places = response.places ?? []
             let target = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            print("sucesso | places encontrados: \(places.count)")
+            //print("sucesso | places encontrados: \(places.count)")
             
             let placesComDist = places.map { p -> (place: Place, dist: CLLocationDistance) in
                 let coord = p.location
@@ -42,16 +43,18 @@ class PlacesAPI {
             
             guard let melhor = placesComDist.first, melhor.dist < 100 else {
                 print("nenhum candidato próximo o suficiente")
-                return []
+                return nil
             }
             
             let place = melhor.place
             guard let photoMetadata = place.photos, !photoMetadata.isEmpty else {
                 print("place '\(place.displayName ?? "?")' sem fotos")
-                return []
+                return nil
             }
 
-            print("escolhido: \(place.displayName ?? "?") | \(Int(melhor.dist))m | fotos: \(photoMetadata.count)")
+            //print("escolhido: \(place.displayName ?? "?") | \(Int(melhor.dist))m | fotos: \(photoMetadata.count)")
+            
+            var info: PlaceInfo = PlaceInfo(regularOpeningHour: place.regularOpeningHours?.weekdayText, rating: place.rating)
             var images: [UIImage] = []
             
             ///Parallel for
@@ -79,12 +82,18 @@ class PlacesAPI {
                 }
                 
             }
-            return images
+            return (images, info)
             
         case .failure(let error):
             print("ERRO fetchPhoto (foto): \(error)")
-            return []
+            return nil
         }
         
     }
+}
+
+
+struct PlaceInfo {
+    let regularOpeningHour: [String]?
+    let rating: Float?
 }

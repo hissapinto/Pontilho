@@ -42,10 +42,39 @@ struct LocalView: View {
                     .padding(.leading, generalPadding)
                     .padding(.top, 15)
 
+                HStack {
+                    Button(role: .destructive) {
+                        vm.ifIsAboutToDelete = true
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .frame(width: 44)
+                                .foregroundColor(.pretinho)
+                            Image(systemName: "trash")
+                                .foregroundColor(.branquinho)
+                        }
+                    }
+                    
+                    Button {
+                        vm.openInMapsCustom()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .frame(width: 44)
+                                .foregroundColor(.pretinho)
+                            Image(systemName: "map")
+                                .foregroundColor(.branquinho)
+                        }
+                    }
+                }
+                .padding(.leading, generalPadding)
+                .padding(.top, 15)
+
                 Spacer()
                 
             }
             .padding(.top, 30)
+            .directionOrDeleteAlert(vm: vm)
         }
     }
     

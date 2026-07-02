@@ -36,6 +36,7 @@ class MapViewModel {
     
     ///Manipulação de locais
     var selectedLocation: Local? = nil
+    var ifIsAboutToDelete: Bool = false
     var ifselectedLocation: Bool = false
     var didLocalWasCreated: Bool = false //pra enviar notificacao de salvo
     var mapSelection: MapSelection<MKMapItem>? // para Points of interest nativos

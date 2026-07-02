@@ -86,7 +86,6 @@ struct MapView: View {
                                              selection: $vm.settingDetent)
                 }
             }
-//            .directionOrDeleteAlert(vm: vm)
             ListasTitleEScrollView(vm: vm)
             if vm.isSearchLocallyVisible {
                 RegionSearchButton(

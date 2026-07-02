@@ -16,6 +16,7 @@ class EditViewModel {
     ///para a API de imagens do google
     var placesAPI = PlacesAPI()
     var placesPhotos: [UIImage] = []
+    var placeInfo: PlaceInfo?
     var isLoadingPhoto: Bool = false
     var customName: String = ""
     
@@ -49,10 +50,21 @@ class EditViewModel {
         return String(text[0])
     }
     
-    ///Se comunica com a API e pede as fotos
-    func fetchPlacePhotos(for local: MKMapItem) async {
+    func placeRatingUnwrapped() -> String {
+        guard let placeInfo, placeInfo.rating != nil else {
+            return ""
+        }
+        let rating = "★ " + String(format: "%.2f", placeInfo.rating!)
+        return rating
+    }
+    
+    ///Se comunica com a API e pede as fotos e infos
+    func fetchPlacePhotosAndInfo(for local: MKMapItem) async {
         isLoadingPhoto = true
-        placesPhotos = await placesAPI.fetchPhoto(for: local)
+        if let (photos, info) = await placesAPI.fetchPhotoAndInfo(for: local) {
+            placesPhotos = photos
+            placeInfo = info
+        }
         isLoadingPhoto = false
     }
     

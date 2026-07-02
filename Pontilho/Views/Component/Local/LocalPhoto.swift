@@ -13,7 +13,7 @@ struct LocalPhoto: View {
     private var filenames: [String] {
         //Converter de NSet? (sem tipo) para [Photo]
         let photos = (local.photos as? Set<Photo>) ?? []
-        //Tranforma do [Photo] para String, descartando os nil
+        //Tranforma do [Photo] para String, descartando os nil 
         return photos.compactMap{ $0.fileName }
     }
     
@@ -39,6 +39,11 @@ struct LocalPhoto: View {
                     }
                 }
             }
+            .scrollIndicators(.hidden)
+            .scrollClipDisabled()
+            .padding(.leading, 10)
+            .padding(.bottom, 10)
+            
         } else {
             ZStack(alignment: .center) {
                 VStack(spacing: 8) {
