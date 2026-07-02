@@ -17,7 +17,7 @@ class MapViewModel {
     var searchText = ""
     var isSearchVisible = false
     var showSheet: Bool = false
-    var settingDetent = PresentationDetent.medium
+    var settingDetent: PresentationDetent = .medium
     var placeItem: MKMapItem? = nil //para locais da pesquisa
     private(set) var searchResults: [MKMapItem] = []
     ///Verificadores de que tipo de busca
@@ -91,8 +91,10 @@ class MapViewModel {
         return Date().timeIntervalSince(last) < 1.5 // 1,5s de "janela morta" após a busca
     }
     
+    ///Resetar pesquisa
     func resetSearch() {
         searchResults = []
+        settingDetent = .medium
     }
     
     ///Unwarp de nome do local

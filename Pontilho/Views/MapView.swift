@@ -72,17 +72,17 @@ struct MapView: View {
             }
             
             ///Mostrar algo
-            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil }) {
+            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil; vm.settingDetent = .medium }) {
                 if let local = vm.placeItem {
                     SearchView(vm: vm, local: local)
-                        .presentationDetents([.medium, .large],
+                        .presentationDetents([.medium, .fraction(0.85)],
                                              selection: $vm.settingDetent)
                 }
             }
-            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false }) {
+            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false; vm.settingDetent = .medium  }) {
                 if let local = vm.selectedLocation {
                     LocalView(vm: vm, local: local)
-                        .presentationDetents([.medium, .large],
+                        .presentationDetents([.medium, .fraction(0.85)],
                                              selection: $vm.settingDetent)
                 }
             }

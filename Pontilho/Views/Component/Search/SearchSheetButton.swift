@@ -14,7 +14,7 @@ struct SearchSheetButton: View {
     @Environment(CDViewModel.self) private var cdViewModel
     @Binding var placeItem: MKMapItem?
     @Binding var didLocalWasCreated: Bool
-    var vm: EditViewModel
+    var vm: SearchViewModel
     
     let localType: LocalEnum
     
@@ -78,7 +78,7 @@ struct SearchSheetButton: View {
     SearchSheetButton(
         type: "coffee",
         placeItem: .constant(mapItem),
-        didLocalWasCreated: .constant(false), vm: EditViewModel(),
+        didLocalWasCreated: .constant(false), vm: SearchViewModel(),
         localType: .coffee
     )
     .environment(CDViewModel())

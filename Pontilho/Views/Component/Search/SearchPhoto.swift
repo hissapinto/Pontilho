@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchPhoto: View {
-    var vm: EditViewModel
+    var vm: SearchViewModel
     
     var body: some View {
         if vm.isLoadingPhoto {
@@ -79,5 +79,5 @@ struct SearchPhoto: View {
 }
 
 #Preview {
-    SearchPhoto(vm: EditViewModel())
+    SearchPhoto(vm: SearchViewModel())
 }

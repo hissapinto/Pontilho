@@ -12,7 +12,7 @@ import Foundation
 struct SearchView: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var vm: MapViewModel
-    @State var eVm = EditViewModel()
+    @State var eVm = SearchViewModel()
     var local: MKMapItem
     let generalPadding: CGFloat = 20
     
@@ -39,8 +39,7 @@ struct SearchView: View {
                 }
                 
                 Divider()
-                    .padding(.leading, generalPadding)
-                    .padding(.trailing, generalPadding)
+                    .padding([.leading, .trailing], generalPadding)
                 
                 Text(eVm.placeAdressUnwrapped(for: local))
                     .font(.footnote)
@@ -49,7 +48,51 @@ struct SearchView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 
                 SearchPhoto(vm: eVm)
-                    .padding(.top, 15)
+                    .padding([.top, .bottom], 15)
+                
+                if vm.settingDetent == .fraction(0.85) {
+                    if let hours = eVm.placeInfo?.regularOpeningHour {
+                        VStack(alignment: .leading, spacing: 6) {
+                            
+                            Text("Horários:")
+                                .font(.footnote)
+                                .padding([.leading], generalPadding)
+                                .padding(.bottom, 4)
+                                .fontWeight(.heavy)
+                            
+                            ForEach(hours, id: \.self) { h in
+                                let t = eVm.splitString(text: h)
+                                if t.count == 2 {
+                                    
+                                    HStack {
+                                        Text(t[0])
+                                            .font(.footnote)
+                                            .padding(.leading, generalPadding)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                        Spacer()
+                                        Text(t[1])
+                                            .font(.footnote)
+                                            .padding(.trailing, generalPadding)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    
+                                } else {
+                                    Text(h)
+                                        .font(.footnote)
+                                        .padding(.leading, generalPadding)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }.padding(.bottom, generalPadding)
+                    } else {
+                        Text("Sem informações de horários")
+                            .font(.footnote)
+                            .padding([.leading], generalPadding)
+                            .padding(.bottom, 4)
+                            .bold()
+                    }
+                }
                 
                 Spacer()
                 
@@ -81,11 +124,11 @@ struct SearchView: View {
     ))
     mapItem.name = "Árvore do Pão"
     mapItem.pointOfInterestCategory = .cafe
-
+    
     let cdViewModel = CDViewModel()
     let vm = MapViewModel(cdViewModel: cdViewModel)
     vm.placeItem = mapItem
-
+    
     return SearchView(vm: vm, local: mapItem)
         .environment(cdViewModel)
         .environment(vm)

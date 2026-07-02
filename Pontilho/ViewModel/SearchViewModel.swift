@@ -12,7 +12,7 @@ import CoreLocation
 
 @Observable
 @MainActor
-class EditViewModel {
+class SearchViewModel {
     ///para a API de imagens do google
     var placesAPI = PlacesAPI()
     var placesPhotos: [UIImage] = []
@@ -56,6 +56,20 @@ class EditViewModel {
         }
         let rating = "★ " + String(format: "%.2f", placeInfo.rating!)
         return rating
+    }
+    
+    func splitString(text: String) -> [String] {
+        let parts = text.split(separator: ": ", maxSplits: 1)
+        
+        //formato inesperado - devolve o texto
+        guard parts.count == 2 else {
+                return [text]
+        }
+        
+        let first = String(parts[0]).capitalized
+        let second = String(parts[1])
+        
+        return [first, second]
     }
     
     ///Se comunica com a API e pede as fotos e infos
