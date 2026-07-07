@@ -68,5 +68,5 @@ struct LocalPhoto: View {
 #Preview {
     let cdViewModel = CDViewModel()
     
-    LocalPhoto(local: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee", identifier: "tblbla", address: "Rua do gato preto", photoFiles: nil))
+    LocalPhoto(local: cdViewModel.createLocal(name: "teste", latitude: 000, longitude: 000, type: "coffee", identifier: "tblbla", address: "Rua do gato preto", grade: "4.5", hour: "segunda: 20:00 - 23:00", photoFiles: nil))
 }

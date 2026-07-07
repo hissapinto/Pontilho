@@ -19,8 +19,8 @@ class CDViewModel {
         locais = CoreDataController.shared.fetchLocais()
     }
     
-    func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFiles: [String]?) -> Local {
-        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier, address: address, photoFiles: photoFiles)
+    func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, grade: String, hour: String, photoFiles: [String]?) -> Local {
+        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier, address: address, grade: grade, hour: hour, photoFiles: photoFiles)
         self.locais.append(result)
         return result
     }

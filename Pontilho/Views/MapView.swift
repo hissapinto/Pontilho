@@ -10,6 +10,8 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
+//TODO: - persistir rating e horários no obj local
+
 struct MapView: View {
     @Environment(CDViewModel.self) private var cdViewModel
     @State private var vm: MapViewModel?

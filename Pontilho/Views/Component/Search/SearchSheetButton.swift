@@ -26,6 +26,8 @@ struct SearchSheetButton: View {
             let lat: Double
             let lon: Double
             let add: String
+            let grade: String = (vm.placeInfo?.rating.map { String(format: "%.1f", $0) }) ?? ""
+            let hour: String = vm.placeInfo?.regularOpeningHour?.joined(separator: "|") ?? "Sem informações de horários"
 
             if #available(iOS 26.0, *) {
                 lat = local.location.coordinate.latitude
@@ -48,7 +50,10 @@ struct SearchSheetButton: View {
                 longitude: lon,
                 type: type,
                 identifier: identifier.rawValue,
-                address: add, photoFiles: photoFiles
+                address: add,
+                grade: grade,
+                hour: hour,
+                photoFiles: photoFiles
             )
             
             let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(local.name ?? "Nome não encontrado")")

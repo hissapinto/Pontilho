@@ -40,7 +40,7 @@ class CoreDataController {
         }
     }
     
-    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, photoFiles: [String]?) -> Local {
+    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, grade: String, hour: String, photoFiles: [String]?) -> Local {
         let local = Local(context: viewContext)
         
         local.id = UUID()
@@ -50,6 +50,8 @@ class CoreDataController {
         local.type = type
         local.identifier = identifier
         local.address = address
+        local.grade = grade
+        local.hour = hour
         
         if let names = photoFiles {
             for name in names {
