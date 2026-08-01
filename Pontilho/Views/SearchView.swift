@@ -15,6 +15,7 @@ struct SearchView: View {
     
     @Bindable var vm: MapViewModel
     @State var eVm: SearchViewModel?
+    @State var rep = SearchRepository()
     
     var local: MKMapItem
     let generalPadding: CGFloat = 20
@@ -27,7 +28,7 @@ struct SearchView: View {
                 ProgressView()
                     .task {
                         if eVm == nil {
-                            eVm = SearchViewModel(cdViewModel: cdViewModel)
+                            eVm = SearchViewModel(repository: rep)
                         }
                     }
             }
@@ -143,7 +144,9 @@ struct SearchView: View {
     
     let cdViewModel = CDViewModel()
     let vm = MapViewModel(cdViewModel: cdViewModel)
-    let searchVM = SearchViewModel(cdViewModel: cdViewModel)
+    
+    let rep = SearchRepository()
+    let searchVM = SearchViewModel(repository: rep)
     vm.placeItem = mapItem
     
     return SearchView(vm: vm, eVm: searchVM, local: mapItem)

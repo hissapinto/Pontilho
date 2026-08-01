@@ -20,7 +20,7 @@ struct SearchSheetButton: View {
     
     var body: some View{
         Button {
-            vm.saveSearchedPlace(placeItem: placeItem, type: type)
+            vm.saveSearchedPlace(placeItem: placeItem, type: type, at: cdViewModel)
             
             withAnimation {
                 didLocalWasCreated = true
@@ -43,8 +43,8 @@ struct SearchSheetButton: View {
     let placemark = MKPlacemark(coordinate: coordinate)
     let mapItem = MKMapItem(placemark: placemark)
     
-    let cdVM = CDViewModel()
-    let searchVM = SearchViewModel(cdViewModel: cdVM)
+    let rep = SearchRepository()
+    let searchVM = SearchViewModel(repository: rep)
 
     SearchSheetButton(
         type: "coffee",

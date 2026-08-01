@@ -14,17 +14,14 @@ import CoreLocation
 @MainActor
 class SearchViewModel {
     ///para a API de imagens do google
-    var placesAPI = PlacesAPI()
+    let repository: SearchRepositoryProtocol
     var placesPhotos: [UIImage] = []
     var placeInfo: PlaceInfo?
     var isLoadingPhoto: Bool = false
     var customName: String = ""
     
-    ///CoreData
-    let cdViewModel: CDViewModel
-    
-    init(cdViewModel: CDViewModel) {
-        self.cdViewModel = cdViewModel
+    init(repository: SearchRepositoryProtocol) {
+        self.repository = repository
     }
     
     func placeNameUnWrapped(for local: MKMapItem?) -> String {
@@ -82,14 +79,19 @@ class SearchViewModel {
     ///Se comunica com a API e pede as fotos e infos
     func fetchPlacePhotosAndInfo(for local: MKMapItem) async {
         isLoadingPhoto = true
-        if let (photos, info) = await placesAPI.fetchPhotoAndInfo(for: local) {
-            placesPhotos = photos
-            placeInfo = info
+        
+        do {
+            let result = try await repository.fetchPlacePhotosAndInfo(for: local)
+            placesPhotos = result.photos
+            placeInfo = result.info
+        } catch {
+            print(error.localizedDescription)
         }
+
         isLoadingPhoto = false
     }
     
-    func saveSearchedPlace(placeItem: MKMapItem?, type: String) {
+    func saveSearchedPlace(placeItem: MKMapItem?, type: String, at cdViewModel: CDViewModel) {
         guard let local = placeItem,
               let identifier = local.identifier else { return }
         
@@ -126,10 +128,10 @@ class SearchViewModel {
             photoFiles: photoFiles
         )
         
-        createNotification(local: local)
+        createNotification(local: local, at: cdViewModel)
     }
     
-    private func createNotification(local: MKMapItem) {
+    private func createNotification(local: MKMapItem, at cdViewModel: CDViewModel) {
         let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(local.name ?? "Nome não encontrado")")
         
         NotificationManagerModel.scheduleNotification(notification: notification, cdViewModel: cdViewModel)
