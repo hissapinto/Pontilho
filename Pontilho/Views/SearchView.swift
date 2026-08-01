@@ -38,19 +38,19 @@ struct SearchView: View {
     @ViewBuilder
     private func content(eVm: SearchViewModel, vm: MapViewModel, local: MKMapItem, generalPadding: CGFloat) -> some View {
         VStack(alignment: .leading){
-            Text(eVm.placeNameUnWrapped(for: local))
+            Text(local.nameUnwrapped)
                 .font(.system(.title, design: .serif, weight: .heavy))
                 .padding(.leading, generalPadding)
             
             HStack {
-                Text(eVm.placeTypeUnwrapped(for: local))
+                Text(local.typeUnwrapped)
                     .font(.footnote)
                     .padding(.leading, generalPadding)
                     .bold()
                 
                 Spacer()
                 
-                Text(eVm.placeRatingUnwrapped())
+                Text(eVm.placeInfo?.ratingUnwapped ?? "")
                     .font(.footnote)
                     .padding(.trailing, generalPadding)
                     .fixedSize(horizontal: false, vertical: true)
@@ -59,7 +59,7 @@ struct SearchView: View {
             Divider()
                 .padding([.leading, .trailing], generalPadding)
             
-            Text(eVm.placeAdressUnwrapped(for: local))
+            Text(local.addressUnwrapped)
                 .font(.footnote)
                 .padding(.leading, generalPadding)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,7 +79,7 @@ struct SearchView: View {
                             .fontWeight(.heavy)
                         
                         ForEach(hours, id: \.self) { h in
-                            let t = eVm.splitString(text: h)
+                            let t = h.splitString
                             if t.count == 2 {
                                 
                                 HStack {

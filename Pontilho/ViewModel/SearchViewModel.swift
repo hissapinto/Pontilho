@@ -24,58 +24,6 @@ class SearchViewModel {
         self.repository = repository
     }
     
-    func placeNameUnWrapped(for local: MKMapItem?) -> String {
-        guard let local = local, let name = local.name else {
-            return customName.isEmpty ? "Nome não encontrado" : customName
-        }
-        return name
-    }
-    
-    func placeAdressUnwrapped(for local: MKMapItem?) -> String {
-        if #available(iOS 26.0, *) {
-            guard let local = local, let description = local.address?.fullAddress else {
-                return "Sem descrição"
-            }
-            return description
-            
-        } else {
-            guard let local = local, let description = local.placemark.title else {
-                return "Sem descrição"
-            }
-            return description
-        }
-    }
-    
-    func placeTypeUnwrapped(for local: MKMapItem?) -> String {
-        guard let local = local, let category = local.pointOfInterestCategory else {
-            return "Categoria não encontrada"
-        }
-        let text = category.rawValue.split(separator: "MKPOICategory")
-        return String(text[0])
-    }
-    
-    func placeRatingUnwrapped() -> String {
-        guard let placeInfo, placeInfo.rating != nil else {
-            return ""
-        }
-        let rating = "★ " + String(format: "%.2f", placeInfo.rating!)
-        return rating
-    }
-    
-    func splitString(text: String) -> [String] {
-        let parts = text.split(separator: ": ", maxSplits: 1)
-        
-        //formato inesperado - devolve o texto
-        guard parts.count == 2 else {
-                return [text]
-        }
-        
-        let first = String(parts[0]).capitalized
-        let second = String(parts[1])
-        
-        return [first, second]
-    }
-    
     ///Se comunica com a API e pede as fotos e infos
     func fetchPlacePhotosAndInfo(for local: MKMapItem) async {
         isLoadingPhoto = true

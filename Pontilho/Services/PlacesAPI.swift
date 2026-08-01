@@ -21,7 +21,6 @@ class PlacesAPI {
         
         ///Define a busca: nome x e de resultado quero fotos
         let request = SearchByTextRequest(textQuery: name, placeProperties: [.photos, .coordinate, .displayName, .regularOpeningHours, .rating], locationRestriction: restriction)
-        //TODO: - Pegar opening hours e rating
         
         ///Busca e resultados
         switch await client.responseForSearchByText(with: request) {
@@ -54,7 +53,7 @@ class PlacesAPI {
 
             //print("escolhido: \(place.displayName ?? "?") | \(Int(melhor.dist))m | fotos: \(photoMetadata.count)")
             
-            var info: PlaceInfo = PlaceInfo(regularOpeningHour: place.regularOpeningHours?.weekdayText, rating: place.rating)
+            let info: PlaceInfo = PlaceInfo(regularOpeningHour: place.regularOpeningHours?.weekdayText, rating: place.rating)
             var images: [UIImage] = []
             
             ///Parallel for
@@ -96,4 +95,11 @@ class PlacesAPI {
 struct PlaceInfo {
     let regularOpeningHour: [String]?
     let rating: Float?
+    var ratingUnwapped: String {
+        guard rating != nil else {
+            return ""
+        }
+        let rating = "★ " + String(format: "%.2f", rating!)
+        return rating
+    }
 }
