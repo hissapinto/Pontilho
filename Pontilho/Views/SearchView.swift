@@ -11,109 +11,125 @@ import Foundation
 
 struct SearchView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(CDViewModel.self) private var cdViewModel
+    
     @Bindable var vm: MapViewModel
-    @State var eVm = SearchViewModel()
+    @State var eVm: SearchViewModel?
+    
     var local: MKMapItem
     let generalPadding: CGFloat = 20
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading){
-                
-                Text(eVm.placeNameUnWrapped(for: local))
-                    .font(.system(.title, design: .serif, weight: .heavy))
-                    .padding(.leading, generalPadding)
-                
-                HStack {
-                    Text(eVm.placeTypeUnwrapped(for: local))
-                        .font(.footnote)
-                        .padding(.leading, generalPadding)
-                        .bold()
-                    
-                    Spacer()
-                    
-                    Text(eVm.placeRatingUnwrapped())
-                        .font(.footnote)
-                        .padding(.trailing, generalPadding)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Divider()
-                    .padding([.leading, .trailing], generalPadding)
-                
-                Text(eVm.placeAdressUnwrapped(for: local))
+            if let eVm {
+                content(eVm: eVm, vm: vm, local: local, generalPadding: generalPadding)
+            } else {
+                ProgressView()
+                    .task {
+                        if eVm == nil {
+                            eVm = SearchViewModel(cdViewModel: cdViewModel)
+                        }
+                    }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func content(eVm: SearchViewModel, vm: MapViewModel, local: MKMapItem, generalPadding: CGFloat) -> some View {
+        VStack(alignment: .leading){
+            Text(eVm.placeNameUnWrapped(for: local))
+                .font(.system(.title, design: .serif, weight: .heavy))
+                .padding(.leading, generalPadding)
+            
+            HStack {
+                Text(eVm.placeTypeUnwrapped(for: local))
                     .font(.footnote)
                     .padding(.leading, generalPadding)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                SearchPhoto(vm: eVm)
-                    .padding([.top, .bottom], 15)
-                
-                if vm.settingDetent == .fraction(0.85) {
-                    if let hours = eVm.placeInfo?.regularOpeningHour {
-                        VStack(alignment: .leading, spacing: 6) {
-                            
-                            Text("Horários:")
-                                .font(.footnote)
-                                .padding([.leading], generalPadding)
-                                .padding(.bottom, 4)
-                                .fontWeight(.heavy)
-                            
-                            ForEach(hours, id: \.self) { h in
-                                let t = eVm.splitString(text: h)
-                                if t.count == 2 {
-                                    
-                                    HStack {
-                                        Text(t[0])
-                                            .font(.footnote)
-                                            .padding(.leading, generalPadding)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                        Spacer()
-                                        Text(t[1])
-                                            .font(.footnote)
-                                            .padding(.trailing, generalPadding)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                    }
-                                    
-                                } else {
-                                    Text(h)
-                                        .font(.footnote)
-                                        .padding(.leading, generalPadding)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            }
-                        }.padding(.bottom, generalPadding)
-                    } else {
-                        Text("Sem informações de horários")
-                            .font(.footnote)
-                            .padding([.leading], generalPadding)
-                            .padding(.bottom, 4)
-                            .bold()
-                    }
-                }
+                    .bold()
                 
                 Spacer()
                 
-                Text("Salvar em uma lista: ")
-                    .font(.headline)
-                    .padding(.leading, generalPadding)
-                
-                ScrollView(.horizontal) {
-                    HStack{
-                        ForEach(LocalEnum.allCases, id: \.self) { type in
-                            SearchSheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, vm: eVm, localType: type)
+                Text(eVm.placeRatingUnwrapped())
+                    .font(.footnote)
+                    .padding(.trailing, generalPadding)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            Divider()
+                .padding([.leading, .trailing], generalPadding)
+            
+            Text(eVm.placeAdressUnwrapped(for: local))
+                .font(.footnote)
+                .padding(.leading, generalPadding)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+            
+            SearchPhoto(vm: eVm)
+                .padding([.top, .bottom], 15)
+            
+            if vm.settingDetent == .fraction(0.85) {
+                if let hours = eVm.placeInfo?.regularOpeningHour {
+                    VStack(alignment: .leading, spacing: 6) {
+                        
+                        Text("Horários:")
+                            .font(.footnote)
+                            .padding([.leading], generalPadding)
+                            .padding(.bottom, 4)
+                            .fontWeight(.heavy)
+                        
+                        ForEach(hours, id: \.self) { h in
+                            let t = eVm.splitString(text: h)
+                            if t.count == 2 {
+                                
+                                HStack {
+                                    Text(t[0])
+                                        .font(.footnote)
+                                        .padding(.leading, generalPadding)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Spacer()
+                                    Text(t[1])
+                                        .font(.footnote)
+                                        .padding(.trailing, generalPadding)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                
+                            } else {
+                                Text(h)
+                                    .font(.footnote)
+                                    .padding(.leading, generalPadding)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
+                    }.padding(.bottom, generalPadding)
+                } else {
+                    Text("Sem informações de horários")
+                        .font(.footnote)
+                        .padding([.leading], generalPadding)
+                        .padding(.bottom, 4)
+                        .bold()
+                }
+            }
+            
+            Spacer()
+            
+            Text("Salvar em uma lista: ")
+                .font(.headline)
+                .padding(.leading, generalPadding)
+            
+            ScrollView(.horizontal) {
+                HStack{
+                    ForEach(LocalEnum.allCases, id: \.self) { type in
+                        SearchSheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, vm: eVm, localType: type)
                     }
-                }.padding(.leading, generalPadding)
-            }
-            .padding(.top, 30)
-            ///performar a cada troca de local
-            .task(id: local.identifier?.rawValue) {
-                eVm.placesPhotos = [] //limpa
-                await eVm.fetchPlacePhotosAndInfo(for: local)
-            }
+                }
+            }.padding(.leading, generalPadding)
+        }
+        .padding(.top, 30)
+        ///performar a cada troca de local
+        .task(id: local.identifier?.rawValue) {
+            eVm.placesPhotos = [] //limpa
+            await eVm.fetchPlacePhotosAndInfo(for: local)
         }
     }
 }
@@ -127,9 +143,9 @@ struct SearchView: View {
     
     let cdViewModel = CDViewModel()
     let vm = MapViewModel(cdViewModel: cdViewModel)
+    let searchVM = SearchViewModel(cdViewModel: cdViewModel)
     vm.placeItem = mapItem
     
-    return SearchView(vm: vm, local: mapItem)
+    return SearchView(vm: vm, eVm: searchVM, local: mapItem)
         .environment(cdViewModel)
-        .environment(vm)
 }

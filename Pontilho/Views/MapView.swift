@@ -22,8 +22,10 @@ struct MapView: View {
                 content(vm: vm)
             } else {
                 ProgressView()
-                    .onAppear {
-                        vm = MapViewModel(cdViewModel: cdViewModel)
+                    .task {
+                        if vm == nil {
+                            vm = MapViewModel(cdViewModel: cdViewModel)
+                        }
                     }
             }
         }

@@ -79,5 +79,6 @@ struct SearchPhoto: View {
 }
 
 #Preview {
-    SearchPhoto(vm: SearchViewModel())
+    let cdVM = CDViewModel()    
+    SearchPhoto(vm: SearchViewModel(cdViewModel: cdVM))
 }
