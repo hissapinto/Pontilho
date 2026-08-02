@@ -8,6 +8,7 @@
 import MapKit
 
 extension MKMapItem {
+    
     var nameUnwrapped: String {
         return name ?? "Nome não encontrado"
     }

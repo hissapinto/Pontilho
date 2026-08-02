@@ -50,7 +50,7 @@ struct SearchView: View {
                 
                 Spacer()
                 
-                Text(eVm.placeInfo?.ratingUnwapped ?? "")
+                Text(eVm.placeInfo?.rating?.asRating ?? "")
                     .font(.footnote)
                     .padding(.trailing, generalPadding)
                     .fixedSize(horizontal: false, vertical: true)
@@ -68,7 +68,7 @@ struct SearchView: View {
             SearchPhoto(vm: eVm)
                 .padding([.top, .bottom], 15)
             
-            if vm.settingDetent == .fraction(0.85) {
+            if vm.settingDetent == .fraction(0.80) {
                 if let hours = eVm.placeInfo?.regularOpeningHour {
                     VStack(alignment: .leading, spacing: 6) {
                         

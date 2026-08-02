@@ -79,14 +79,14 @@ struct MapView: View {
             .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil; vm.settingDetent = .medium }) {
                 if let local = vm.placeItem {
                     SearchView(vm: vm, local: local)
-                        .presentationDetents([.medium, .fraction(0.85)],
+                        .presentationDetents([.medium, .fraction(0.80)],
                                              selection: $vm.settingDetent)
                 }
             }
             .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false; vm.settingDetent = .medium  }) {
                 if let local = vm.selectedLocation {
                     LocalView(vm: vm, local: local)
-                        .presentationDetents([.medium, .fraction(0.85)],
+                        .presentationDetents([.medium, .fraction(0.80)],
                                              selection: $vm.settingDetent)
                 }
             }

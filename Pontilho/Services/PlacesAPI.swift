@@ -95,11 +95,4 @@ class PlacesAPI {
 struct PlaceInfo {
     let regularOpeningHour: [String]?
     let rating: Float?
-    var ratingUnwapped: String {
-        guard rating != nil else {
-            return ""
-        }
-        let rating = "★ " + String(format: "%.2f", rating!)
-        return rating
-    }
 }

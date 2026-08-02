@@ -21,7 +21,6 @@ struct SearchSheetButton: View {
     var body: some View{
         Button {
             vm.saveSearchedPlace(placeItem: placeItem, type: type, at: cdViewModel)
-            
             withAnimation {
                 didLocalWasCreated = true
             }

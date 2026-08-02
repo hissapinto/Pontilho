@@ -41,7 +41,6 @@ struct LocalPhoto: View {
             }
             .scrollIndicators(.hidden)
             .scrollClipDisabled()
-            .padding(.leading, 10)
             .padding(.bottom, 10)
             
         } else {

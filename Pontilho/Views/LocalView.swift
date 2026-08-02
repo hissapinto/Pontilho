@@ -23,10 +23,19 @@ struct LocalView: View {
                     .font(.system(.title, design: .serif, weight: .heavy))
                     .padding(.leading, generalPadding)
                 
-                Text(vm.selectedLocation?.type ?? "Tipo desconhecido")
-                    .font(.footnote)
-                    .padding(.leading, generalPadding)
-                    .bold()
+                HStack {
+                    Text(vm.selectedLocation?.type ?? "Tipo desconhecido")
+                        .font(.footnote)
+                        .padding(.leading, generalPadding)
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Text(vm.selectedLocation?.grade ?? "")
+                        .font(.footnote)
+                        .padding(.trailing, generalPadding)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 
                 Divider()
                     .padding(.leading, generalPadding)
@@ -41,34 +50,56 @@ struct LocalView: View {
                 LocalPhoto(local: local)
                     .padding(.leading, generalPadding)
                     .padding(.top, 15)
-
-                HStack {
-                    Button(role: .destructive) {
-                        vm.ifIsAboutToDelete = true
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .frame(width: 44)
-                                .foregroundColor(.pretinho)
-                            Image(systemName: "trash")
-                                .foregroundColor(.branquinho)
+                
+                if vm.settingDetent == .fraction(0.80) {
+                    if let hour = local.hour, hour.joinString.count > 1 {
+                        let hours = hour.joinString
+                        VStack(alignment: .leading, spacing: 6) {
+                            
+                            Text("Horários:")
+                                .font(.footnote)
+                                .padding([.leading], generalPadding)
+                                .padding(.bottom, 4)
+                                .fontWeight(.heavy)
+                            
+                            ForEach(hours, id: \.self) { h in
+                                let t = h.splitString
+                                if t.count == 2 {
+                                    
+                                    HStack {
+                                        Text(t[0])
+                                            .font(.footnote)
+                                            .padding(.leading, generalPadding)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                        Spacer()
+                                        Text(t[1])
+                                            .font(.footnote)
+                                            .padding(.trailing, generalPadding)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    
+                                } else {
+                                    Text(h)
+                                        .font(.footnote)
+                                        .padding(.leading, generalPadding)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
                         }
+                    } else {
+                        Text("Sem informações de horários")
+                            .font(.footnote)
+                            .padding([.leading], generalPadding)
+                            .padding(.bottom, 4)
+                            .bold()
                     }
                     
-                    Button {
-                        vm.openInMapsCustom()
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .frame(width: 44)
-                                .foregroundColor(.pretinho)
-                            Image(systemName: "map")
-                                .foregroundColor(.branquinho)
-                        }
-                    }
+                    LocalButtons(vm: vm, generalPadding: generalPadding)
+                    
+                } else {
+                    LocalButtonsColapsed(vm: vm, generalPadding: generalPadding)
                 }
-                .padding(.leading, generalPadding)
-                .padding(.top, 15)
 
                 Spacer()
                 

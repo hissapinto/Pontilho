@@ -24,7 +24,7 @@ class SearchViewModel {
         self.repository = repository
     }
     
-    ///Se comunica com a API e pede as fotos e infos
+    ///Se comunica com o Repository e pede as fotos e infos retornados da API
     func fetchPlacePhotosAndInfo(for local: MKMapItem) async {
         isLoadingPhoto = true
         
@@ -39,6 +39,7 @@ class SearchViewModel {
         isLoadingPhoto = false
     }
     
+    ///Salva o local pesquisado no banco de dados
     func saveSearchedPlace(placeItem: MKMapItem?, type: String, at cdViewModel: CDViewModel) {
         guard let local = placeItem,
               let identifier = local.identifier else { return }
@@ -46,7 +47,7 @@ class SearchViewModel {
         let lat: Double
         let lon: Double
         let add: String
-        let grade: String = (placeInfo?.rating.map { String(format: "%.1f", $0) }) ?? ""
+        let grade: String = (placeInfo?.rating?.asRating ?? "")
         let hour: String = placeInfo?.regularOpeningHour?.joined(separator: "|") ?? "Sem informações de horários"
 
         if #available(iOS 26.0, *) {
@@ -79,6 +80,7 @@ class SearchViewModel {
         createNotification(local: local, at: cdViewModel)
     }
     
+    ///Cria notificação do local salvo
     private func createNotification(local: MKMapItem, at cdViewModel: CDViewModel) {
         let notification: NotificationModel = NotificationModel(title: "Não esqueça de passear!", subtitle: "", body: "Faz uma semana que você salvou: \(local.name ?? "Nome não encontrado")")
         

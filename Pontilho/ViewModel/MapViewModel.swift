@@ -27,7 +27,6 @@ class MapViewModel {
     private var lastSearchDate: Date?
     private(set) var isSearchLocallyVisible = false
     
-    
     ///Para visualizar listas
     var showPins: Bool = false
     var typeFilter: String = "nil"
