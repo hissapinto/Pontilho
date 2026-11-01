@@ -11,14 +11,14 @@ import MapKit
 
 @Observable
 class CoreDataController {
-    
+
     public static let shared = CoreDataController()
-    
+
     private let persistentContainer: NSPersistentContainer
     public var viewContext: NSManagedObjectContext {
         persistentContainer.viewContext
     }
-    
+
     private init() {
         persistentContainer = NSPersistentContainer(name: "Model")
         persistentContainer.loadPersistentStores(completionHandler: { _, error in
@@ -29,7 +29,7 @@ class CoreDataController {
             //pra decidir como salvar um lugar duplicado
         })
     }
-    
+
     func saveContext() {
         if viewContext.hasChanges {
             do {
@@ -39,10 +39,13 @@ class CoreDataController {
             }
         }
     }
-    
-    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, grade: String, hour: String, photoFiles: [String]?) -> Local {
+
+    // Observação de compliance (Google Places):
+    // Todos os campos salvos aqui vêm do MapKit (Apple): nome, coordenadas, endereço e identifier do Apple Maps.
+    // Nada do Google é armazenado — fotos, avaliações e horários são buscados ao vivo na exibição.
+    func createLocais(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String) -> Local {
         let local = Local(context: viewContext)
-        
+
         local.id = UUID()
         local.name = name
         local.latitude = latitude
@@ -50,24 +53,14 @@ class CoreDataController {
         local.type = type
         local.identifier = identifier
         local.address = address
-        local.grade = grade
-        local.hour = hour
-        
-        if let names = photoFiles {
-            for name in names {
-                let photo = Photo(context: viewContext)
-                photo.fileName = name
-                photo.local = local
-            }
-        }
-        
+
         saveContext()
         return local
     }
-    
+
     func fetchLocais() -> [Local] {
         let fetchRequest: NSFetchRequest<Local> = Local.fetchRequest()
-        
+
         do {
             let result = try viewContext.fetch(fetchRequest)
             return result
@@ -76,24 +69,15 @@ class CoreDataController {
             return []
         }
     }
-    
+
     func deleteLocal(_ local: Local) {
-        
-        if let photos = local.photos as? Set<Photo> {
-            for photo in photos {
-                if let filename = photo.fileName {
-                    ImageStorage.delete(filename)
-                }
-            }
-        }
-        
         viewContext.delete(local)
         saveContext()
     }
-    
+
     public func fetchScheduledNotifications() -> [ScheduledNotification] {
         let fetchRequest: NSFetchRequest<ScheduledNotification> = ScheduledNotification.fetchRequest()
-        
+
         do {
             let result = try viewContext.fetch(fetchRequest)
             return result
@@ -103,16 +87,16 @@ class CoreDataController {
             return []
         }
     }
-    
+
     public func createScheduledNotification(id: UUID, date: Date) -> ScheduledNotification {
         let scheduledNotification: ScheduledNotification = ScheduledNotification(context: viewContext)
         scheduledNotification.id = id
         scheduledNotification.date = date
         saveContext()
-        
+
         return scheduledNotification
     }
-    
+
     public func deleteNotification(scheduledNotification: ScheduledNotification) {
         viewContext.delete(scheduledNotification)
         saveContext()

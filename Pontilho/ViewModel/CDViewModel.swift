@@ -14,35 +14,35 @@ import SwiftUI
 class CDViewModel {
     var locais: [Local] = []
     public var scheduledNotifications: [ScheduledNotification] = []
-    
+
     func getLocal() {
         locais = CoreDataController.shared.fetchLocais()
     }
-    
-    func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String, grade: String, hour: String, photoFiles: [String]?) -> Local {
-        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier, address: address, grade: grade, hour: hour, photoFiles: photoFiles)
+
+    func createLocal(name: String, latitude: Double, longitude: Double, type: String, identifier: String, address: String) -> Local {
+        let result = CoreDataController.shared.createLocais(name: name, latitude: latitude, longitude: longitude, type: type, identifier: identifier, address: address)
         self.locais.append(result)
         return result
     }
-    
+
     func deleteLocal(_ local: Local) {
         CoreDataController.shared.deleteLocal(local)
     }
-    
+
     func saveLocal(_ local: Local) {
         CoreDataController.shared.saveContext()
         getLocal()
     }
-    
+
     public func getNotifications() {
         scheduledNotifications = CoreDataController.shared.fetchScheduledNotifications()
     }
-    
+
     public func createScheduledNotification(id: UUID, date: Date) {
         let newScheduledNotification: ScheduledNotification = CoreDataController.shared.createScheduledNotification(id: id, date: date)
         self.scheduledNotifications.append(newScheduledNotification)
     }
-    
+
     public func deleteScheduledNotification(scheduledNotification: ScheduledNotification) {
         CoreDataController.shared.deleteNotification(scheduledNotification: scheduledNotification)
     }

@@ -66,9 +66,10 @@ struct SearchView: View {
                 .fixedSize(horizontal: false, vertical: true)
             
             SearchPhoto(vm: eVm)
-                .padding([.top, .bottom], 15)
+                .padding(.top, 6)
+                .padding(.bottom, 15)
             
-            if vm.settingDetent == .fraction(0.80) {
+            if vm.settingDetent == .expandida {
                 if let hours = eVm.placeInfo?.regularOpeningHour {
                     VStack(alignment: .leading, spacing: 6) {
                         

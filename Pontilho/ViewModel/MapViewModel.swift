@@ -17,7 +17,7 @@ class MapViewModel {
     var searchText = ""
     var isSearchVisible = false
     var showSheet: Bool = false
-    var settingDetent: PresentationDetent = .medium
+    var settingDetent: PresentationDetent = .compacta
     var placeItem: MKMapItem? = nil //para locais da pesquisa
     private(set) var searchResults: [MKMapItem] = []
     ///Verificadores de que tipo de busca
@@ -93,7 +93,7 @@ class MapViewModel {
     ///Resetar pesquisa
     func resetSearch() {
         searchResults = []
-        settingDetent = .medium
+        settingDetent = .compacta
     }
     
     ///Unwarp de nome do local

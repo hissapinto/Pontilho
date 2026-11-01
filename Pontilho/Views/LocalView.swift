@@ -14,58 +14,59 @@ struct LocalView: View {
     @Bindable var vm: MapViewModel
     var local: Local
     let generalPadding: CGFloat = 20
-    
+
+    /// Fotos, nota e horários são buscados ao vivo no Google (não podem ser salvos — termos do Google Places).
+    @State private var placeVm = SearchViewModel(repository: SearchRepository())
+
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading){
-                
+
                 Text(vm.selectedLocation?.name ?? "Sem nome")
                     .font(.system(.title, design: .serif, weight: .heavy))
                     .padding(.leading, generalPadding)
-                
+
                 HStack {
                     Text(vm.selectedLocation?.type ?? "Tipo desconhecido")
                         .font(.footnote)
                         .padding(.leading, generalPadding)
                         .bold()
-                    
+
                     Spacer()
-                    
-                    Text(vm.selectedLocation?.grade ?? "")
+
+                    Text(placeVm.placeInfo?.rating?.asRating ?? "")
                         .font(.footnote)
                         .padding(.trailing, generalPadding)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                
+
                 Divider()
                     .padding(.leading, generalPadding)
                     .padding(.trailing, generalPadding)
-                
+
                 Text(vm.selectedLocation?.address ?? "Sem endereço")
                     .font(.footnote)
                     .padding(.leading, generalPadding)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
-                
-                LocalPhoto(local: local)
-                    .padding(.leading, generalPadding)
-                    .padding(.top, 15)
-                
-                if vm.settingDetent == .fraction(0.80) {
-                    if let hour = local.hour, hour.joinString.count > 1 {
-                        let hours = hour.joinString
+
+                SearchPhoto(vm: placeVm)
+                    .padding([.top, .bottom], 15)
+
+                if vm.settingDetent == .expandida {
+                    if let hours = placeVm.placeInfo?.regularOpeningHour, !hours.isEmpty {
                         VStack(alignment: .leading, spacing: 6) {
-                            
+
                             Text("Horários:")
                                 .font(.footnote)
                                 .padding([.leading], generalPadding)
                                 .padding(.bottom, 4)
                                 .fontWeight(.heavy)
-                            
+
                             ForEach(hours, id: \.self) { h in
                                 let t = h.splitString
                                 if t.count == 2 {
-                                    
+
                                     HStack {
                                         Text(t[0])
                                             .font(.footnote)
@@ -77,7 +78,7 @@ struct LocalView: View {
                                             .padding(.trailing, generalPadding)
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
-                                    
+
                                 } else {
                                     Text(h)
                                         .font(.footnote)
@@ -94,21 +95,34 @@ struct LocalView: View {
                             .padding(.bottom, 4)
                             .bold()
                     }
-                    
+
                     LocalButtons(vm: vm, generalPadding: generalPadding)
-                    
+
                 } else {
                     LocalButtonsColapsed(vm: vm, generalPadding: generalPadding)
                 }
 
                 Spacer()
-                
+
             }
             .padding(.top, 30)
             .directionOrDeleteAlert(vm: vm)
+            ///busca ao vivo a cada troca de local
+            .task(id: local.identifier) {
+                placeVm.placesPhotos = []
+                placeVm.placeInfo = nil
+                await placeVm.fetchPlacePhotosAndInfo(for: mapItem(from: local))
+            }
         }
     }
-    
+
+    /// Monta um MKMapItem a partir do nome e da coordenada salvos (dados da Apple, não do Google).
+    private func mapItem(from local: Local) -> MKMapItem {
+        let coordinate = CLLocationCoordinate2D(latitude: local.latitude, longitude: local.longitude)
+        let item = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
+        item.name = local.name
+        return item
+    }
 }
 
 #Preview {

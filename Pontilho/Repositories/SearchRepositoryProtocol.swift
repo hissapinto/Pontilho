@@ -9,7 +9,7 @@ import MapKit
 import SwiftUI
 
 struct PlaceResults {
-    let photos: [UIImage]
+    let photos: [PlacePhoto]
     let info: PlaceInfo
     
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchPhoto: View {
     var vm: SearchViewModel
-    
+
     var body: some View {
         if vm.isLoadingPhoto {
             ZStack {
@@ -33,53 +33,72 @@ struct SearchPhoto: View {
             .padding(.leading, 20)
         } else {
             if !vm.placesPhotos.isEmpty {
-                ScrollView(.horizontal) {
-                    HStack {
-                        ForEach(vm.placesPhotos.indices, id: \.self) { i in
-                            Image(uiImage: vm.placesPhotos[i])
-                                .resizable()
-                                .scaledToFill()
-                                .frame(height: 170)
-                                .containerRelativeFrame(.horizontal) { width, axis in
-                                    width * 0.95
+                VStack(alignment: .leading, spacing: 6) {
+                    ///"Google Maps" label
+                    GoogleMapsLabel()
+
+                    ScrollView(.horizontal) {
+                        HStack(alignment: .top) {
+                            ForEach(vm.placesPhotos) { photo in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Image(uiImage: photo.image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 170)
+                                        .containerRelativeFrame(.horizontal) { width, axis in
+                                            width * 0.95
+                                        }
+                                        .clipShape(RoundedRectangle(cornerRadius: 13))
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: 13)
+                                                .stroke(.pretinho, lineWidth: 1)
+                                        }
+
+                                    ///Créditos da foto
+                                    PhotoCreditText(credits: photo.credits)
+                                        .containerRelativeFrame(.horizontal, alignment: .leading) { width, axis in
+                                            width * 0.95
+                                        }
                                 }
-                                .clipShape(RoundedRectangle(cornerRadius: 13))
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 13)
-                                        .stroke(.pretinho, lineWidth: 1)
-                                }
+                            }
                         }
                     }
+                    .scrollIndicators(.hidden)
+                    .scrollClipDisabled()
                 }
                 .padding(.leading, 20)
-                .scrollIndicators(.hidden)
-                .scrollClipDisabled()
             } else {
-                ZStack {
-                    VStack(spacing: 8) {
-                        Image(systemName: "photo.trianglebadge.exclamationmark")
-                            .font(.largeTitle)
-                            .foregroundStyle(.pretinho)
-                        Text("Sem imagem")
-                            .font(.caption)
+                VStack(alignment: .leading, spacing: 6) {
+                    
+                    if vm.placeInfo != nil {
+                        GoogleMapsLabel()
                     }
-                    RoundedRectangle(cornerRadius: 13)
-                        .stroke(.pretinho, lineWidth: 1)
-                        .foregroundStyle(.branquinho)
-                        .frame(height: 170)
-                        .containerRelativeFrame(.horizontal) { width, axis in
-                            width * 0.90
+
+                    ZStack {
+                        VStack(spacing: 8) {
+                            Image(systemName: "photo.trianglebadge.exclamationmark")
+                                .font(.largeTitle)
+                                .foregroundStyle(.pretinho)
+                            Text("Sem imagem")
+                                .font(.caption)
                         }
+                        RoundedRectangle(cornerRadius: 13)
+                            .stroke(.pretinho, lineWidth: 1)
+                            .foregroundStyle(.branquinho)
+                            .frame(height: 170)
+                            .containerRelativeFrame(.horizontal) { width, axis in
+                                width * 0.90
+                            }
+                    }
                 }
                 .padding(.leading, 20)
             }
-            
         }
     }
 }
 
 #Preview {
     let rep = SearchRepository()
-    
+
     SearchPhoto(vm: SearchViewModel(repository: rep))
 }

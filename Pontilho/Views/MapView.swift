@@ -10,8 +10,6 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
-//TODO: - persistir rating e horários no obj local
-
 struct MapView: View {
     @Environment(CDViewModel.self) private var cdViewModel
     @State private var vm: MapViewModel?
@@ -76,17 +74,17 @@ struct MapView: View {
             }
             
             ///Mostrar algo
-            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil; vm.settingDetent = .medium }) {
+            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil; vm.settingDetent = .compacta }) {
                 if let local = vm.placeItem {
                     SearchView(vm: vm, local: local)
-                        .presentationDetents([.medium, .fraction(0.80)],
+                        .presentationDetents([.compacta, .expandida],
                                              selection: $vm.settingDetent)
                 }
             }
-            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false; vm.settingDetent = .medium  }) {
+            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false; vm.settingDetent = .compacta  }) {
                 if let local = vm.selectedLocation {
                     LocalView(vm: vm, local: local)
-                        .presentationDetents([.medium, .fraction(0.80)],
+                        .presentationDetents([.compacta, .expandida],
                                              selection: $vm.settingDetent)
                 }
             }
