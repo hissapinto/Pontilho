@@ -38,6 +38,7 @@ class MapViewModel {
     var ifIsAboutToDelete: Bool = false
     var ifselectedLocation: Bool = false
     var didLocalWasCreated: Bool = false //pra enviar notificacao de salvo
+    var lastSavedType: LocalEnum? = nil //lista em que o ultimo lugar foi salvo (cor do toast)
     var mapSelection: MapSelection<MKMapItem>? // para Points of interest nativos
     
     ///CoreData

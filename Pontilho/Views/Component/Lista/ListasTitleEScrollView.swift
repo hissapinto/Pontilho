@@ -17,7 +17,7 @@ struct ListasTitleEScrollView: View {
             }
             Spacer() //if se sheet tiver on desliga a listascrolview
             ListasScrollView(vm: vm)
-                .padding(.leading, 20)
+                .padding(.leading, 15)
         }
     }
 }

@@ -7,63 +7,82 @@
 
 import SwiftUI
 
+/// Ações de um lugar salvo. Com a sheet fechada mostra só os ícones;
+/// expandida, o texto aparece ao lado com animação.
 struct LocalButtons: View {
     var vm: MapViewModel
     let generalPadding: CGFloat
-    
+    let isExpanded: Bool
+
     var body: some View {
-        HStack {
-            Button(role: .destructive) {
-                vm.ifIsAboutToDelete = true
-            } label: {
-                if #available(iOS 26.0, *) {
-                    Text("Deletar")
-                        .foregroundColor(.branquinho)
-                        .frame(height: 44)
-                        .padding(.horizontal, 20)
-                        .background(
-                            Capsule()
-                                .foregroundStyle(.red)
-                                .glassEffect()
-                        )
-                } else {
-                    Text("Deletar")
-                        .foregroundColor(.branquinho)
-                        .frame(height: 44)
-                        .padding(.horizontal, 20)
-                        .background(
-                            Capsule()
-                                .foregroundStyle(.red)
-                        )
-                }
-            }
-            
-            Button {
+        HStack(spacing: 12) {
+            LocalActionButton(title: "Abrir no Mapas",
+                              systemImage: "map",
+                              tint: .azulzinho,
+                              isExpanded: isExpanded) {
                 vm.openInMapsCustom()
-            } label: {
-                if #available(iOS 26.0, *) {
-                    Text("Abrir no Mapas")
-                        .foregroundColor(.branquinho)
-                        .frame(height: 44)
-                        .padding(.horizontal, 20)
-                        .background(
-                            Capsule()
-                                .foregroundStyle(.blue)
-                                .glassEffect()
-                        )
-                } else {
-                    Text("Abrir no Mapas")
-                        .foregroundColor(.branquinho)
-                        .frame(height: 44)
-                        .padding(.horizontal, 20)
-                        .background(
-                            Capsule()
-                                .foregroundStyle(.blue)
-                        )
-                }
+            }
+
+            ///A confirmação (vermelha, destrutiva) fica no alerta
+            LocalActionButton(title: "Apagar",
+                              systemImage: "trash",
+                              tint: .laranjinha,
+                              role: .destructive,
+                              isExpanded: isExpanded) {
+                vm.ifIsAboutToDelete = true
             }
         }
         .padding(.leading, generalPadding)
-        .padding(.top, 15)
+        .animation(.snappy, value: isExpanded)
+    }
+}
+
+/// Botão no estilo dos botões das listas: tom pastel do app, ícone e texto em pretinho.
+private struct LocalActionButton: View {
+    let title: String
+    let systemImage: String
+    let tint: Color
+    var role: ButtonRole? = nil
+    let isExpanded: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(role: role, action: action) {
+            if #available(iOS 26.0, *) {
+                label
+                    .glassEffect(.regular.tint(tint).interactive(), in: Capsule())
+            } else {
+                label
+                    .background(tint, in: Capsule())
+                    .shadow(color: .gray, radius: 1.5)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+    }
+
+    private var label: some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+            if isExpanded {
+                Text(title)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .transition(.opacity)
+            }
+        }
+        .font(.body.weight(.semibold))
+        .foregroundStyle(.pretinho)
+        .padding(.horizontal, isExpanded ? 18 : 0)
+        .frame(minWidth: 50, minHeight: 50)
+        .contentShape(Capsule())
+    }
+}
+
+#Preview {
+    let vm = MapViewModel(cdViewModel: CDViewModel())
+    VStack(alignment: .leading, spacing: 24) {
+        LocalButtons(vm: vm, generalPadding: 20, isExpanded: false)
+        LocalButtons(vm: vm, generalPadding: 20, isExpanded: true)
     }
 }

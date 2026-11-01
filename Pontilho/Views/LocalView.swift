@@ -20,92 +20,13 @@ struct LocalView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading){
-
-                Text(vm.selectedLocation?.name ?? "Sem nome")
-                    .font(.system(.title, design: .serif, weight: .heavy))
-                    .padding(.leading, generalPadding)
-
-                HStack {
-                    Text(vm.selectedLocation?.type ?? "Tipo desconhecido")
-                        .font(.footnote)
-                        .padding(.leading, generalPadding)
-                        .bold()
-
-                    Spacer()
-
-                    Text(placeVm.placeInfo?.rating?.asRating ?? "")
-                        .font(.footnote)
-                        .padding(.trailing, generalPadding)
-                        .fixedSize(horizontal: false, vertical: true)
+            ///Se o conteúdo não couber na sheet (iPhones menores), ela passa a rolar em vez de cortar o título
+            ViewThatFits(in: .vertical) {
+                sheetBody
+                ScrollView {
+                    sheetBody
                 }
-
-                Divider()
-                    .padding(.leading, generalPadding)
-                    .padding(.trailing, generalPadding)
-
-                Text(vm.selectedLocation?.address ?? "Sem endereço")
-                    .font(.footnote)
-                    .padding(.leading, generalPadding)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                SearchPhoto(vm: placeVm)
-                    .padding([.top, .bottom], 15)
-
-                if vm.settingDetent == .expandida {
-                    if let hours = placeVm.placeInfo?.regularOpeningHour, !hours.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-
-                            Text("Horários:")
-                                .font(.footnote)
-                                .padding([.leading], generalPadding)
-                                .padding(.bottom, 4)
-                                .fontWeight(.heavy)
-
-                            ForEach(hours, id: \.self) { h in
-                                let t = h.splitString
-                                if t.count == 2 {
-
-                                    HStack {
-                                        Text(t[0])
-                                            .font(.footnote)
-                                            .padding(.leading, generalPadding)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                        Spacer()
-                                        Text(t[1])
-                                            .font(.footnote)
-                                            .padding(.trailing, generalPadding)
-                                            .fixedSize(horizontal: false, vertical: true)
-                                    }
-
-                                } else {
-                                    Text(h)
-                                        .font(.footnote)
-                                        .padding(.leading, generalPadding)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                            }
-                        }
-                    } else {
-                        Text("Sem informações de horários")
-                            .font(.footnote)
-                            .padding([.leading], generalPadding)
-                            .padding(.bottom, 4)
-                            .bold()
-                    }
-
-                    LocalButtons(vm: vm, generalPadding: generalPadding)
-
-                } else {
-                    LocalButtonsColapsed(vm: vm, generalPadding: generalPadding)
-                }
-
-                Spacer()
-
             }
-            .padding(.top, 30)
             .directionOrDeleteAlert(vm: vm)
             ///busca ao vivo a cada troca de local
             .task(id: local.identifier) {
@@ -114,6 +35,96 @@ struct LocalView: View {
                 await placeVm.fetchPlacePhotosAndInfo(for: mapItem(from: local))
             }
         }
+    }
+
+    /// Conteúdo da sheet
+    private var sheetBody: some View {
+        VStack(alignment: .leading){
+
+            Text(vm.selectedLocation?.name ?? "Sem nome")
+                .font(.system(.title, design: .serif, weight: .heavy))
+                .padding(.leading, generalPadding)
+
+            HStack {
+                Text(vm.selectedLocation?.type ?? "Tipo desconhecido")
+                    .font(.footnote)
+                    .padding(.leading, generalPadding)
+                    .bold()
+
+                Spacer()
+
+                Text(placeVm.placeInfo?.rating?.asRating ?? "")
+                    .font(.footnote)
+                    .padding(.trailing, generalPadding)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Divider()
+                .padding(.leading, generalPadding)
+                .padding(.trailing, generalPadding)
+
+            Text(vm.selectedLocation?.address ?? "Sem endereço")
+                .font(.footnote)
+                .padding(.leading, generalPadding)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+
+            SearchPhoto(vm: placeVm)
+                .padding([.top, .bottom], 15)
+
+            if vm.settingDetent == .expandida {
+                if let hours = placeVm.placeInfo?.regularOpeningHour, !hours.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+
+                        Text("Horários:")
+                            .font(.footnote)
+                            .padding([.leading], generalPadding)
+                            .padding(.bottom, 4)
+                            .fontWeight(.heavy)
+
+                        ForEach(hours, id: \.self) { h in
+                            let t = h.splitString
+                            if t.count == 2 {
+
+                                HStack {
+                                    Text(t[0])
+                                        .font(.footnote)
+                                        .padding(.leading, generalPadding)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Spacer()
+                                    Text(t[1])
+                                        .font(.footnote)
+                                        .padding(.trailing, generalPadding)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+
+                            } else {
+                                Text(h)
+                                    .font(.footnote)
+                                    .padding(.leading, generalPadding)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
+                } else {
+                    Text("Sem informações de horários")
+                        .font(.footnote)
+                        .padding([.leading], generalPadding)
+                        .padding(.bottom, 4)
+                        .bold()
+                }
+
+            }
+
+            Spacer()
+
+            ///Ações no rodapé (mesmo lugar do "Salvar em uma lista" da busca): não pulam quando a sheet muda de altura
+            LocalButtons(vm: vm, generalPadding: generalPadding, isExpanded: vm.settingDetent == .expandida)
+
+        }
+        .padding(.top, 30)
+        .animation(.snappy, value: vm.settingDetent == .expandida)
     }
 
     /// Monta um MKMapItem a partir do nome e da coordenada salvos (dados da Apple, não do Google).

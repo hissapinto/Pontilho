@@ -14,6 +14,7 @@ struct SearchSheetButton: View {
     @Environment(CDViewModel.self) private var cdViewModel
     @Binding var placeItem: MKMapItem?
     @Binding var didLocalWasCreated: Bool
+    @Binding var lastSavedType: LocalEnum?
     var vm: SearchViewModel
     
     let localType: LocalEnum
@@ -21,6 +22,7 @@ struct SearchSheetButton: View {
     var body: some View{
         Button {
             vm.saveSearchedPlace(placeItem: placeItem, type: type, at: cdViewModel)
+            lastSavedType = localType
             withAnimation {
                 didLocalWasCreated = true
             }
@@ -48,7 +50,7 @@ struct SearchSheetButton: View {
     SearchSheetButton(
         type: "coffee",
         placeItem: .constant(mapItem),
-        didLocalWasCreated: .constant(false), vm: searchVM,
+        didLocalWasCreated: .constant(false), lastSavedType: .constant(nil), vm: searchVM,
         localType: .coffee
     )
     .environment(CDViewModel())

@@ -14,7 +14,7 @@ struct LocalToastOverlay: View {
         ZStack {
             VStack{
                 if vm.didLocalWasCreated {
-                    LocalToast()
+                    LocalToast(localType: vm.lastSavedType)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .zIndex(1)
                         .padding(.top, 10)

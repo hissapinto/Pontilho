@@ -37,6 +37,22 @@ struct SearchView: View {
     
     @ViewBuilder
     private func content(eVm: SearchViewModel, vm: MapViewModel, local: MKMapItem, generalPadding: CGFloat) -> some View {
+        ///Se o conteúdo não couber na sheet (iPhones menores), ela passa a rolar em vez de cortar o título
+        ViewThatFits(in: .vertical) {
+            sheetBody(eVm: eVm, vm: vm, local: local, generalPadding: generalPadding)
+            ScrollView {
+                sheetBody(eVm: eVm, vm: vm, local: local, generalPadding: generalPadding)
+            }
+        }
+        ///performar a cada troca de local
+        .task(id: local.identifier?.rawValue) {
+            eVm.placesPhotos = [] //limpa
+            await eVm.fetchPlacePhotosAndInfo(for: local)
+        }
+    }
+    
+    @ViewBuilder
+    private func sheetBody(eVm: SearchViewModel, vm: MapViewModel, local: MKMapItem, generalPadding: CGFloat) -> some View {
         VStack(alignment: .leading){
             Text(local.nameUnwrapped)
                 .font(.system(.title, design: .serif, weight: .heavy))
@@ -122,17 +138,12 @@ struct SearchView: View {
             ScrollView(.horizontal) {
                 HStack{
                     ForEach(LocalEnum.allCases, id: \.self) { type in
-                        SearchSheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, vm: eVm, localType: type)
+                        SearchSheetButton(type: type.rawValue, placeItem: $vm.placeItem, didLocalWasCreated: $vm.didLocalWasCreated, lastSavedType: $vm.lastSavedType, vm: eVm, localType: type)
                     }
                 }
             }.padding(.leading, generalPadding)
         }
         .padding(.top, 30)
-        ///performar a cada troca de local
-        .task(id: local.identifier?.rawValue) {
-            eVm.placesPhotos = [] //limpa
-            await eVm.fetchPlacePhotosAndInfo(for: local)
-        }
     }
 }
 

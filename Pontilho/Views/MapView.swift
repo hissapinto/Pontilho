@@ -109,6 +109,8 @@ struct MapView: View {
                     Text("Explore sua região")
                         .font(.system(.largeTitle, design: .serif, weight: .heavy))
                         .italic()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
         }
