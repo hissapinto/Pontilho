@@ -19,6 +19,7 @@ struct MapReaderComponent: View {
                         Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
                             LocalPoint(localType: vm.typeFilter)
                                 .onTapGesture{
+                                    vm.settingDetent = .localCompacta
                                     vm.ifselectedLocation = true
                                     vm.selectedLocation = item
                                     vm.localToDeleteName = item.name!

@@ -69,10 +69,15 @@ struct LocalView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
 
-            SearchPhoto(vm: placeVm)
+            ///Toque nas fotos: ampliam/voltam (só com a sheet menor)
+            SearchPhoto(vm: placeVm,
+                        isExpanded: vm.arePhotosExpanded,
+                        canExpand: vm.settingDetent == .localCompacta || vm.arePhotosExpanded) { extra in
+                vm.togglePhotosExpanded(extraHeight: extra, compact: .localCompacta, withPhotos: .localCompactaComFotos)
+            }
                 .padding([.top, .bottom], 15)
 
-            if vm.settingDetent == .expandida {
+            if vm.settingDetent == .localExpandida {
                 if let hours = placeVm.placeInfo?.regularOpeningHour, !hours.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
 
@@ -120,11 +125,11 @@ struct LocalView: View {
             Spacer()
 
             ///Ações no rodapé (mesmo lugar do "Salvar em uma lista" da busca): não pulam quando a sheet muda de altura
-            LocalButtons(vm: vm, generalPadding: generalPadding, isExpanded: vm.settingDetent == .expandida)
+            LocalButtons(vm: vm, generalPadding: generalPadding, isExpanded: vm.settingDetent == .localExpandida)
 
         }
         .padding(.top, 30)
-        .animation(.snappy, value: vm.settingDetent == .expandida)
+        .animation(.snappy, value: vm.settingDetent == .localExpandida)
     }
 
     /// Monta um MKMapItem a partir do nome e da coordenada salvos (dados da Apple, não do Google).

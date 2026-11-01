@@ -18,6 +18,7 @@ class MapViewModel {
     var isSearchVisible = false
     var showSheet: Bool = false
     var settingDetent: PresentationDetent = .compacta
+    var arePhotosExpanded = false //fotos da sheet no tamanho original
     var placeItem: MKMapItem? = nil //para locais da pesquisa
     private(set) var searchResults: [MKMapItem] = []
     ///Verificadores de que tipo de busca
@@ -89,6 +90,20 @@ class MapViewModel {
     func isLikelyProgrammaticMove() -> Bool {
         guard let last = lastSearchDate else { return false }
         return Date().timeIntervalSince(last) < 1.5 // 1,5s de "janela morta" após a busca
+    }
+    
+    ///Amplia as fotos da sheet (tamanho original) ou volta ao padrão, ajustando a altura da sheet
+    func togglePhotosExpanded(extraHeight: CGFloat, compact: PresentationDetent, withPhotos: PresentationDetent) {
+        withAnimation(.snappy) {
+            if arePhotosExpanded {
+                arePhotosExpanded = false
+                settingDetent = compact
+            } else {
+                ExpandedPhotos.extraHeight = max(0, extraHeight)
+                arePhotosExpanded = true
+                settingDetent = withPhotos
+            }
+        }
     }
     
     ///Resetar pesquisa

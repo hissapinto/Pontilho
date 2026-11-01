@@ -74,17 +74,17 @@ struct MapView: View {
             }
             
             ///Mostrar algo
-            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil; vm.settingDetent = .compacta }) {
+            .sheet(isPresented: $vm.showSheet, onDismiss: {vm.mapSelection = nil; vm.settingDetent = .compacta; vm.arePhotosExpanded = false }) {
                 if let local = vm.placeItem {
                     SearchView(vm: vm, local: local)
-                        .presentationDetents([.compacta, .expandida],
+                        .presentationDetents(vm.arePhotosExpanded ? [.compactaComFotos] : [.compacta, .expandida],
                                              selection: $vm.settingDetent)
                 }
             }
-            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false; vm.settingDetent = .compacta  }) {
+            .sheet(isPresented: $vm.ifselectedLocation, onDismiss: { vm.ifselectedLocation = false; vm.settingDetent = .compacta; vm.arePhotosExpanded = false }) {
                 if let local = vm.selectedLocation {
                     LocalView(vm: vm, local: local)
-                        .presentationDetents([.compacta, .expandida],
+                        .presentationDetents(vm.arePhotosExpanded ? [.localCompactaComFotos] : [.localCompacta, .localExpandida],
                                              selection: $vm.settingDetent)
                 }
             }

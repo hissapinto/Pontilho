@@ -81,7 +81,12 @@ struct SearchView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
             
-            SearchPhoto(vm: eVm)
+            ///Toque nas fotos: ampliam/voltam (só com a sheet menor)
+            SearchPhoto(vm: eVm,
+                        isExpanded: vm.arePhotosExpanded,
+                        canExpand: vm.settingDetent == .compacta || vm.arePhotosExpanded) { extra in
+                vm.togglePhotosExpanded(extraHeight: extra, compact: .compacta, withPhotos: .compactaComFotos)
+            }
                 .padding(.top, 6)
                 .padding(.bottom, 15)
             
