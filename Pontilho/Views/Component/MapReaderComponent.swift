@@ -40,6 +40,8 @@ struct MapReaderComponent: View {
                 }
             }
         }
+        ///Sem controles padrão: localização, ✨ e bússola ficam na coluna do MapView
+        .mapControls { }
         .onMapCameraChange { context in
             
             vm.previousVisibleRegion = vm.visibleRegion

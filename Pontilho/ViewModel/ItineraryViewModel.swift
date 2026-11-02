@@ -30,14 +30,16 @@ struct ItineraryStop: Identifiable {
     let name: String
     /// Permanência sugerida no lugar, já formatada ("50 min", "1 h 30 min")
     let stayTime: String
-    let reason: String
     let isNew: Bool
     let category: String
+    /// Lista do Pontilho que combina com o lugar (cor do card); nil se nenhuma combina
+    let listType: LocalEnum?
     let coordinate: CLLocationCoordinate2D
 }
 
-/// Roteiro já validado, pronto para a UI
-struct ItineraryResult {
+/// Um bloco do resultado: "Sugestões para {coisa pedida}" com seus lugares
+struct SuggestionGroup: Identifiable {
+    let id = UUID()
     let title: String
     let stops: [ItineraryStop]
 }
@@ -55,8 +57,12 @@ final class ItineraryViewModel {
     // MARK: Saída
     /// Mensagem de progresso ("Vendo seu gosto…"); nil quando não está gerando
     private(set) var progress: String?
-    private(set) var itinerary: ItineraryResult?
-    private(set) var singlePlace: ItineraryStop?
+    /// Resultado: um grupo por coisa pedida (roteiro) ou um grupo só (sorte / uma coisa só)
+    private(set) var groups: [SuggestionGroup] = []
+    /// O que a pessoa pediu na última pesquisa ("Sugestões para …")
+    private(set) var submittedRequest: String = ""
+
+    var hasResult: Bool { !groups.isEmpty }
     private(set) var errorMessage: String?
     /// Itens do MapKit dos lugares novos (para "Salvar na lista" na etapa 6)
     private(set) var newItems: [String: MKMapItem] = [:]
@@ -69,6 +75,8 @@ final class ItineraryViewModel {
     private let searchService = LocalSearchService()
     /// Contexto da última tentativa (de onde sai o registro)
     private var lastContext: ItineraryContext?
+    /// Geração em andamento (cancelada se a sheet fechar)
+    private var generationTask: Task<Void, Never>?
 
     init() {
         refreshAvailability()
@@ -136,17 +144,72 @@ final class ItineraryViewModel {
         return Self.clearlyAsksForItinerary(text) ? .itinerary : .toDecide
     }
 
-    /// Ponto de entrada da UI: decide o fluxo e roda
-    func generate(places: [Local], location: CLLocationCoordinate2D?) async {
+    /// Ponto de entrada da UI: começa a gerar (a tarefa fica guardada para poder ser cancelada)
+    func startGenerating(places: [Local], location: CLLocationCoordinate2D?) {
+        guard !isGenerating else { return }
+        generationTask = Task { await generate(places: places, location: location) }
+    }
+
+    /// Sheet fechada: cancela o que estiver gerando e volta tudo ao estado inicial
+    /// MKMapItem de uma parada, para virar pin no mapa:
+    /// lugar novo já tem o item da busca; lugar salvo é buscado pelo id do Apple Maps
+    func mapItem(for stop: ItineraryStop) async -> MKMapItem? {
+        if let item = newItems[stop.id] { return item }
+        if let identifier = MKMapItem.Identifier(rawValue: stop.id),
+           let item = try? await MKMapItemRequest(mapItemIdentifier: identifier).mapItem {
+            return item
+        }
+        ///Último recurso: um item só com nome e coordenada
+        let location = CLLocation(latitude: stop.coordinate.latitude, longitude: stop.coordinate.longitude)
+        let item: MKMapItem
+        if #available(iOS 26, *) {
+            item = MKMapItem(location: location, address: nil)
+        } else {
+            item = MKMapItem(placemark: MKPlacemark(coordinate: stop.coordinate))
+        }
+        item.name = stop.name
+        return item
+    }
+
+    /// Todos os lugares do resultado (sem repetir), para "Ver no mapa"
+    func allMapItems() async -> [MKMapItem] {
+        var seen = Set<String>()
+        var items: [MKMapItem] = []
+        for stop in groups.flatMap(\.stops) where !seen.contains(stop.id) {
+            seen.insert(stop.id)
+            if let item = await mapItem(for: stop) { items.append(item) }
+        }
+        return items
+    }
+
+    func reset() {
+        generationTask?.cancel()
+        generationTask = nil
+        request = ""
+        clearResults()
+    }
+
+    private func clearResults() {
+        progress = nil
+        groups = []
+        submittedRequest = ""
+        errorMessage = nil
+        newItems = [:]
+        log = []
+        lastContext = nil
+    }
+
+    /// Decide o fluxo e roda
+    private func generate(places: [Local], location: CLLocationCoordinate2D?) async {
         guard !isGenerating else { return }
         errorMessage = nil
         guard canGenerate() else { return }
         guard #available(iOS 26, *) else { return }
 
-        itinerary = nil
-        singlePlace = nil
+        groups = []
         log = []
         let text = request.trimmingCharacters(in: .whitespacesAndNewlines)
+        submittedRequest = text
 
         let wantsItinerary: Bool
         let decision: String
@@ -169,6 +232,9 @@ final class ItineraryViewModel {
             await suggestPlace(request: text, places: places, location: location)
         }
         log.insert(decision, at: 0)
+
+        ///Se a sheet fechou no meio, descarta o que chegou depois
+        if Task.isCancelled { clearResults() }
     }
 
     /// Casos óbvios de roteiro, sem gastar uma chamada ao modelo
@@ -186,40 +252,46 @@ final class ItineraryViewModel {
         return response.content.kind == "roteiro"
     }
 
-    // MARK: - Fluxo 1: Montar roteiro (até 4 paradas)
+    // MARK: - Fluxo 1: Roteiro (um bloco de sugestões por coisa pedida)
+
+    /// Quantas coisas um roteiro pode ter, e quantas sugestões cada uma mostra
+    static let maxItineraryParts = 5
+    static let suggestionsPerGroup = 3
+    /// Quantas sugestões aparecem quando não é roteiro (sorte ou pedido de uma coisa só)
+    static let singleSearchCount = 5
 
     @available(iOS 26, *)
     private func buildItinerary(request: String, places: [Local], location: CLLocationCoordinate2D?) async {
-        progress = "Pensando no roteiro…"
+        progress = "Entendendo o roteiro…"
         defer { progress = nil }
-
-        let prompt = """
-        Pedido: \(request)
-        Agora são \(Self.currentTime()).
-        \(await locationDescription(location))
-        \(Self.noSavedPlacesNote(places))
-        """
 
         var responseLine: String?
         do {
-            let (response, context) = try await withOneRetry {
-                ///Sessão e contexto novos a cada tentativa (contexto limpo, contador de buscas zerado)
-                let context = self.makeContext(places: places, location: location)
-                let session = LanguageModelSession(
-                    tools: [SavedPlacesTool(context: context),
-                            SearchPlacesTool(context: context),
-                            TravelTimeTool(context: context)],
-                    instructions: Self.itineraryInstructions
-                )
-                let response = try await session.respond(to: prompt, generating: GeneratedItinerary.self).content
-                return (response, context)
+            ///1. O modelo só separa o pedido em partes ("restaurante", "cafeteria", "sorveteria")
+            var parts: [(term: String, area: String)] = try await withOneRetry {
+                let session = LanguageModelSession(instructions: Self.partsInstructions)
+                let response = try await session.respond(to: request, generating: GeneratedRequestParts.self).content
+                return response.parts.map { (term: $0.term, area: $0.area) }
             }
-            responseLine = "resposta → " + response.stops.map { "\($0.placeID) (\($0.name))" }.joined(separator: ", ")
+            ///Se o modelo não separou nada, o pedido inteiro vira uma parte só
+            if parts.isEmpty { parts = [(term: request, area: "")] }
+            parts = Array(parts.prefix(Self.maxItineraryParts))
+            responseLine = "partes → " + parts.map { $0.area.isEmpty ? $0.term : "\($0.term) (área: \($0.area))" }.joined(separator: ", ")
 
-            if let result = validate(response, context: context) {
-                itinerary = result
-            } else {
+            ///2. O código faz uma busca para cada parte, na ordem (perfil de gosto entra na pontuação)
+            let context = makeContext(places: places, location: location, request: request,
+                                      searchLimit: Self.maxItineraryParts)
+            for part in parts {
+                if Task.isCancelled { break }
+                _ = await context.searchPlaces(term: part.term, radius: 1000, area: part.area)
+            }
+
+            ///3. Cada busca vira um bloco "Sugestões para {termo}"
+            let result = makeGroups(context: context)
+            if result.isEmpty {
                 errorMessage = "Não encontrei lugares para esse pedido. Tente descrever de outro jeito."
+            } else {
+                groups = result
             }
         } catch {
             errorMessage = Self.message(for: error)
@@ -242,38 +314,44 @@ final class ItineraryViewModel {
         let prompt = """
         \(request.isEmpty ? "A pessoa não disse o que quer. Busque: \(term ?? "café")." : "Pedido: \(request)")
         Agora são \(Self.currentTime()).
-        \(await locationDescription(location))
-        \(Self.noSavedPlacesNote(places))
         """
 
         var responseLine: String?
         do {
             let (response, context) = try await withOneRetry {
-                ///Só duas tools: não há trajeto com um lugar só
-                ///isLuckyDraw: a busca devolve UM lugar sorteado entre os 5 melhores
-                let context = self.makeContext(places: places, location: location, isLuckyDraw: true,
+                ///Só duas tools: não há trajeto entre sugestões soltas
+                ///isLuckyDraw: a busca devolve 3 lugares sorteados entre os 5 melhores
+                let context = self.makeContext(places: places, location: location, request: request, isLuckyDraw: true,
                                                drawnList: list, drawnTerm: term)
                 let session = LanguageModelSession(
                     tools: [SavedPlacesTool(context: context),
                             SearchPlacesTool(context: context)],
-                    instructions: Self.singlePlaceInstructions
+                    instructions: Self.suggestionsInstructions
                 )
-                let response = try await session.respond(to: prompt, generating: GeneratedStop.self).content
+                let response = try await session.respond(to: prompt, generating: GeneratedSuggestions.self).content
                 return (response, context)
             }
-            responseLine = "resposta → \(response.placeID) (\(response.name))"
+            responseLine = "resposta → " + response.stops.map { "\($0.placeID) (\($0.name))" }.joined(separator: ", ")
 
-            ///Precisa ser um lugar novo que veio da busca
-            if let place = context.place(id: response.placeID, name: response.name), !place.isSaved {
-                singlePlace = stop(from: place, number: 1,
-                                   reason: context.trustedReason(response.reason, for: place))
-            } else if let place = context.shownPlaces.first(where: { !$0.isSaved }) {
-                ///O modelo errou o lugar, mas a busca achou algo: usa o melhor pontuado, com um motivo escrito pelo código
-                responseLine? += " → plano B: \(place.alias)"
-                singlePlace = stop(from: place, number: 1,
-                                   reason: ItineraryContext.fallbackReason(for: place))
+            ///Só lugares novos que vieram da busca, sem repetir
+            var result: [ItineraryStop] = []
+            for generated in response.stops {
+                guard let place = context.place(id: generated.placeID, name: generated.name), !place.isSaved,
+                      !result.contains(where: { $0.id == place.realID }) else { continue }
+                result.append(stop(from: place, number: result.count + 1))
+            }
+            ///O modelo deixou algum de fora: completa com os que a busca mostrou
+            for place in context.shownPlaces where !place.isSaved && result.count < Self.singleSearchCount {
+                guard !result.contains(where: { $0.id == place.realID }) else { continue }
+                responseLine? += " → completou com \(place.alias)"
+                result.append(stop(from: place, number: result.count + 1))
+            }
+
+            if result.isEmpty {
+                errorMessage = "Não achei lugares novos para isso. Tente outro pedido."
             } else {
-                errorMessage = "Não achei um lugar novo para isso. Tente outro pedido."
+                groups = [SuggestionGroup(title: request.isEmpty ? "Sugestões" : "Sugestões para “\(request)”",
+                                          stops: result)]
             }
         } catch {
             errorMessage = Self.message(for: error)
@@ -289,37 +367,33 @@ final class ItineraryViewModel {
     roteiro: a pessoa quer duas ou mais atividades em lugares diferentes, ou um passeio (ex.: museu e jantar, algo para a tarde toda).
     """
 
-    private static let itineraryInstructions = """
-    Você monta roteiros curtos de passeio para o app Pontilho.
-    Use só lugares que vieram das ferramentas e copie o id exatamente (ex.: L2).
-    Primeiro chame savedPlaces. Depois chame searchPlaces uma vez para cada coisa pedida; se a pessoa citar um bairro, coloque-o em area.
-    No term, coloque só o tipo de lugar, sem horário.
-    Faça uma parada para cada coisa pedida, preferindo lugares parecidos com o gosto da pessoa.
-    O motivo é uma frase curta e única para cada lugar: diga o que ele oferece, a partir do nome e da categoria. Não use frases prontas.
-    Só diga que lembra um lugar salvo se savedPlaces mostrou esse lugar, e use o nome exato dele.
-    Responda em português do Brasil.
+    private static let partsInstructions = """
+    Separe o pedido de passeio nas coisas que a pessoa quer visitar, na ordem em que ela pediu.
+    Em cada parte, coloque só o tipo de lugar, sem horário, e o bairro se ela citou um.
+    Ex.: "um café de manhã e depois um parque em Pinheiros" vira: café; parque (área: Pinheiros).
     """
 
-    private static let singlePlaceInstructions = """
-    Você sugere UM lugar novo para a pessoa conhecer, no app Pontilho.
+    private static let suggestionsInstructions = """
+    Você sugere lugares novos para a pessoa conhecer, no app Pontilho.
     Primeiro chame savedPlaces. Depois chame searchPlaces uma vez com o pedido; se a pessoa citar um bairro, coloque-o em area.
-    A busca devolve um lugar sorteado: sugira esse lugar, copiando o id exatamente (ex.: L3).
-    O motivo é uma frase curta e única: diga o que esse lugar oferece, a partir do nome e da categoria. Não use frases prontas.
-    Só diga que lembra um lugar salvo se savedPlaces mostrou esse lugar, e use o nome exato dele.
+    A busca devolve até 5 lugares: sugira todos, na mesma ordem, copiando os ids exatamente (ex.: L3).
     Responda em português do Brasil.
     """
 
     // MARK: - Auxiliares
 
     /// Contexto das tools, com o progresso ligado à UI
-    private func makeContext(places: [Local], location: CLLocationCoordinate2D?,
-                             isLuckyDraw: Bool = false, drawnList: LocalEnum? = nil, drawnTerm: String? = nil) -> ItineraryContext {
+    private func makeContext(places: [Local], location: CLLocationCoordinate2D?, request: String,
+                             isLuckyDraw: Bool = false, drawnList: LocalEnum? = nil, drawnTerm: String? = nil,
+                             searchLimit: Int? = nil) -> ItineraryContext {
         let context = ItineraryContext(places: places,
                                        location: location,
+                                       userRequest: request,
                                        searchService: searchService,
                                        isLuckyDraw: isLuckyDraw,
                                        drawnList: drawnList,
                                        drawnTerm: drawnTerm,
+                                       searchLimit: searchLimit,
                                        onProgress: { [weak self] text in self?.progress = text })
         lastContext = context
         return context
@@ -336,49 +410,35 @@ final class ItineraryViewModel {
         }
     }
 
-    /// Tira paradas inventadas ou repetidas, usa o nome real e recalcula se é novo
-    @available(iOS 26, *)
-    private func validate(_ generated: GeneratedItinerary, context: ItineraryContext) -> ItineraryResult? {
-        var stops: [ItineraryStop] = []
-        for generatedStop in generated.stops {
-            guard let place = context.place(id: generatedStop.placeID, name: generatedStop.name),
-                  !stops.contains(where: { $0.id == place.realID }) else { continue }
-            stops.append(stop(from: place, number: stops.count + 1,
-                              reason: context.trustedReason(generatedStop.reason, for: place)))
+    /// Uma busca por coisa pedida vira "Sugestões para {termo}" com os lugares mais bem pontuados dela
+    private func makeGroups(context: ItineraryContext) -> [SuggestionGroup] {
+        context.searchGroups.compactMap { searchGroup in
+            let places = searchGroup.aliases
+                .compactMap { alias in context.shownPlaces.first { $0.alias == alias } }
+                .prefix(Self.suggestionsPerGroup)
+            guard !places.isEmpty else { return nil }
+            let stops = places.enumerated().map { offset, place in
+                stop(from: place, number: offset + 1)
+            }
+            return SuggestionGroup(title: "Sugestões para \(searchGroup.term)", stops: stops)
         }
-        guard !stops.isEmpty else { return nil }
-        return ItineraryResult(title: generated.title, stops: stops)
     }
 
     /// Converte um lugar mostrado pelas tools em parada da UI ("novo" vem do código, não do modelo).
     /// A permanência vem da categoria (o modelo sempre escolhia o mínimo da faixa)
-    private func stop(from place: ItineraryContext.ShownPlace, number: Int, reason: String) -> ItineraryStop {
-        if !place.isSaved, let item = place.item {
+    private func stop(from place: ItineraryContext.ShownPlace, number: Int) -> ItineraryStop {
+        ///Guarda o item do MapKit para virar pin sem precisar buscar de novo
+        if let item = place.item {
             newItems[place.realID] = item
         }
         return ItineraryStop(id: place.realID,
                              number: number,
                              name: place.name,
                              stayTime: Self.text(minutes: ItineraryContext.stayMinutes(category: place.category)),
-                             reason: reason,
                              isNew: !place.isSaved,
                              category: place.category,
+                             listType: place.listType,
                              coordinate: place.coordinate)
-    }
-
-    /// Uma linha sobre onde a pessoa está (endereço curto do MapKit)
-    @available(iOS 26, *)
-    private func locationDescription(_ coordinate: CLLocationCoordinate2D?) async -> String {
-        guard let coordinate else {
-            return "A localização da pessoa é desconhecida."
-        }
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        if let geocoding = MKReverseGeocodingRequest(location: location),
-           let item = try? await geocoding.mapItems.first,
-           let address = item.address?.shortAddress {
-            return "A pessoa está perto de: \(address)."
-        }
-        return "A pessoa está na localização atual dela."
     }
 
     /// 50 → "50 min"; 90 → "1 h 30 min"; 120 → "2 h"
@@ -390,12 +450,6 @@ final class ItineraryViewModel {
         case (_, 0): return "\(hours) h"
         default: return "\(hours) h \(rest) min"
         }
-    }
-
-    /// Aviso no prompt quando não há nada salvo, para o modelo não inventar "lembra um lugar que você salvou"
-    private static func noSavedPlacesNote(_ places: [Local]) -> String {
-        let hasSavedPlaces = places.contains { !($0.identifier ?? "").isEmpty }
-        return hasSavedPlaces ? "" : "A pessoa ainda não tem lugares salvos: não cite nenhum."
     }
 
     private static func currentTime() -> String {

@@ -31,6 +31,8 @@ final class ItineraryContext {
         let category: String
         let coordinate: CLLocationCoordinate2D
         let isSaved: Bool
+        /// Lista do Pontilho do lugar (salvo: a lista dele; novo: a que combina com a categoria do MapKit)
+        let listType: LocalEnum?
         /// Item do MapKit (só para lugares novos)
         let item: MKMapItem?
     }
@@ -48,6 +50,14 @@ final class ItineraryContext {
     private(set) var shownPlaces: [ShownPlace] = []
     /// Chamadas das tools e o que elas devolveram (para depurar)
     private(set) var log: [String] = []
+
+    /// Cada busca feita, com o termo e os lugares que ela mostrou (na ordem da pontuação).
+    /// Vira um grupo "Sugestões para {termo}" na tela.
+    struct SearchGroup {
+        let term: String
+        let aliases: [String]
+    }
+    private(set) var searchGroups: [SearchGroup] = []
     private(set) var searchCount = 0
     let searchLimit: Int
     /// "Estou com sorte": a busca devolve UM lugar sorteado entre os 5 melhores
@@ -55,18 +65,23 @@ final class ItineraryContext {
     /// "Estou com sorte" vazio: lista e termo sorteados pelo código (o termo do modelo é ignorado)
     let drawnList: LocalEnum?
     let drawnTerm: String?
+    /// Texto que a pessoa digitou: um bairro só vale se aparecer aqui
+    let userRequest: String
 
     init(places: [Local],
          location: CLLocationCoordinate2D?,
+         userRequest: String = "",
          searchService: LocalSearchService,
          isLuckyDraw: Bool = false,
          drawnList: LocalEnum? = nil,
          drawnTerm: String? = nil,
+         searchLimit: Int? = nil,
          onProgress: @escaping (String) -> Void = { _ in }) {
         self.isLuckyDraw = isLuckyDraw
+        self.userRequest = userRequest
         self.drawnList = drawnList
         self.drawnTerm = drawnTerm
-        self.searchLimit = isLuckyDraw ? 1 : 3
+        self.searchLimit = searchLimit ?? (isLuckyDraw ? 1 : 3)
         self.savedPlaces = places.compactMap { local in
             guard let id = local.identifier, !id.isEmpty else { return nil }
             return SavedPlace(id: id,
@@ -94,34 +109,6 @@ final class ItineraryContext {
             ?? shownPlaces.first { Self.normalized($0.name).contains(cleanName) || cleanName.contains(Self.normalized($0.name)) }
     }
 
-    /// Confere o motivo escrito pelo modelo: se ele fala de um lugar salvo, o nome desse salvo
-    /// tem que ter vindo de savedPlaces. Se não veio (ou é um "Café X"), troca por um motivo do código.
-    func trustedReason(_ reason: String, for place: ShownPlace) -> String {
-        let text = Self.normalized(reason)
-        guard !text.isEmpty else { return Self.fallbackReason(for: place) }
-
-        ///"Café X", "Parque X": exemplo copiado
-        if reason.range(of: #"\bX\b"#, options: .regularExpression) != nil {
-            return Self.fallbackReason(for: place)
-        }
-        ///Fala de lugar salvo: precisa citar um salvo que a tool mostrou (e que não seja o próprio lugar)
-        if text.contains("salv") {
-            let citesRealSavedPlace = shownPlaces.contains { shown in
-                shown.isSaved && shown.realID != place.realID && text.contains(Self.normalized(shown.name))
-            }
-            if !citesRealSavedPlace { return Self.fallbackReason(for: place) }
-        }
-        return reason
-    }
-
-    /// Motivo escrito pelo código, quando o do modelo não é confiável
-    static func fallbackReason(for place: ShownPlace) -> String {
-        if place.isSaved { return "Um dos seus lugares salvos, no caminho." }
-        return place.category == "lugar"
-            ? "Um lugar novo perto de você."
-            : "Um lugar novo de \(place.category) perto de você."
-    }
-
     /// Categorias das listas, da mais frequente para a menos
     func favoriteCategories() -> [(type: LocalEnum, count: Int)] {
         var counts: [LocalEnum: Int] = [:]
@@ -143,6 +130,20 @@ final class ItineraryContext {
             return Double(counts[type, default: 0] + 1)
         }
         return Self.weightedDraw(lists, weights: weights) ?? .coffee
+    }
+
+    /// Sorteia `count` itens sem repetir; o item da posição i (na ordem recebida) pesa (total - i)
+    static func weightedSample<T>(_ items: [T], count: Int) -> [T] {
+        var remaining = Array(items.enumerated())
+        var drawn: [T] = []
+        while drawn.count < count, !remaining.isEmpty {
+            let weights = remaining.map { Double(items.count - $0.offset) }
+            guard let pick = weightedDraw(remaining, weights: weights),
+                  let index = remaining.firstIndex(where: { $0.offset == pick.offset }) else { break }
+            drawn.append(pick.element)
+            remaining.remove(at: index)
+        }
+        return drawn
     }
 
     /// Sorteio com peso: o item i tem chance proporcional a weights[i]
@@ -180,7 +181,7 @@ final class ItineraryContext {
         for (saved, dist) in nearest {
             let category = saved.type?.title ?? "lugar"
             let alias = show(realID: saved.id, name: saved.name, category: category,
-                             coordinate: saved.coordinate, isSaved: true, item: nil)
+                             coordinate: saved.coordinate, isSaved: true, listType: saved.type, item: nil)
             lines.append("\(alias) | \(saved.name) | \(category) | \(Self.text(distance: dist)) | salvo")
         }
         return record("savedPlaces()", lines.joined(separator: "\n"))
@@ -188,7 +189,7 @@ final class ItineraryContext {
 
     // MARK: - Tool 2: busca com região, filtro, pontuação e limite
 
-    /// Busca lugares novos, tira os que já estão nas listas, pontua e devolve os 5 melhores.
+    /// Busca lugares, pontua e devolve os 5 melhores (nas sugestões soltas, só os que não estão nas listas).
     /// `area`: bairro ou região citada pela pessoa; vazio (ou "aqui perto") usa a localização dela.
     func searchPlaces(term modelTerm: String, radius: Int, area: String = "") async -> String {
         let call = "searchPlaces(term: \(modelTerm), radius: \(radius), area: \(area))"
@@ -200,11 +201,11 @@ final class ItineraryContext {
         }
         searchCount += 1
 
-        let mentionedArea = Self.mentionedArea(area)
+        let mentionedArea = Self.mentionedArea(area, in: userRequest)
         if let mentionedArea {
-            onProgress("Buscando \(term.lowercased()) em \(mentionedArea)…")
+            onProgress("Buscando \(term.lowercased()) perto de \(mentionedArea)…")
         } else {
-            onProgress("Buscando \(term.lowercased())…")
+            onProgress("Buscando \(term.lowercased()) perto de você…")
         }
 
         ///Centro da busca: o bairro citado (se o MapKit achar) ou a pessoa
@@ -228,31 +229,43 @@ final class ItineraryContext {
 
         var candidates: [(id: String, item: MKMapItem, distance: Double, points: Double)] = []
         for item in items {
-            ///Filtro: só lugares novos (fora das listas) e dentro do raio
-            guard let id = item.identifier?.rawValue, !savedIDs.contains(id) else { continue }
+            guard let id = item.identifier?.rawValue else { continue }
+            ///Sugestões soltas: só lugares novos. Roteiro: os salvos também podem aparecer
+            if isLuckyDraw && savedIDs.contains(id) { continue }
+            ///Dentro do raio
             let dist = distance(from: center, to: Self.coordinate(of: item))
             guard dist <= radiusInMeters * 1.2 else { continue }
             candidates.append((id, item, dist, score(item, distance: dist, radius: radiusInMeters, favorites: favorites)))
         }
 
-        let best = candidates.sorted { $0.points > $1.points }.prefix(5)
+        ///Roteiro: 5 melhores (cada bloco mostra 3). Sugestões soltas: 8 melhores, para sortear 5
+        let best = candidates.sorted { $0.points > $1.points }.prefix(isLuckyDraw ? 8 : 5)
         guard !best.isEmpty else {
-            return record(call, "Nenhum lugar novo encontrado para \(term).")
+            return record(call, "Nenhum lugar encontrado para \(term).")
         }
 
-        ///Sorte: um só lugar, sorteado com peso 5, 4, 3, 2, 1 (o 1º tem 33% de chance, o 5º tem 7%)
+        ///Sugestões soltas: 5 lugares sorteados entre os 8 melhores, com mais peso para os primeiros
+        ///(os mais bem pontuados saem mais, mas a lista muda a cada pesquisa)
         var chosen = Array(best)
-        if isLuckyDraw, let drawn = Self.weightedDraw(chosen, weights: chosen.indices.map { Double(chosen.count - $0) }) {
-            chosen = [drawn]
+        if isLuckyDraw {
+            chosen = Self.weightedSample(chosen, count: ItineraryViewModel.singleSearchCount)
         }
 
-        let lines = chosen.map { candidate in
+        var lines: [String] = []
+        var aliases: [String] = []
+        for candidate in chosen {
             let name = candidate.item.name ?? "Sem nome"
             let category = Self.category(of: candidate.item)
+            ///Salvo: usa a lista dele; novo: a lista que combina com a categoria do MapKit
+            let saved = savedPlaces.first { $0.id == candidate.id }
             let alias = show(realID: candidate.id, name: name, category: category,
-                             coordinate: Self.coordinate(of: candidate.item), isSaved: false, item: candidate.item)
-            return "\(alias) | \(name) | \(category) | \(Self.text(distance: candidate.distance)) | novo"
+                             coordinate: Self.coordinate(of: candidate.item), isSaved: saved != nil,
+                             listType: saved?.type ?? LocalEnum(category: candidate.item.pointOfInterestCategory),
+                             item: candidate.item)
+            aliases.append(alias)
+            lines.append("\(alias) | \(name) | \(category) | \(Self.text(distance: candidate.distance)) | \(saved != nil ? "salvo" : "novo")")
         }
+        searchGroups.append(SearchGroup(term: term, aliases: aliases))
         return record(call, lines.joined(separator: "\n"))
     }
 
@@ -273,44 +286,17 @@ final class ItineraryContext {
         return points
     }
 
-    // MARK: - Tool 3: tempo de deslocamento
-
-    /// Minutos a pé entre dois lugares mostrados pelas tools (MKDirections; estimativa se a rota falhar)
-    @available(iOS 26, *)
-    func travelTime(from originID: String, to destinationID: String) async -> String {
-        onProgress("Calculando o trajeto…")
-        let call = "travelTime(\(originID) → \(destinationID))"
-        guard let origin = place(id: originID)?.coordinate else {
-            return record(call, "Id desconhecido: \(originID). Use ids como L1, vindos das ferramentas.")
-        }
-        guard let destination = place(id: destinationID)?.coordinate else {
-            return record(call, "Id desconhecido: \(destinationID). Use ids como L1, vindos das ferramentas.")
-        }
-
-        let request = MKDirections.Request()
-        request.source = MKMapItem(location: CLLocation(latitude: origin.latitude, longitude: origin.longitude), address: nil)
-        request.destination = MKMapItem(location: CLLocation(latitude: destination.latitude, longitude: destination.longitude), address: nil)
-        request.transportType = .walking
-
-        if let eta = try? await MKDirections(request: request).calculateETA() {
-            return record(call, "\(max(1, Int((eta.expectedTravelTime / 60).rounded()))) min a pé")
-        }
-        ///Sem rota: estimativa pela distância em linha reta (~80 m por minuto)
-        let meters = distance(from: origin, to: destination)
-        return record(call, "cerca de \(max(1, Int(meters / 80))) min a pé (estimativa)")
-    }
-
     // MARK: - Auxiliares
 
     /// Guarda o lugar com um apelido curto (reaproveita se ele já foi mostrado)
-    private func show(realID: String, name: String, category: String,
-                      coordinate: CLLocationCoordinate2D, isSaved: Bool, item: MKMapItem?) -> String {
+    private func show(realID: String, name: String, category: String, coordinate: CLLocationCoordinate2D,
+                      isSaved: Bool, listType: LocalEnum?, item: MKMapItem?) -> String {
         if let existing = shownPlaces.first(where: { $0.realID == realID }) {
             return existing.alias
         }
         let alias = "L\(shownPlaces.count + 1)"
         shownPlaces.append(ShownPlace(alias: alias, realID: realID, name: name, category: category,
-                                      coordinate: coordinate, isSaved: isSaved, item: item))
+                                      coordinate: coordinate, isSaved: isSaved, listType: listType, item: item))
         return alias
     }
 
@@ -325,11 +311,14 @@ final class ItineraryContext {
             .distance(from: CLLocation(latitude: b.latitude, longitude: b.longitude))
     }
 
-    /// Região citada pela pessoa, ou nil se for vazia ou só "aqui perto"
-    private static func mentionedArea(_ area: String) -> String? {
+    /// Região citada pela pessoa, ou nil se for vazia, só "aqui perto"
+    /// ou se não estiver no que ela digitou (o modelo às vezes inventa ou copia de outro lugar)
+    private static func mentionedArea(_ area: String, in request: String) -> String? {
         let text = area.trimmingCharacters(in: .whitespacesAndNewlines)
         let generic = ["", "aqui", "aqui perto", "perto", "perto de mim", "próximo", "proximo", "por perto", "ao redor"]
-        return generic.contains(text.lowercased()) ? nil : text
+        guard !generic.contains(text.lowercased()) else { return nil }
+        guard normalized(request).contains(normalized(text)) else { return nil }
+        return text
     }
 
     /// Tira horários do termo ("café de manhã" → "café"); se sobrar nada, mantém o original

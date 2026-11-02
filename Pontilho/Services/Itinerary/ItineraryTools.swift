@@ -50,25 +50,4 @@ struct SearchPlacesTool: Tool {
     }
 }
 
-/// Tool 3: minutos a pé entre dois lugares (MKDirections)
-@available(iOS 26, *)
-struct TravelTimeTool: Tool {
-    let name = "travelTime"
-    let description = "Minutos a pé entre dois lugares, usando os ids das outras ferramentas."
-
-    @Generable
-    struct Arguments {
-        @Guide(description: "Id do lugar de saída")
-        let originID: String
-
-        @Guide(description: "Id do lugar de chegada")
-        let destinationID: String
-    }
-
-    let context: ItineraryContext
-
-    func call(arguments: Arguments) async throws -> String {
-        await context.travelTime(from: arguments.originID, to: arguments.destinationID)
-    }
-}
 #endif

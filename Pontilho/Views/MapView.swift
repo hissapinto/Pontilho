@@ -16,9 +16,11 @@ struct MapView: View {
     
     /// Escopo do mapa: deixa os controles (localização, bússola) ficarem fora do Map, numa coluna nossa
     @Namespace private var mapNamespace
-    /// Roteiro do dia: disponibilidade do modelo e a sheet (por enquanto, a tela de teste)
+    /// Roteiro do dia: disponibilidade do modelo e a sheet da Pesquisa inteligente
     @State private var itineraryVm = ItineraryViewModel()
     @State private var showItinerary = false
+    /// Fechou a sheet para mostrar um lugar no mapa: guarda o resultado para quando ela abrir de novo
+    @State private var keepItineraryResults = false
     
     var body: some View {
         NavigationStack {
@@ -98,9 +100,34 @@ struct MapView: View {
                                              selection: $vm.settingDetent)
                 }
             }
-            .sheet(isPresented: $showItinerary) {
-                ItineraryTestView(vm: itineraryVm)
-                    .presentationDetents([.medium, .large])
+            ///Ao fechar, a Pesquisa inteligente volta ao estado inicial (menos quando fechou para mostrar um pin)
+            .sheet(isPresented: $showItinerary, onDismiss: {
+                if keepItineraryResults {
+                    keepItineraryResults = false
+                } else {
+                    itineraryVm.reset()
+                }
+            }) {
+                ///A própria SmartSearchView define a altura (cabe no formulário; cresce com resultado)
+                SmartSearchView(vm: itineraryVm, location: vm.userLocation ?? CLLocationManager().location?.coordinate,
+                                onSelectStop: { stop in
+                    ///Toque num card: a sheet desce e o lugar aparece como pin de busca
+                    Task {
+                        guard let item = await itineraryVm.mapItem(for: stop) else { return }
+                        keepItineraryResults = true
+                        showItinerary = false
+                        vm.showSmartSearchPlaces([item])
+                    }
+                }, onShowAll: {
+                    ///"Ver no mapa": a sheet desce e todas as sugestões aparecem como pins de busca
+                    Task {
+                        let items = await itineraryVm.allMapItems()
+                        guard !items.isEmpty else { return }
+                        keepItineraryResults = true
+                        showItinerary = false
+                        vm.showSmartSearchPlaces(items)
+                    }
+                })
             }
             ListasTitleEScrollView(vm: vm)
             if vm.isSearchLocallyVisible {

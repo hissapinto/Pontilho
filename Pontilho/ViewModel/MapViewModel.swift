@@ -106,6 +106,30 @@ class MapViewModel {
         }
     }
     
+    ///Pesquisa inteligente: mostra os lugares como pins de busca e ajusta o mapa a eles.
+    ///Tocar num pin abre a mesma sheet dos resultados de busca.
+    func showSmartSearchPlaces(_ items: [MKMapItem]) {
+        guard let first = items.first else { return }
+        searchResults = items
+        lastSearchDate = Date() //movimento da câmera é do app, não da pessoa
+        hasSearchedAtLeastOnce = true
+        withAnimation(.easeInOut) {
+            if items.count == 1 {
+                ///Um lugar: aproxima nele
+                let coordinate: CLLocationCoordinate2D
+                if #available(iOS 26, *) {
+                    coordinate = first.location.coordinate
+                } else {
+                    coordinate = first.placemark.coordinate
+                }
+                position = .region(MKCoordinateRegion(center: coordinate, latitudinalMeters: 800, longitudinalMeters: 800))
+            } else {
+                ///Vários: enquadra todos os pins
+                position = .automatic
+            }
+        }
+    }
+    
     ///Resetar pesquisa
     func resetSearch() {
         searchResults = []
