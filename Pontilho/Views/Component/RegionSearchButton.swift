@@ -17,6 +17,7 @@ struct RegionSearchButton: View {
                     .font(.caption).bold()
                     .pillBackground()
             }
+            .accessibilityHint("Refaz a busca na região que aparece no mapa")
             Spacer()
         }
     }

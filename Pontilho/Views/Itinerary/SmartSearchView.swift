@@ -8,7 +8,7 @@
 import SwiftUI
 import MapKit
 
-/// Sheet da "Pesquisa inteligente" (Roteiro do dia): um campo só e um botão que muda
+/// Sheet da "Pesquisa inteligente": um campo só e um botão que muda
 /// conforme o pedido (buscar, montar roteiro ou tentar a sorte).
 struct SmartSearchView: View {
     @Environment(CDViewModel.self) private var cdViewModel
@@ -72,6 +72,7 @@ struct SmartSearchView: View {
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture { isFieldFocused = false }
+                    .accessibilityHidden(true)
             }
             ///"Limpar pesquisa" fixo no pé da sheet, mesmo com a lista rolando
             .safeAreaInset(edge: .bottom) {
@@ -95,6 +96,14 @@ struct SmartSearchView: View {
             withAnimation(.snappy) {
                 detent = hasResult ? .expandida : fittedDetent
             }
+            if hasResult { announce(resultsAnnouncement) }
+        }
+        ///VoiceOver: quem não vê a tela fica sabendo do progresso e dos erros
+        .onChange(of: vm.progress) {
+            if let progress = vm.progress { announce(progress) }
+        }
+        .onChange(of: vm.errorMessage) {
+            if let error = vm.errorMessage { announce(error) }
         }
     }
 
@@ -127,6 +136,7 @@ struct SmartSearchView: View {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture { isFieldFocused = false }
+                .accessibilityHidden(true)
         }
     }
 
@@ -135,6 +145,7 @@ struct SmartSearchView: View {
         VStack(alignment: .leading) {
             Text("Pesquisa inteligente")
                 .font(.system(.title, design: .serif, weight: .heavy))
+                .accessibilityAddTraits(.isHeader)
                 .padding(.leading, generalPadding)
 
             Text("Powered by Apple Intelligence")
@@ -197,6 +208,25 @@ struct SmartSearchView: View {
         }
     }
 
+    // MARK: - VoiceOver
+
+    /// Fala um aviso pelo VoiceOver (não faz nada se ele estiver desligado)
+    private func announce(_ message: String) {
+        AccessibilityNotification.Announcement(message).post()
+    }
+
+    /// Ex.: "6 sugestões encontradas, em 2 blocos"
+    private var resultsAnnouncement: String {
+        let count = vm.groups.reduce(0) { $0 + $1.stops.count }
+        let found = count == 1 ? "1 sugestão encontrada" : "\(count) sugestões encontradas"
+        return vm.groups.count > 1 ? "\(found), em \(vm.groups.count) blocos" : found
+    }
+
+    /// Leitura do card: "Nome. Categoria. Permanência sugerida: 50 min"
+    private func spokenDescription(of stop: ItineraryStop) -> String {
+        [stop.name, stop.category, "Permanência sugerida: \(stop.stayTime)"].joined(separator: ". ")
+    }
+
     // MARK: - Campo
 
     /// Campo no estilo das fotos: contorno pretinho, cantos arredondados e fundo transparente.
@@ -241,6 +271,8 @@ struct SmartSearchView: View {
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }
+            ///VoiceOver lê o progresso como uma frase só
+            .accessibilityElement(children: .combine)
             .frame(minHeight: 50)
             .padding([.leading, .trailing], generalPadding)
         } else {
@@ -260,6 +292,7 @@ struct SmartSearchView: View {
             }
             .buttonStyle(.plain)
             .disabled(vm.availability != .available)
+            .accessibilityHint(buttonHint)
             .animation(.snappy, value: vm.expectedMode)
             ///Troca de cor a cada 2 s, com transição suave (parado se "Reduzir movimento" estiver ligado)
             .task {
@@ -290,7 +323,16 @@ struct SmartSearchView: View {
         }
     }
 
-    // MARK: - Resultado (provisório: na etapa 6 ele vai para o mapa)
+    /// O que o botão faz, para o VoiceOver (o título sozinho não explica)
+    private var buttonHint: String {
+        switch vm.expectedMode {
+        case .lucky: return "Campo vazio: sorteia lugares com base nas suas listas"
+        case .itinerary: return "Sugere lugares para cada parte do pedido"
+        case .toDecide: return "Sugere lugares perto de você"
+        }
+    }
+
+    // MARK: - Resultado
 
     @ViewBuilder
     private var results: some View {
@@ -305,6 +347,8 @@ struct SmartSearchView: View {
             ///Mesmo tamanho do texto explicativo do formulário
             Text(group.title)
                 .font(.footnote)
+                ///Cada bloco vira um cabeçalho: no rotor, dá para pular de bloco em bloco
+                .accessibilityAddTraits(.isHeader)
                 .padding([.leading, .trailing], generalPadding)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -319,7 +363,8 @@ struct SmartSearchView: View {
                         card(stop)
                     }
                     .buttonStyle(CardPressStyle())
-                    .accessibilityHint("Mostra o lugar no mapa")
+                    .accessibilityLabel(spokenDescription(of: stop))
+                    .accessibilityHint("Fecha a pesquisa e mostra o lugar no mapa")
                 }
             }
             .padding([.leading, .trailing], generalPadding)
@@ -362,6 +407,7 @@ struct SmartSearchView: View {
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
+        .accessibilityHint("Fecha a pesquisa e mostra todas as sugestões no mapa")
     }
 
     /// Limpa a pesquisa e volta para o campo (fechar a sheet também limpa)
@@ -373,6 +419,7 @@ struct SmartSearchView: View {
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
+        .accessibilityHint("Apaga as sugestões e volta para o campo de pesquisa")
     }
 
     /// Card de cada resultado: fundo na cor da lista que combina com o lugar,

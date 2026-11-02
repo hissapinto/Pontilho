@@ -8,7 +8,7 @@
 import Foundation
 import MapKit
 
-/// Estado e lógica compartilhados pelas tools do "Roteiro do dia" (dados só do MapKit/Core Data).
+/// Estado e lógica compartilhados pelas tools da "Pesquisa inteligente" (dados só do MapKit/Core Data).
 /// As tools devolvem poucas linhas: o modelo no aparelho tem contexto pequeno.
 @MainActor
 final class ItineraryContext {

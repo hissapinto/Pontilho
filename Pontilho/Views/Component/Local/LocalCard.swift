@@ -36,6 +36,7 @@ struct LocalCard: View {
                 .stroke(Color.pretinho, lineWidth: 1))
         .scaledToFit()
         .frame(width: UIScreen.main.bounds.width * 0.72)
+        .accessibilityElement(children: .combine)
     }
 }
 

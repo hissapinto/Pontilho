@@ -20,6 +20,8 @@ struct ListaButton: View {
                 .frame(width: 42, height: 42)
                 .padding(12)
                 .glassEffect(.regular.tint(Color(localType.color)), in: Circle())
+                ///VoiceOver: o nome da lista, não o nome do desenho
+                .accessibilityLabel("Lista \(localType.title)")
         } else {
             Image(localType.image)
                 .resizable()
@@ -31,6 +33,7 @@ struct ListaButton: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .shadow(color: .gray, radius: 1.5)
+                .accessibilityLabel("Lista \(localType.title)")
         }
     }
     

@@ -23,6 +23,13 @@ struct LocalToastOverlay: View {
             }
         }
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    ///VoiceOver: o toast some em 2 s, então o aviso também é falado
+    .onChange(of: vm.didLocalWasCreated) {
+        if vm.didLocalWasCreated {
+            let list = vm.lastSavedType.map { " em \($0.title)" } ?? ""
+            AccessibilityNotification.Announcement("Lugar salvo\(list)").post()
+        }
+    }
     }
 }
 

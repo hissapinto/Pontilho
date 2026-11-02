@@ -37,6 +37,10 @@ struct ListaTitle: View {
                     .italic()
                     .foregroundStyle(.pretinho)
             }
+            ///VoiceOver: um cabeçalho só, sem o retângulo de fundo
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Lista \(LocalEnum(rawValue: localType)?.title ?? "")")
+            .accessibilityAddTraits(.isHeader)
         }
     }
 }

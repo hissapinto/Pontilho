@@ -16,7 +16,7 @@ struct MapView: View {
     
     /// Escopo do mapa: deixa os controles (localização, bússola) ficarem fora do Map, numa coluna nossa
     @Namespace private var mapNamespace
-    /// Roteiro do dia: disponibilidade do modelo e a sheet da Pesquisa inteligente
+    /// Pesquisa inteligente: disponibilidade do modelo e a sheet da Pesquisa inteligente
     @State private var itineraryVm = ItineraryViewModel()
     @State private var showItinerary = false
     /// Fechou a sheet para mostrar um lugar no mapa: guarda o resultado para quando ela abrir de novo
@@ -28,6 +28,7 @@ struct MapView: View {
                 content(vm: vm)
             } else {
                 ProgressView()
+                    .accessibilityLabel("Carregando o mapa")
                     .task {
                         if vm == nil {
                             vm = MapViewModel(cdViewModel: cdViewModel)
@@ -44,12 +45,18 @@ struct MapView: View {
             MapReader { proxy in
                 MapReaderComponent(vm: vm, scope: mapNamespace)
             }
-            ///UI: controles numa coluna própria, com o botão do Roteiro logo abaixo do de localização
+            ///UI: controles numa coluna própria, com o botão da Pesquisa inteligente logo abaixo do de localização
             .overlay(alignment: .topTrailing) {
                 MapControlsColumn(scope: mapNamespace,
-                                  showsItineraryButton: itineraryVm.availability != .hidden) {
-                    showItinerary = true
-                }
+                                  showsItineraryButton: itineraryVm.availability != .hidden,
+                                  showsClearButton: vm.isShowingSmartSearchPlaces,
+                                  openItinerary: { showItinerary = true },
+                                  clearSmartSearch: {
+                    ///Botão "x": os pins somem, a pesquisa volta ao começo e o próprio botão some
+                    vm.clearSmartSearchPlaces()
+                    itineraryVm.reset()
+                    AccessibilityNotification.Announcement("Pesquisa limpa").post()
+                })
                 .padding(.top, 8)
                 .padding(.trailing, 8)
             }
@@ -158,6 +165,8 @@ struct MapView: View {
                         .italic()
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
+                        ///VoiceOver: título da tela (aparece no rotor de cabeçalhos)
+                        .accessibilityAddTraits(.isHeader)
                 }
             }
         }

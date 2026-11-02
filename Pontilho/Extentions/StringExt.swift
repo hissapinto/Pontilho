@@ -40,4 +40,9 @@ extension Float {
     var asRating: String {
         return "★ " + String(format: "%.2f", self)
     }
+
+    /// Nota para o VoiceOver: "Nota 4,5 de 5" (vírgula ou ponto conforme o idioma do aparelho)
+    var asSpokenRating: String {
+        "Nota \(self.formatted(.number.precision(.fractionLength(1)))) de 5"
+    }
 }

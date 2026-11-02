@@ -12,7 +12,7 @@ import MapKit
 import FoundationModels
 #endif
 
-/// Disponibilidade do "Roteiro do dia" (tipo comum, usável também no iOS 18)
+/// Disponibilidade da "Pesquisa inteligente" (tipo comum, usável também no iOS 18)
 enum ItineraryAvailability: Equatable {
     /// Modelo pronto: mostra a funcionalidade
     case available
@@ -103,11 +103,11 @@ final class ItineraryViewModel {
             case .deviceNotEligible:
                 return .hidden
             case .appleIntelligenceNotEnabled:
-                return .unavailable(reason: "Para usar o Roteiro do dia, ative a Apple Intelligence em Ajustes › Apple Intelligence e Siri.")
+                return .unavailable(reason: "Para usar a Pesquisa inteligente, ative a Apple Intelligence em Ajustes › Apple Intelligence e Siri.")
             case .modelNotReady:
                 return .unavailable(reason: "A Apple Intelligence ainda está se preparando neste aparelho. Tente de novo em alguns minutos.")
             @unknown default:
-                return .unavailable(reason: "O Roteiro do dia não está disponível agora. Tente de novo mais tarde.")
+                return .unavailable(reason: "A Pesquisa inteligente não está disponível agora. Tente de novo mais tarde.")
             }
         }
     }
@@ -150,7 +150,6 @@ final class ItineraryViewModel {
         generationTask = Task { await generate(places: places, location: location) }
     }
 
-    /// Sheet fechada: cancela o que estiver gerando e volta tudo ao estado inicial
     /// MKMapItem de uma parada, para virar pin no mapa:
     /// lugar novo já tem o item da busca; lugar salvo é buscado pelo id do Apple Maps
     func mapItem(for stop: ItineraryStop) async -> MKMapItem? {
@@ -182,6 +181,7 @@ final class ItineraryViewModel {
         return items
     }
 
+    /// Sheet fechada ou "Limpar pesquisa": cancela o que estiver gerando e volta tudo ao estado inicial
     func reset() {
         generationTask?.cancel()
         generationTask = nil
@@ -468,7 +468,7 @@ final class ItineraryViewModel {
         case .guardrailViolation:
             return "Não posso ajudar com esse pedido. Tente descrever o passeio de outro jeito."
         case .unsupportedLanguageOrLocale:
-            return "O Roteiro do dia ainda não entende esse idioma. Tente escrever em português."
+            return "A Pesquisa inteligente ainda não entende esse idioma. Tente escrever em português."
         case .exceededContextWindowSize:
             return "O pedido ficou longo demais. Tente algo mais curto."
         default:

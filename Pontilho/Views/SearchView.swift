@@ -26,6 +26,7 @@ struct SearchView: View {
                 content(eVm: eVm, vm: vm, local: local, generalPadding: generalPadding)
             } else {
                 ProgressView()
+                    .accessibilityLabel("Carregando o lugar")
                     .task {
                         if eVm == nil {
                             eVm = SearchViewModel(repository: rep)
@@ -56,6 +57,7 @@ struct SearchView: View {
         VStack(alignment: .leading){
             Text(local.nameUnwrapped)
                 .font(.system(.title, design: .serif, weight: .heavy))
+                .accessibilityAddTraits(.isHeader)
                 .padding(.leading, generalPadding)
             
             HStack {
@@ -68,6 +70,9 @@ struct SearchView: View {
                 
                 Text(eVm.placeInfo?.rating?.asRating ?? "")
                     .font(.footnote)
+                    ///VoiceOver: "Nota 4,5 de 5" em vez de "estrela 4.50"
+                    .accessibilityLabel(eVm.placeInfo?.rating?.asSpokenRating ?? "")
+                    .accessibilityHidden(eVm.placeInfo?.rating == nil)
                     .padding(.trailing, generalPadding)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -99,6 +104,7 @@ struct SearchView: View {
                             .padding([.leading], generalPadding)
                             .padding(.bottom, 4)
                             .fontWeight(.heavy)
+                            .accessibilityAddTraits(.isHeader)
                         
                         ForEach(hours, id: \.self) { h in
                             let t = h.splitString
@@ -115,6 +121,8 @@ struct SearchView: View {
                                         .padding(.trailing, generalPadding)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
+                                ///Dia e horário lidos juntos
+                                .accessibilityElement(children: .combine)
                                 
                             } else {
                                 Text(h)
@@ -138,6 +146,7 @@ struct SearchView: View {
             
             Text("Salvar em uma lista: ")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
                 .padding(.leading, generalPadding)
             
             ScrollView(.horizontal) {

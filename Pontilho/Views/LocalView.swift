@@ -43,6 +43,7 @@ struct LocalView: View {
 
             Text(vm.selectedLocation?.name ?? "Sem nome")
                 .font(.system(.title, design: .serif, weight: .heavy))
+                .accessibilityAddTraits(.isHeader)
                 .padding(.leading, generalPadding)
 
             HStack {
@@ -55,6 +56,9 @@ struct LocalView: View {
 
                 Text(placeVm.placeInfo?.rating?.asRating ?? "")
                     .font(.footnote)
+                    ///VoiceOver: "Nota 4,5 de 5" em vez de "estrela 4.50"
+                    .accessibilityLabel(placeVm.placeInfo?.rating?.asSpokenRating ?? "")
+                    .accessibilityHidden(placeVm.placeInfo?.rating == nil)
                     .padding(.trailing, generalPadding)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -86,6 +90,7 @@ struct LocalView: View {
                             .padding([.leading], generalPadding)
                             .padding(.bottom, 4)
                             .fontWeight(.heavy)
+                            .accessibilityAddTraits(.isHeader)
 
                         ForEach(hours, id: \.self) { h in
                             let t = h.splitString
@@ -102,6 +107,8 @@ struct LocalView: View {
                                         .padding(.trailing, generalPadding)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
+                                ///Dia e horário lidos juntos
+                                .accessibilityElement(children: .combine)
 
                             } else {
                                 Text(h)

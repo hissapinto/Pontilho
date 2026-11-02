@@ -32,6 +32,7 @@ struct LocalToast: View {
                 Text("Novo lugar salvo!")
                     .foregroundColor(.pretinho)
             }.font(.headline)
+            .accessibilityElement(children: .combine)
         }
         .transition(.move(edge: .top).combined(with: .opacity))
         .zIndex(1)

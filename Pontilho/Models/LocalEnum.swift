@@ -80,7 +80,7 @@ enum LocalEnum: String, CaseIterable {
         }
     }
     
-    // MARK: - MapKit (Roteiro do dia)
+    // MARK: - MapKit (Pesquisa inteligente)
 
     /// Lista do Pontilho que mais combina com a categoria do MapKit (para comparar com o gosto)
     init?(category: MKPointOfInterestCategory?) {

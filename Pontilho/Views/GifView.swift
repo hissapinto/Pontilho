@@ -15,6 +15,8 @@ struct GifView: View {
             VStack{
                 GifImage("GifLoading")
                     .frame(width: 205, height: 205)
+                    ///Animação decorativa: o VoiceOver pula
+                    .accessibilityHidden(true)
                 Text("Pontilho")
                     .font(.system(.largeTitle, design: .serif, weight: .heavy))
                     .padding(.top, 20)

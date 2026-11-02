@@ -19,6 +19,9 @@ struct ListasScrollView: View {
                     } label: {
                         ListaButton(localType: type)
                     }
+                    ///VoiceOver: diz se a lista está à mostra e o que o toque faz
+                    .accessibilityAddTraits(isShowing(type) ? .isSelected : [])
+                    .accessibilityHint(isShowing(type) ? "Esconde os lugares desta lista do mapa" : "Mostra no mapa os lugares salvos nesta lista")
                 }
             }
         }
@@ -26,6 +29,11 @@ struct ListasScrollView: View {
         .scrollClipDisabled()
         .padding(.leading, 10)
         .padding(.bottom, 10)
+    }
+
+    /// Lista que está com os pontos à mostra no mapa
+    private func isShowing(_ type: LocalEnum) -> Bool {
+        vm.showPins && vm.typeFilter == type.rawValue
     }
 }
 

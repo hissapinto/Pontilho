@@ -37,6 +37,8 @@ struct SearchPhoto: View {
                     Text("Carregando")
                         .font(.caption)
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Carregando fotos")
                 RoundedRectangle(cornerRadius: 13)
                     .stroke(.pretinho, lineWidth: 1)
                     .foregroundStyle(.branquinho)
@@ -74,6 +76,7 @@ struct SearchPhoto: View {
                                         }
                                         .accessibilityAddTraits(canExpand ? .isButton : [])
                                         .accessibilityHint(canExpand ? (isExpanded ? "Volta as fotos ao tamanho padrão" : "Mostra as fotos inteiras") : "")
+                                        .accessibilityLabel(photoLabel(photo))
 
                                     ///Créditos da foto
                                     PhotoCreditText(credits: photo.credits)
@@ -106,6 +109,8 @@ struct SearchPhoto: View {
                             Text("Sem imagem")
                                 .font(.caption)
                         }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Sem fotos deste lugar")
                         RoundedRectangle(cornerRadius: 13)
                             .stroke(.pretinho, lineWidth: 1)
                             .foregroundStyle(.branquinho)
@@ -118,6 +123,12 @@ struct SearchPhoto: View {
                 .padding(.leading, 20)
             }
         }
+    }
+
+    /// Nome da foto no VoiceOver: "Foto 1 de 5"
+    private func photoLabel(_ photo: PlacePhoto) -> String {
+        let index = (vm.placesPhotos.firstIndex { $0.id == photo.id } ?? 0) + 1
+        return "Foto \(index) de \(vm.placesPhotos.count)"
     }
 
     ///Padrão: largura da página x 170 (recortada). Ampliada: foto inteira na proporção original.

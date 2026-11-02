@@ -20,12 +20,13 @@ struct MapReaderComponent: View {
                     if vm.typeFilter == item.type {
                         Annotation(item.name ?? "", coordinate: CLLocationCoordinate2D(latitude: item.latitude, longitude: item.longitude)) {
                             LocalPoint(localType: vm.typeFilter)
-                                .onTapGesture{
-                                    vm.settingDetent = .localCompacta
-                                    vm.ifselectedLocation = true
-                                    vm.selectedLocation = item
-                                    vm.localToDeleteName = item.name!
-                                }
+                                .onTapGesture { openSaved(item) }
+                                ///VoiceOver: o ponto vira um botão com o nome do lugar
+                                .accessibilityElement(children: .ignore)
+                                .accessibilityLabel(item.name ?? "Lugar salvo")
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityHint("Abre o lugar salvo")
+                                .accessibilityAction { openSaved(item) }
                         }
                     }
                 }
@@ -33,10 +34,12 @@ struct MapReaderComponent: View {
             ForEach(vm.searchResults, id: \.self) { item in
                 Annotation(item: item) {
                     SearchPoint()
-                        .onTapGesture {
-                            vm.placeItem = item
-                            vm.showSheet.toggle()
-                        }
+                        .onTapGesture { openSearchResult(item) }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(item.name ?? "Resultado da busca")
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityHint("Abre os detalhes do lugar")
+                        .accessibilityAction { openSearchResult(item) }
                 }
             }
         }
@@ -72,6 +75,20 @@ struct MapReaderComponent: View {
                 }
             }
         }
+    }
+
+    /// Toque num ponto de lista: abre a sheet do lugar salvo
+    private func openSaved(_ item: Local) {
+        vm.settingDetent = .localCompacta
+        vm.ifselectedLocation = true
+        vm.selectedLocation = item
+        vm.localToDeleteName = item.name ?? ""
+    }
+
+    /// Toque num pin de busca: abre a sheet do resultado
+    private func openSearchResult(_ item: MKMapItem) {
+        vm.placeItem = item
+        vm.showSheet.toggle()
     }
 }
 

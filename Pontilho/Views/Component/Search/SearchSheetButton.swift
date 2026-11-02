@@ -35,6 +35,8 @@ struct SearchSheetButton: View {
         } label: {
             ListaButton(localType: localType)
         }
+        .accessibilityLabel("Salvar em \(localType.title)")
+        .accessibilityHint("Salva este lugar na lista")
     }
     
 }

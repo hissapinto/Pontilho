@@ -19,6 +19,7 @@ struct LocalButtons: View {
             LocalActionButton(title: "Abrir no Mapas",
                               systemImage: "map",
                               tint: .azulzinho,
+                              hint: "Abre o lugar no app Mapas",
                               isExpanded: isExpanded) {
                 vm.openInMapsCustom()
             }
@@ -28,6 +29,7 @@ struct LocalButtons: View {
                               systemImage: "trash",
                               tint: .laranjinha,
                               role: .destructive,
+                              hint: "Pede confirmação antes de apagar o lugar da lista",
                               isExpanded: isExpanded) {
                 vm.ifIsAboutToDelete = true
             }
@@ -43,6 +45,8 @@ private struct LocalActionButton: View {
     let systemImage: String
     let tint: Color
     var role: ButtonRole? = nil
+    /// O que o botão faz, lido pelo VoiceOver
+    var hint: String = ""
     let isExpanded: Bool
     let action: () -> Void
 
@@ -59,6 +63,7 @@ private struct LocalActionButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title)
+        .accessibilityHint(hint)
     }
 
     private var label: some View {
