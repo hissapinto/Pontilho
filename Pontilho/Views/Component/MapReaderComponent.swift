@@ -10,9 +10,11 @@ import MapKit
 
 struct MapReaderComponent: View {
     @Bindable var vm: MapViewModel
+    /// Escopo do MapView, para os controles que ficam fora do mapa
+    var scope: Namespace.ID? = nil
     
     var body: some View {
-        Map(position: $vm.position, selection: $vm.mapSelection) {
+        Map(position: $vm.position, selection: $vm.mapSelection, scope: scope) {
             if vm.showPins {
                 ForEach(vm.cdViewModel.locais) { item in
                     if vm.typeFilter == item.type {

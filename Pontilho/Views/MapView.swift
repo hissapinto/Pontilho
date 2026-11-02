@@ -14,6 +14,12 @@ struct MapView: View {
     @Environment(CDViewModel.self) private var cdViewModel
     @State private var vm: MapViewModel?
     
+    /// Escopo do mapa: deixa os controles (localização, bússola) ficarem fora do Map, numa coluna nossa
+    @Namespace private var mapNamespace
+    /// Roteiro do dia: disponibilidade do modelo e a sheet (por enquanto, a tela de teste)
+    @State private var itineraryVm = ItineraryViewModel()
+    @State private var showItinerary = false
+    
     var body: some View {
         NavigationStack {
             if let vm {
@@ -34,12 +40,16 @@ struct MapView: View {
         @Bindable var vm = vm
         ZStack {
             MapReader { proxy in
-                MapReaderComponent(vm: vm)
+                MapReaderComponent(vm: vm, scope: mapNamespace)
             }
-            ///UI
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
+            ///UI: controles numa coluna própria, com o botão do Roteiro logo abaixo do de localização
+            .overlay(alignment: .topTrailing) {
+                MapControlsColumn(scope: mapNamespace,
+                                  showsItineraryButton: itineraryVm.availability != .hidden) {
+                    showItinerary = true
+                }
+                .padding(.top, 8)
+                .padding(.trailing, 8)
             }
             .tint(.pretinho)
             
@@ -88,6 +98,10 @@ struct MapView: View {
                                              selection: $vm.settingDetent)
                 }
             }
+            .sheet(isPresented: $showItinerary) {
+                ItineraryTestView(vm: itineraryVm)
+                    .presentationDetents([.medium, .large])
+            }
             ListasTitleEScrollView(vm: vm)
             if vm.isSearchLocallyVisible {
                 RegionSearchButton(
@@ -99,6 +113,8 @@ struct MapView: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        .mapScope(mapNamespace)
+        .onAppear { itineraryVm.refreshAvailability() }
         .animation(.easeInOut(duration: 2.0), value: vm.isSearchLocallyVisible)
         .overlay(LocalToastOverlay(vm: vm))
         .navigationTitle("")
