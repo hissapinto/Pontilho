@@ -141,6 +141,10 @@ struct MapView: View {
             }
         }
         .mapScope(mapNamespace)
+        ///Limpou a Pesquisa inteligente (botão, sheet fechada ou nova pesquisa): os pins dela somem
+        .onChange(of: itineraryVm.hasResult) {
+            if !itineraryVm.hasResult { vm.clearSmartSearchPlaces() }
+        }
         .onAppear { itineraryVm.refreshAvailability() }
         .animation(.easeInOut(duration: 2.0), value: vm.isSearchLocallyVisible)
         .overlay(LocalToastOverlay(vm: vm))

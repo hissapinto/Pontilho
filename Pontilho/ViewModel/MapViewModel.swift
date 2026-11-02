@@ -73,6 +73,7 @@ class MapViewModel {
     ///Public busca locais usando a localização do usuário como centro
     func peformSearchOnUserLocation(for query: String) async {
         searchResults = await search(for: query, in: userLocation)
+        isShowingSmartSearchPlaces = false //agora os pins são da busca por texto
         lastSearchDate = Date()
         hasSearchedAtLeastOnce = true
         position = .automatic //posiciona o mapa para mostrar todos os pins
@@ -83,6 +84,7 @@ class MapViewModel {
         guard let screenCenter = visibleRegion?.center else { return }
         
         searchResults = await search(for: query, in: screenCenter)
+        isShowingSmartSearchPlaces = false //agora os pins são da busca por texto
         lastSearchDate = Date()
         //position = .automatic
     }
@@ -111,6 +113,7 @@ class MapViewModel {
     func showSmartSearchPlaces(_ items: [MKMapItem]) {
         guard let first = items.first else { return }
         searchResults = items
+        isShowingSmartSearchPlaces = true
         lastSearchDate = Date() //movimento da câmera é do app, não da pessoa
         hasSearchedAtLeastOnce = true
         withAnimation(.easeInOut) {
@@ -128,6 +131,16 @@ class MapViewModel {
                 position = .automatic
             }
         }
+    }
+    
+    ///Os pins na tela vieram da Pesquisa inteligente? (para limpar só eles, não uma busca por texto)
+    private(set) var isShowingSmartSearchPlaces = false
+
+    ///Pesquisa inteligente limpa (ou nova pesquisa começando): tira os pins que ela colocou
+    func clearSmartSearchPlaces() {
+        guard isShowingSmartSearchPlaces else { return }
+        searchResults = []
+        isShowingSmartSearchPlaces = false
     }
     
     ///Resetar pesquisa
