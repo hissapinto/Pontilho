@@ -1,161 +1,219 @@
+<div align="center">
+
+<img src="Pontilho/Assets.xcassets/AppIcon.appiconset/App%20icon4.jpg" width="130" alt="Pontilho app icon" style="border-radius: 28px;"/>
+
 # Pontilho
 
-**Um app iOS para salvar os lugares que você quer conhecer e descobrir novos com uma pesquisa inteligente que roda no próprio iPhone.**
+### Save the places you want to go. Discover new ones with on-device AI. 📍
 
-## Sobre o projeto
+Pontilho is a native iOS app for saving places on a map in themed lists, so the café a friend
+recommended or the museum you saw online never gets lost in screenshots again. Its **Smart
+Search** uses Apple Intelligence, running entirely on the iPhone, to turn a request like
+*"a coffee and then a park"* into real places nearby.
 
-O Pontilho nasceu de um problema simples: a gente descobre lugares legais o tempo todo (um café indicado por um amigo, um museu visto no Instagram), mas eles se perdem em prints e anotações. No Pontilho, você salva cada lugar no mapa, numa de cinco listas (Cafés, Restaurantes, Cultural, Ar livre e Noitada), e encontra tudo quando estiver por perto.
+<br/>
 
-O app também tem a **Pesquisa inteligente**: você descreve o que quer fazer ("um café de manhã e depois um parque") e o app sugere lugares reais perto de você, usando o modelo de linguagem da **Apple Intelligence**, que roda **no próprio aparelho**, e o seu gosto (as listas em que você mais salva).
+[![Download on the App Store](https://img.shields.io/badge/Download_on_the-App_Store-0D96F6?style=for-the-badge&logo=apple&logoColor=white)](https://apps.apple.com/br/app/pontilho/id6749077911)
+[![Platform](https://img.shields.io/badge/iOS-18.5+-000000?style=for-the-badge&logo=apple&logoColor=white)](https://www.apple.com/ios/)
+[![Swift](https://img.shields.io/badge/Swift-5-FA7343?style=for-the-badge&logo=swift&logoColor=white)](https://swift.org)
+[![SwiftUI](https://img.shields.io/badge/SwiftUI-0052CC?style=for-the-badge&logo=swift&logoColor=white)](https://developer.apple.com/xcode/swiftui/)
+[![MapKit](https://img.shields.io/badge/MapKit-34C759?style=for-the-badge&logo=apple&logoColor=white)](https://developer.apple.com/documentation/mapkit)
+[![Apple Intelligence](https://img.shields.io/badge/Apple_Intelligence-000000?style=for-the-badge&logo=apple&logoColor=white)](https://developer.apple.com/documentation/foundationmodels)
 
-Desenvolvi o Pontilho do zero, passando por concepção, design, desenvolvimento, publicação na App Store e evolução contínua. O projeto aprofunda SwiftUI, arquitetura MVVM, integração com APIs e concorrência em Swift, e explora **engenharia de IA aplicada**: tool calling, geração estruturada e um design híbrido entre modelo e código.
+</div>
 
-## Funcionalidades
+---
 
-- Salvar lugares no mapa em cinco listas, cada uma com cor e desenho próprios.
-- Buscar lugares por texto, na sua região ou na área visível do mapa.
-- Ver fotos, nota e horários de funcionamento de cada lugar (Google Places).
-- Abrir o lugar no app Mapas da Apple para ver a rota.
-- Receber lembretes locais para visitar os lugares salvos.
-- **Pesquisa inteligente**, com três modos que o app escolhe a partir do pedido:
-  - **Buscar**: "comida japonesa em Pinheiros" → 5 sugestões novas.
-  - **Montar roteiro**: "museu, almoço e um bar" → 3 sugestões para cada parte do pedido.
-  - **Tentar a sorte**: campo vazio → o app sorteia um tipo de lugar pelo seu gosto e sugere opções.
-- Os resultados aparecem em cards e viram pins no mapa com um toque.
+## 📑 Table of Contents
 
-## Pesquisa inteligente: a engenharia de IA
+- [About](#-about)
+- [Screenshots](#-screenshots)
+- [Features](#-features)
+- [How Smart Search Works](#-how-smart-search-works)
+- [Tech Stack](#️-tech-stack)
+- [Architecture](#️-architecture)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Author](#-author)
 
-A feature usa o framework **Foundation Models** (iOS 26), que dá acesso ao modelo de linguagem da Apple Intelligence direto no aparelho. Sem servidor e sem custo por chamada, e o pedido da pessoa não sai do iPhone.
+---
 
-### Design híbrido: o modelo entende, o código decide
+## 📖 About
 
-Um modelo pequeno, rodando no aparelho, é ótimo com linguagem e fraco com fatos: inventa nomes, erra identificadores longos, para no meio de tarefas com muitas etapas. Por isso a responsabilidade foi dividida:
+We find interesting places all the time: a café a friend recommended, a museum from a post, a
+restaurant someone mentioned. Most of them end up lost in screenshots and notes. **Pontilho**
+(from *pontilhar*, "to dot") gives each of them a dot on the map.
 
-| O modelo faz | O código faz |
-| --- | --- |
-| Classificar pedidos ambíguos (lugar ou roteiro) | Detectar roteiros óbvios por regra (vírgula, "depois", "roteiro"…) |
-| Dividir um roteiro em partes ("museu", "almoço", "bar") | Buscar lugares reais no MapKit para cada parte |
-| Conduzir as ferramentas no modo de sugestões | Pontuar resultados, sortear com pesos e validar tudo o que o modelo devolve |
-| | Calcular a permanência sugerida por categoria |
+You save places into five themed lists (**Cafés, Restaurants, Culture, Outdoors and Nightlife**),
+tap a list to see its places on the map, and open any of them for photos, rating and opening
+hours, or for directions in Apple Maps.
 
-### Pipeline
+When you don't know where to go, **Smart Search** helps. Describe what you feel like doing and
+Pontilho suggests real places nearby, ranked by the kinds of places you save the most. The
+language model runs **on the device**, so your request, location and lists never leave your iPhone.
+
+Pontilho is **live on the App Store**: [download it here](https://apps.apple.com/br/app/pontilho/id6749077911).
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+<img src="Screenshots/smart-search.jpg" width="30%" alt="Smart Search suggesting cafés and parks"/>
+<img src="Screenshots/lists.jpg" width="30%" alt="Map with a saved place and the five lists"/>
+<img src="Screenshots/place-details.jpg" width="30%" alt="Place details with photo, rating and opening hours"/>
+
+</div>
+
+---
+
+## 🚀 Features
+
+- **🗂️ Themed lists**: save places to Cafés, Restaurants, Culture, Outdoors or Nightlife; tap a list to show its places on the map.
+- **🔎 Place search**: search by text around you or in any area of the map, with a "search this area" shortcut when you move it.
+- **🖼️ Place details**: photos, rating and opening hours fetched live from Google Places, with the required attribution.
+- **🧭 Directions**: open any saved place in Apple Maps.
+- **🔔 Reminders**: local notifications nudge you to visit the places you saved.
+- **✨ Smart Search (Apple Intelligence)**: one text field, three modes picked from your request:
+  - **Search**: *"japanese food in Pinheiros"* → 5 new places.
+  - **Itinerary**: *"a museum, lunch and a bar"* → 3 suggestions for each part of the request.
+  - **Feeling lucky**: leave it empty and Pontilho draws a kind of place from your taste.
+- **📍 Straight to the map**: tap a suggestion, or *See on map*, and the results become pins; one tap clears them.
+- **♿ Accessible**: full VoiceOver support (labels, headings for the rotor, spoken progress and results) and Reduce Motion.
+- **💧 Liquid Glass**: native iOS 26 design, with a matching fallback on iOS 18.
+
+---
+
+## ✨ How Smart Search Works
+
+A small language model running on a phone is great with language and weak with facts: it can
+invent names, mistype long identifiers or stop halfway through a multi-step task. So Pontilho
+splits the work:
+
+| The model does | The code does |
+|----------------|---------------|
+| Classify ambiguous requests (one place or an itinerary) | Detect obvious itineraries with rules (commas, "then", "itinerary"…) |
+| Split an itinerary into parts ("museum", "lunch", "bar") | Search real places in MapKit for each part |
+| Drive the tools in suggestion mode | Score results, weighted random draws, validate everything the model returns |
+| | Compute the suggested time to spend at each place |
 
 ```mermaid
 flowchart TD
-    A[Botão ✨ no mapa] --> B[SmartSearchView: campo único]
+    A[✨ button on the map] --> B[SmartSearchView]
     B --> C[ItineraryViewModel.generate]
-    C --> D{Roteiro?<br/>regra ou modelo}
-    D -- sim --> E[Modelo divide o pedido<br/>GeneratedRequestParts]
-    E --> F[Código busca cada parte]
-    D -- não --> G[LanguageModelSession<br/>com tools savedPlaces e searchPlaces]
-    G --> H[GeneratedSuggestions<br/>validação e complemento até 5]
-    F --> I[ItineraryContext + LocalSearchService<br/>MapKit, nota, sorteio, apelidos]
+    C --> D{Itinerary?<br/>rule or model}
+    D -- yes --> E[Model splits the request<br/>GeneratedRequestParts]
+    E --> F[Code searches each part]
+    D -- no --> G[LanguageModelSession<br/>tools: savedPlaces, searchPlaces]
+    G --> H[GeneratedSuggestions<br/>validated, filled up to 5]
+    F --> I[ItineraryContext + LocalSearchService<br/>MapKit · scoring · aliases]
     H --> I
-    I --> J[Cards na sheet]
-    J --> K[Pins no mapa]
+    I --> J[Cards in the sheet]
+    J --> K[Pins on the map]
 ```
 
-### Técnicas usadas
+Techniques used:
 
-- **Tool calling**: o modelo chama ferramentas Swift (`Tool`) para ler o perfil de gosto da pessoa (`savedPlaces`) e buscar lugares reais no MapKit (`searchPlaces`). O loop agente → ferramenta → agente acontece dentro do `respond` da sessão.
-- **Geração estruturada (guided generation)**: as respostas vêm como tipos Swift marcados com `@Generable`, com restrições em `@Guide` (`.anyOf`, `.maximumCount`, `.range`). Assim não há parsing de texto livre.
-- **Contra alucinação**:
-  - Os lugares recebem apelidos curtos (`L1`, `L2`…) em vez de IDs longos, e só é aceito o apelido que a ferramenta realmente mostrou.
-  - O campo de área só vale se aparecer no pedido da pessoa.
-  - Os campos de texto livre gerados pelo modelo foram removidos: cada campo a menos é uma chance a menos de inventar.
-- **Robustez**:
-  - Uma nova tentativa quando a geração falha.
-  - Tratamento de `exceededContextWindowSize`, `guardrailViolation` e `unsupportedLanguageOrLocale`.
-  - Uma busca por categoria como plano B.
-  - O código completa as sugestões quando o modelo devolve menos que o esperado.
-- **Personalização sem dados na nuvem**: as listas mais usadas aumentam a nota dos lugares parecidos, e o modo "sorte" faz um sorteio ponderado entre os melhores resultados, com variedade sem perder qualidade.
-- **Disponibilidade**: o app checa `SystemLanguageModel.default.availability`. Em aparelhos sem Apple Intelligence o botão nem aparece. Com ela desligada ou baixando, a sheet explica o motivo. O app continua funcionando no iOS 18 sem a feature.
+- **Tool calling**: the model calls Swift `Tool`s to read the user's taste profile (`savedPlaces`) and search real places in MapKit (`searchPlaces`). The agent → tool → agent loop runs inside the session's `respond`.
+- **Structured generation**: answers come back as `@Generable` Swift types constrained with `@Guide` (`.anyOf`, `.maximumCount`, `.range`), so there is no free-text parsing.
+- **Hallucination guards**:
+  - Places get short aliases (`L1`, `L2`…) instead of long IDs, and only aliases a tool actually returned are accepted.
+  - An area name counts only if it appears in the user's request.
+  - Free-text fields generated by the model were removed: every field the model doesn't write is one it can't make up.
+- **Robustness**: one retry on failure; handling of `exceededContextWindowSize`, `guardrailViolation` and `unsupportedLanguageOrLocale`; a category search as plan B; and code fills the list when the model returns too few results.
+- **Availability**: the app checks `SystemLanguageModel.default.availability`. On devices without Apple Intelligence the ✨ button is hidden; when it's off or still downloading, the sheet explains why. Everything else works on iOS 18.
 
-## Arquitetura
+---
 
-O projeto segue **MVVM** com SwiftUI e `@Observable`:
+## 🛠️ Tech Stack
+
+| Area | Tech |
+|------|------|
+| UI | SwiftUI · Liquid Glass · custom `TextRenderer` animations |
+| On-device AI | Foundation Models (Apple Intelligence): `LanguageModelSession`, `Tool`, `@Generable`, `@Guide` |
+| Maps & places | MapKit (`MKLocalSearch`, points of interest, `mapScope`) · Google Places SDK (`GooglePlacesSwift`) |
+| Persistence | Core Data (saved places stay on the device) |
+| Concurrency | async/await · `@MainActor` view models · cancellable `Task` and `.task(id:)` |
+| System integrations | CoreLocation · UserNotifications · Apple Maps |
+| Accessibility | VoiceOver · accessibility announcements · Reduce Motion |
+| Architecture | MVVM with `@Observable` · protocol-based repository |
+
+---
+
+## 🏛️ Architecture
+
+- **Views** only draw the screen and forward actions; they don't know where data comes from.
+- **ViewModels** (`@Observable`, `@MainActor`) hold screen state and coordinate services.
+- **Services and repositories** talk to the outside world: MapKit, Google Places, Core Data and the language model. `SearchRepository` implements `SearchRepositoryProtocol`, so view models depend on a protocol rather than on the Google SDK.
+
+Smart Search was built almost entirely in new files and plugs into the existing app at a few
+points: it reuses the search pins (`MapViewModel.searchResults`), the place details sheet and the
+lists defined in `LocalEnum`.
+
+**Concurrency**: searches, network calls and model generation use async/await. Smart Search runs
+in a `Task` owned by its view model, so closing the sheet or clearing the search cancels it, and
+the place sheets use `.task(id:)`, so switching places cancels the previous photo request.
+MapKit results are cached for 5 minutes to avoid repeated requests.
+
+---
+
+## 📂 Project Structure
 
 ```
 Pontilho/
-├── Models/          Core Data, LocalEnum (listas ↔ categorias do MapKit), tipos @Generable
-├── ViewModel/       MapViewModel, SearchViewModel, CDViewModel, ItineraryViewModel
-├── Services/        LocalSearchService (MapKit), PlacesAPI (Google), ImageStorage
-│   └── Itinerary/   ItineraryContext (busca, nota, sorteio) e ItineraryTools (tools do modelo)
-├── Repositories/    SearchRepository (camada de acesso ao Google Places)
-├── Views/           Telas e componentes (mapa, sheets, listas, Pesquisa inteligente)
-└── Extentions/      Extensões utilitárias
+├── Models/            # Core Data model, LocalEnum (lists ↔ MapKit categories), @Generable types
+├── ViewModel/         # MapViewModel, SearchViewModel, CDViewModel, ItineraryViewModel
+├── Services/          # LocalSearchService (MapKit), PlacesAPI (Google), ImageStorage
+│   └── Itinerary/     # ItineraryContext (search, scoring, draws) and ItineraryTools (model tools)
+├── Repositories/      # SearchRepository + protocol (Google Places access)
+├── Views/             # Map, place sheets, lists and components
+│   └── Itinerary/     # Smart Search sheet and map controls
+└── Extentions/        # Helpers (MKMapItem, detents, strings)
+Screenshots/           # Images used in this README
 ```
 
-- **Views** só desenham e repassam ações; não sabem de onde vêm os dados.
-- **ViewModels** (`@Observable`, `@MainActor`) guardam o estado da tela e coordenam serviços.
-- **Services e Repositories** falam com o mundo externo (MapKit, Google Places, Core Data, modelo de linguagem). O `SearchRepository` implementa o `SearchRepositoryProtocol`, então o ViewModel depende de um protocolo e não do SDK do Google, o que facilita trocar a implementação ou criar uma versão falsa para testes.
+---
 
-A Pesquisa inteligente foi construída quase toda em arquivos novos e se conecta ao código antigo em poucos pontos: ela reaproveita os pins de busca já existentes (`MapViewModel.searchResults`), a mesma sheet de detalhes do lugar e as listas do `LocalEnum`.
+## 🎯 Getting Started
 
-## Integração com APIs
+### Requirements
 
-- **Google Places API (GooglePlacesSwift)**: ao abrir um lugar, o app busca fotos, nota e horários em tempo real. Esses dados não são salvos (exigência dos termos do Google) e aparecem com a atribuição "Google Maps" e os créditos de cada foto. A chave fica num `Secrets.xcconfig` fora do repositório e chega ao app pelo `Info.plist`.
-- **MapKit**: `MKLocalSearch` para busca por texto, `MKLocalPointsOfInterestRequest` para busca por categoria (plano B da Pesquisa inteligente) e `MKMapItemRequest` para recuperar um lugar salvo pelo identificador do Apple Maps. As buscas da Pesquisa inteligente filtram categorias que não são de lazer (bancos, postos, hospitais…).
-- **Cache**: resultados de busca ficam guardados por 5 minutos, para não repetir a mesma requisição durante uma pesquisa.
+- Xcode 26+
+- iOS 18.5+
+- iOS 26 and an Apple Intelligence–capable device for Smart Search
+- A Google Places API key
 
-## Concorrência
+### Run
 
-O app usa o modelo de concorrência moderno do Swift:
+```bash
+git clone https://github.com/hissapinto/Pontilho.git
+cd Pontilho
+```
 
-- **async/await** em tudo que espera algo de fora: buscas no MapKit, chamadas ao Google Places e a geração do modelo de linguagem. O código fica linear, sem callbacks aninhados.
-- **@MainActor** nos ViewModels e no contexto da Pesquisa inteligente: o estado que a interface lê só muda na thread principal, o que evita condições de corrida na UI.
-- **Tarefas canceláveis**:
-  - A geração da Pesquisa inteligente roda numa `Task` guardada pelo ViewModel. Fechar a sheet ou limpar a pesquisa chama `cancel()`, e nada continua rodando à toa.
-  - As sheets de lugar usam `.task(id:)`: trocar de lugar cancela a busca de fotos anterior e começa a nova automaticamente.
-- **Animações sem bloquear**: a troca de cor do botão é um loop `async` com `Task.sleep`, e a ola das letras usa `TimelineView` e um `TextRenderer` próprio.
+Create `Pontilho/Secrets.xcconfig` (it's in `.gitignore`) with your key:
 
-## Tecnologias
+```
+GOOGLE_PLACES_API_KEY = your_key_here
+```
 
-- **Swift e SwiftUI**: interface declarativa, `@Observable`, sheets com alturas personalizadas e Liquid Glass (iOS 26) com alternativa no iOS 18.
-- **Foundation Models**: modelo de linguagem on-device da Apple Intelligence, com `LanguageModelSession`, `Tool`, `@Generable` e `@Guide`.
-- **MapKit**: mapa, `MKLocalSearch`, filtros de categorias de pontos de interesse e controles de mapa fora do `Map` com `mapScope`.
-- **Core Data**: persistência local dos lugares salvos.
-- **Google Places SDK (GooglePlacesSwift)**: fotos, notas e horários, com a atribuição exigida.
-- **CoreLocation** e **UserNotifications**: localização em uso e lembretes locais.
-- **Acessibilidade**: VoiceOver em todas as telas, com rótulos, cabeçalhos para o rotor, avisos falados de progresso e resultado, e respeito a "Reduzir movimento".
+Then open `Pontilho.xcodeproj`, set your own **Signing Team**, and run. To try Smart Search in the
+simulator, use a Mac with Apple Intelligence turned on and set a location in
+**Features › Location**.
 
-## Privacidade
+---
 
-- Os lugares salvos ficam só no aparelho.
-- A Pesquisa inteligente roda no iPhone. O pedido, a localização e as listas não são enviados a servidores do Pontilho.
-- As buscas de lugares passam pelo Apple Maps e pelo Google Places, de acordo com as políticas de cada um.
+## 👩‍💻 Author
 
-## Como rodar
+Built at the **Apple Developer Academy | Mackenzie**.
 
-**Requisitos:**
-- Xcode 26.
-- iOS 18.5 ou superior. A Pesquisa inteligente pede iOS 26 e um aparelho compatível com Apple Intelligence.
-- Uma chave da Google Places API.
-
-**Passos:**
-1. Clone o repositório.
-2. Crie o arquivo `Pontilho/Secrets.xcconfig` (ele está no `.gitignore`) com a linha:
-   ```
-   GOOGLE_PLACES_API_KEY = sua_chave_aqui
-   ```
-3. Abra o `Pontilho.xcodeproj` e rode no simulador ou num iPhone.
-
-Para testar a Pesquisa inteligente no simulador, use um Mac com Apple Intelligence ativada e defina uma localização em Features › Location.
-
-## O que aprendi
-
-- **Divida o trabalho conforme a força de cada parte.** Modelos pequenos são bons com linguagem; buscas, contas e validações ficam melhores em código.
-- **Quanto menos o modelo escreve, menos ele inventa.** Saídas estruturadas e enxutas são mais confiáveis que texto livre.
-- **Valide tudo o que vem do modelo** antes de mostrar para a pessoa, e tenha sempre um plano B.
-- **Use regras antes de IA quando elas resolvem.** Fica mais rápido, mais barato e mais previsível.
-- **A disponibilidade do modelo faz parte da interface.** O app precisa funcionar bem com e sem IA.
-
-## Capturas de tela
-
-<img width="828" height="1792" alt="IMG_1382" src="https://github.com/user-attachments/assets/a272b376-b18d-49dd-afc9-02613b2b5715" />
-<img width="828" height="1792" alt="IMG_1385" src="https://github.com/user-attachments/assets/5241a68d-a3ad-4a1d-a1d6-50d3ab96f27d" />
-<img width="828" height="1792" alt="IMG_1386" src="https://github.com/user-attachments/assets/f3385f3a-33f0-4b02-8ac8-e7bb08f9d055" />
-
-## Créditos
-
-Desenvolvido por Isabela Hissa Pinto: https://github.com/hissapinto
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/hissapinto"><img src="https://github.com/hissapinto.png" width="80" alt="Isabela Hissa"/></a>
+      <br/><sub><b>Isabela Hissa</b></sub><br/>
+      <a href="https://github.com/hissapinto"><img src="https://skillicons.dev/icons?i=github" alt="GitHub"/></a>
+      <a href="https://www.linkedin.com/in/hissapinto/"><img src="https://skillicons.dev/icons?i=linkedin" alt="LinkedIn"/></a>
+    </td>
+  </tr>
+</table>
